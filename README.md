@@ -1,9 +1,9 @@
 # Study Buddy
-
+---
 A smart web application for managing, searching and sharing academic documents.
 
 ## Overview
-
+---
 Study Buddy is a web application that enables students to upload, manage, and search their academic documents using three powerful methods:
 
 - **Manual Browsing** - Traditional folder/category navigation
@@ -13,7 +13,7 @@ Study Buddy is a web application that enables students to upload, manage, and se
 These methods can be combined for optimal results (e.g., "Search for 'recursion' only in Algorithm course materials").
 
 ## Features
-
+---
 ### Must have
 
 1. **Document Upload** - Support for PDF, DOCX, TXT, MD, and more
@@ -30,7 +30,7 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 4. **Pinboard / Favorites** - Pin important documents for quick access
 
 ## Tech Stack
-
+---
 ### Frontend
 - **Next.js** - React framework for production
 - **Shadcn UI** - Modern, accessible UI component library
@@ -46,11 +46,10 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 
 ### DevOps
 - **Docker** - Containerization for all services
-- **Docker Compose** - Multi-container orchestration
 - **Nginx** - Reverse proxy and web server
 
 ## Contributors
-
+---
 - Hassan Erfani
 - Alexander Gherman
 - Andreas Baldauf
