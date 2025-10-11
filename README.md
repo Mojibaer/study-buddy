@@ -11,7 +11,7 @@
 
 ## Project
 
-Study Buddy is a web-based platform that enables students to upload, manage, and search their academic documents using three powerful methods:
+Study Buddy is a web application that enables students to upload, manage, and search their academic documents using three powerful methods:
 
 **Manual Browsing** - Traditional folder/category navigation
 
@@ -23,13 +23,14 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 
 ## Features
 
-* ### Must-have
+### Must-have
     1. Manual Browsing - Traditional folder/category navigation
     2. Semantic Search - AI-powered content search with ChromaDB
     3. Combined Search - Semantic search + metadata filters with realtime search (autocomplete)
     4. Document Upload - PDF, DOCX, TXT, MD, etc.
+    5. File sharing via Whatsapp and email
 
-* ### Nice to Have
+### Nice to Have
     1. Authentication system for user login
     2. User Management
     3. Document Preview - View documents directly in browser
