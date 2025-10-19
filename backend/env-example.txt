@@ -1,0 +1,2 @@
+DATABASE_URL=postgresql://studybuddy:studybuddy123@localhost:5432/studybuddy
+UPLOAD_DIR=./uploads
