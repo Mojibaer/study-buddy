@@ -1,6 +1,8 @@
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Calendar, Tag } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { FileText, Calendar, Tag, ExternalLink } from 'lucide-react'
 
 export function SearchResults({ results }) {
   if (!results) return null
@@ -58,16 +60,14 @@ function ResultCard({ result }) {
           </div>
         </div>
       </CardHeader>
+
       <CardContent className="space-y-3">
-        {/* Snippet */}
         <div className="text-sm bg-muted p-3 rounded-md">
           <p className="line-clamp-3">{result.snippet}</p>
         </div>
 
-        {/* Metadata */}
         <DocumentMetadata document={document} />
 
-        {/* Tags */}
         {document.tags && document.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {document.tags.map((tag, i) => (
@@ -77,6 +77,13 @@ function ResultCard({ result }) {
             ))}
           </div>
         )}
+
+        <Link href={`/documents/${document.id}`}>
+          <Button variant="outline" className="w-full mt-2">
+            Details anzeigen
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   )
