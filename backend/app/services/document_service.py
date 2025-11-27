@@ -1,13 +1,10 @@
-import os
-
-def extract_text_from_file(file_path: str, file_ext: str) -> str:
+def extract_text_from_bytes(file_content: bytes, file_ext: str) -> str:
     """
-    Extract text from different file types
+    Extract text from different file types (from bytes)
     """
     try:
-        if file_ext == ".txt" or file_ext == ".md":
-            with open(file_path, "r", encoding="utf-8") as f:
-                return f.read()
+        if file_ext in [".txt", ".md"]:
+            return file_content.decode("utf-8")
 
         elif file_ext == ".pdf":
             # TODO: Implement PDF extraction (PyPDF2 or pdfplumber)
