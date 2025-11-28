@@ -12,7 +12,6 @@ class ChromaService:
         )
 
     def add_document(self, doc_id: str, text: str, metadata: dict):
-        """Dokument zu ChromaDB hinzufügen"""
         self.collection.add(
             documents=[text],
             metadatas=[metadata],
@@ -20,13 +19,18 @@ class ChromaService:
         )
 
     def search(self, query: str, n_results: int = 10, filter_dict: dict = None):
-        """Semantische Suche"""
         results = self.collection.query(
             query_texts=[query],
             n_results=n_results,
             where=filter_dict
         )
         return results
+
+    def delete_document(self, doc_id: str):
+        try:
+            self.collection.delete(ids=[doc_id])
+        except Exception as e:
+            print(f"Error deleting from ChromaDB: {e}")
 
 # Singleton instance
 chroma_service = ChromaService()

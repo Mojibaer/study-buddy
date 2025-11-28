@@ -2,19 +2,18 @@ from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
-import shutil
 from datetime import datetime
 import uuid
 
 from app.database import get_db
 from app.models import Document
 from app.schemas import DocumentResponse
-from app.services.document_service import extract_text_from_file
+from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
+from app.services.minio_service import upload_file, get_presigned_url, delete_file
 
 router = APIRouter()
 
-UPLOAD_DIR = "./uploads"
 
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
@@ -28,7 +27,6 @@ async def upload_document(
     """
     Upload a document with metadata
     """
-    # Validate file extension
     allowed_extensions = {".pdf", ".docx", ".txt", ".md"}
     file_ext = os.path.splitext(file.filename)[1].lower()
 
@@ -38,25 +36,24 @@ async def upload_document(
             detail=f"File type {file_ext} not supported. Allowed: {allowed_extensions}"
         )
 
-    unique_filename = f"{uuid.uuid4()}{file_ext}"
-    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    file_content = await file.read()
+    file_size = len(file_content)
 
-    # Save file
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Upload to MinIO
+    object_key = upload_file(
+        file_data=file_content,
+        original_filename=file.filename,
+        content_type=file.content_type or "application/octet-stream"
+    )
 
-    file_size = os.path.getsize(file_path)
-
-    # Extract text for ChromaDB
-    extracted_text = extract_text_from_file(file_path, file_ext)
+    extracted_text = extract_text_from_bytes(file_content, file_ext)
 
     tag_list = [tag.strip() for tag in tags.split(",")] if tags else []
 
-    # Save in DB (Postgres)
     db_document = Document(
-        filename=unique_filename,
+        filename=object_key,
         original_filename=file.filename,
-        file_path=file_path,
+        file_path=object_key,
         file_type=file_ext,
         file_size=file_size,
         category=category,
@@ -70,7 +67,7 @@ async def upload_document(
     db.commit()
     db.refresh(db_document)
 
-    # Add it to ChromaDB(if text exist)
+    # Add to ChromaDB (if text exists)
     if extracted_text:
         chroma_id = f"doc_{db_document.id}"
         chroma_service.add_document(
@@ -90,6 +87,7 @@ async def upload_document(
 
     return db_document
 
+
 @router.get("/", response_model=List[DocumentResponse])
 def list_documents(
     category: Optional[str] = None,
@@ -108,6 +106,7 @@ def list_documents(
 
     return query.all()
 
+
 @router.get("/{document_id}", response_model=DocumentResponse)
 def get_document(document_id: int, db: Session = Depends(get_db)):
     """
@@ -117,3 +116,36 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     return document
+
+
+@router.get("/{document_id}/download")
+def get_download_url(document_id: int, db: Session = Depends(get_db)):
+    """
+    Get a temporary download URL for a document
+    """
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    url = get_presigned_url(document.file_path)
+    return {"url": url, "filename": document.original_filename}
+
+
+@router.delete("/{document_id}")
+def delete_document(document_id: int, db: Session = Depends(get_db)):
+    """
+    Delete a document from MinIO and database
+    """
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    delete_file(document.file_path)
+
+    if document.chroma_id:
+        chroma_service.delete_document(document.chroma_id)
+
+    db.delete(document)
+    db.commit()
+
+    return {"message": "Document deleted"}
