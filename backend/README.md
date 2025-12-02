@@ -47,6 +47,8 @@ API Documentation: `http://localhost:8001/docs`
 
 ```bash
 make dev         # Development with auto-reload
+make db-up       # Start PostgreSQL
+make db-down     # Stop PostgreSQL
 alembic revision --autogenerate -m "initial migration" # Alembic init
 alembic upgrade head # Apply migrations
 ```

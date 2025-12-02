@@ -19,10 +19,21 @@ dev:
 
 test:
 	@python -c "import fastapi; import chromadb; import alembic; print('All packages installed!')"
-	@curl -s http://localhost:8001/health || echo "⚠ Server not running"
+	@curl -s http://localhost:8001/health || echo "Server not running"
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
+	find . -type d -name "*.egg-info" -exec rm -rf {} +
+
+db-up:
+	docker compose up -d
+
+db-down:
+	docker compose down
+
+db-reset:
+	docker compose down -v
+	docker compose up -d
