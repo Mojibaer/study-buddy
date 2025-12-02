@@ -11,7 +11,7 @@ export function SearchResults({ results }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">
-          {results.total_results} Ergebnisse für "{results.query}"
+          {results.total_results} Ergebnisse für &quot;{results.query}&quot;
         </h3>
       </div>
 
