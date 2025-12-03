@@ -1,2 +1,11 @@
-DATABASE_URL=postgresql://studybuddy:studybuddy123@localhost:5432/studybuddy
-UPLOAD_DIR=./uploads
+# For local postgres container
+# DATABASE_URL=postgresql://studybuddy:studybuddy123@localhost:5432/studybuddy
+
+DATABASE_URL=postgresql://studybuddy:<POSTGRES_PASSWORD>@85.215.241.173:5432/studybuddy
+
+# MinIO
+MINIO_ENDPOINT=85.215.241.173:9000
+MINIO_ACCESS_KEY=studybuddy
+MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD>
+MINIO_BUCKET=test-documents
+MINIO_SECURE=false
