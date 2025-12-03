@@ -1,13 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base
 from app.routes import documents, search
 import os
 
-# Create Table
-Base.metadata.create_all(bind=engine)
-
-# Create Upload folder
 os.makedirs("./uploads", exist_ok=True)
 
 app = FastAPI(title="Study Buddy API")
@@ -20,7 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routes
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
 

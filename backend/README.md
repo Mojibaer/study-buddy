@@ -14,6 +14,7 @@ Study Buddy Backend is a FastAPI-based REST API that provides document upload, s
 - Docker & Docker Compose
 
 ### Setup
+
 ```bash
 # Navigate to backend directory
 cd backend
@@ -43,10 +44,13 @@ API Documentation: `http://localhost:8001/docs`
 ## How to Use
 
 ### Start Server
+
 ```bash
 make dev         # Development with auto-reload
 make db-up       # Start PostgreSQL
 make db-down     # Stop PostgreSQL
+alembic revision --autogenerate -m "initial migration" # Alembic init
+alembic upgrade head # Apply migrations
 ```
 
 ### Upload Document
