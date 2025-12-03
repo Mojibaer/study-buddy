@@ -16,6 +16,7 @@ class DocumentResponse(DocumentBase):
     id: int
     file_type: str
     file_size: int
+    file_url: str | None = None
     created_at: datetime
 
     class Config:

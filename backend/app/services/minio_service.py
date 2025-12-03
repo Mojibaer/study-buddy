@@ -17,6 +17,8 @@ minio_client = Minio(
     secure=MINIO_SECURE
 )
 
+def get_file_url(object_key: str) -> str:
+    return f"{MINIO_ENDPOINT}/{BUCKET_NAME}/{object_key}"
 
 def ensure_bucket_exists():
     """Create bucket if it doesn't exist."""

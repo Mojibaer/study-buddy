@@ -10,7 +10,7 @@ from app.models import Document
 from app.schemas import DocumentResponse
 from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
-from app.services.minio_service import upload_file, get_presigned_url, delete_file
+from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
 
 router = APIRouter()
 
@@ -53,9 +53,9 @@ async def upload_document(
     db_document = Document(
         filename=object_key,
         original_filename=file.filename,
-        file_path=object_key,
         file_type=file_ext,
         file_size=file_size,
+        file_url=get_file_url(object_key),
         category=category,
         subject=subject,
         semester=semester,
