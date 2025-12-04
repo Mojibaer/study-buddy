@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Text
 from sqlalchemy.sql import func
-from app.database import Base
+from app.database.database import Base
 
 class Document(Base):
     __tablename__ = "documents"
@@ -25,3 +25,8 @@ class Document(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class Subject(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=True)
+    semester = Column(String, nullable=True)
