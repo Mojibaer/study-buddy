@@ -94,7 +94,6 @@ pycparser==2.23
 pycryptodome==3.23.0
 pydantic==2.12.3
 pydantic_core==2.41.4
-pydpf==1.1.1
 Pygments==2.19.2
 pypdf==6.4.0
 PyPika==0.48.9
