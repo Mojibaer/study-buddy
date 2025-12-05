@@ -12,20 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Upload, Loader2, X } from 'lucide-react'
-
-const CATEGORIES = [
-  { value: 'vorlesung', label: 'Vorlesung' },
-  { value: 'uebung', label: 'Übung' },
-  { value: 'pruefung', label: 'Prüfung' },
-  { value: 'zusammenfassung', label: 'Zusammenfassung' },
-  { value: 'skript', label: 'Skript' },
-  { value: 'sonstiges', label: 'Sonstiges' },
-]
-
-const SEMESTERS = [
-  'WS25', 'SS25', 'WS24', 'SS24', 'WS23', 'SS23',
-  'WS22', 'SS22', 'WS21', 'SS21', 'WS20', 'SS20',
-]
+import { CATEGORIES, SEMESTERS, getAllSubjects } from '@/lib/constants'
 
 export function UploadForm({ onSuccess }) {
   const [file, setFile] = useState(null)
@@ -35,6 +22,8 @@ export function UploadForm({ onSuccess }) {
   const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  const allSubjects = getAllSubjects()
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0]
@@ -144,12 +133,18 @@ export function UploadForm({ onSuccess }) {
 
       <div className="space-y-2">
         <Label htmlFor="subject">Fach</Label>
-        <Input
-          id="subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          placeholder="z.B. Mathematik 1"
-        />
+        <Select value={subject} onValueChange={setSubject}>
+          <SelectTrigger>
+            <SelectValue placeholder="Fach wählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {allSubjects.map((subj) => (
+              <SelectItem key={subj.value} value={subj.label}>
+                {subj.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
