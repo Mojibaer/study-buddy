@@ -1,10 +1,10 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, FolderTree } from 'lucide-react'
 import { useDocument } from '@/hooks/useDocument'
 import { DocumentMetadata } from '@/components/document/DocumentMetadata'
 import { FilePreview } from '@/components/document/FilePreview'
@@ -13,11 +13,20 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export default function DocumentDetailPage() {
     const params = useParams()
+    const searchParams = useSearchParams()
     const router = useRouter()
     const { document, loading, error } = useDocument(params.id)
 
+    // Check if coming from browse
+    const fromPath = searchParams.get('from')
+    const isFromBrowse = fromPath?.startsWith('/browse')
+
     const handleBack = () => {
-        router.back()
+        if (fromPath) {
+            router.push(fromPath)
+        } else {
+            router.back()
+        }
     }
 
     return (
@@ -30,8 +39,17 @@ export default function DocumentDetailPage() {
                         onClick={handleBack}
                         className="mb-4"
                     >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Zurück zur Suche
+                        {isFromBrowse ? (
+                            <>
+                                <FolderTree className="w-4 h-4 mr-2" />
+                                Zurück zum Explorer
+                            </>
+                        ) : (
+                            <>
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Zurück zur Suche
+                            </>
+                        )}
                     </Button>
 
                     {loading && (
