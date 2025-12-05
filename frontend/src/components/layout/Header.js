@@ -25,21 +25,21 @@ export function Header() {
         </Link>
           <div className="flex items-center gap-3">
           <ThemeToggle />
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Dokument hochladen</DialogTitle>
+              </DialogHeader>
+              <UploadForm onSuccess={() => setOpen(false)} />
+            </DialogContent>
+          </Dialog>
           </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Dokument hochladen</DialogTitle>
-            </DialogHeader>
-            <UploadForm onSuccess={() => setOpen(false)} />
-          </DialogContent>
-        </Dialog>
       </div>
     </header>
   );

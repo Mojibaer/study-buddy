@@ -48,13 +48,13 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 - **ChromaDB** - Vector database for document content and embeddings
 
     - [postgres guide](docs/db/postgres-guide.md)
-    - [chromaDB guide](docs/db/postgres-guide.md)
+    - [chromaDB guide](docs/db/chromaDB-guide.md)
 
 ### DevOps
 - **Docker** - Containerization for local postgres instance possible
 - **Nginx** - Reverse proxy and web server
 
-[server-setup-guide](docs/db/server-setup.md)
+[server-setup-guide](docs/server-setup.md)
 
 ### Storage
 - **MinIO** - OpenSource storage application for Documents with S3-API compatibilty
