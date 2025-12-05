@@ -1,3 +1,7 @@
+import io
+from pypdf import PdfReader
+from docx import Document
+
 def extract_text_from_bytes(file_content: bytes, file_ext: str) -> str:
     """
     Extract text from different file types (from bytes)
@@ -7,12 +11,15 @@ def extract_text_from_bytes(file_content: bytes, file_ext: str) -> str:
             return file_content.decode("utf-8")
 
         elif file_ext == ".pdf":
-            # TODO: Implement PDF extraction (PyPDF2 or pdfplumber)
-            return "PDF text extraction not yet implemented"
+            reader = PdfReader(io.BytesIO(file_content))
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() or ""
+            return text
 
         elif file_ext == ".docx":
-            # TODO: Implement DOCX extraction (python-docx)
-            return "DOCX text extraction not yet implemented"
+            doc = Document(io.BytesIO(file_content))
+            return "\n".join([p.text for p in doc.paragraphs])
 
         else:
             return ""
