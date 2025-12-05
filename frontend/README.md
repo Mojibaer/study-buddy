@@ -8,11 +8,10 @@ A modern web application for intelligent search and management of study material
 
 - Node.js 18+
 - Backend running on `http://localhost:8001`
+- Project is cloned - `git clone https://git-iit.fh-joanneum.at/swd24-hackathon/study-buddy.git`
 
 ### Setup
 ```bash
-# Clone repository
-git clone https://git-iit.fh-joanneum.at/swd24-hackathon/study-buddy.git
 cd frontend
 
 # Install dependencies

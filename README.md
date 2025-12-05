@@ -36,17 +36,31 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 - **Shadcn UI** - Modern, accessible UI component library
 - **TanStack Query** - Data fetching and state management
 
+[installation guide](frontend/README.md)
+
 ### Backend
 - **FastAPI** - High-performance REST API framework
 - **ChromaDB** - Vector database for semantic search and embeddings
+
+[installation guide](backend/README.md)
 
 ### Database
 - **PostgreSQL** - Relational database for metadata and user data
 - **ChromaDB** - Vector database for document content and embeddings
 
+    - [postgres guide](docs/postgres-guide.md)
+    - [chromaDB guide](docs/postgres-guide.md)
+
 ### DevOps
-- **Docker** - Containerization for all services
+- **Docker** - Containerization for local postgres instance possible
 - **Nginx** - Reverse proxy and web server
+
+[server-setup-guide](docs/server-setup.md)
+
+### Storage
+- **MinIO** - OpenSource storage application for Documents with S3-API compatibilty
+
+[minio guide](docs/minio-storage.md)
 
 ## Contributors
 ---
@@ -54,5 +68,4 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 - Alexander Gherman
 - Andreas Baldauf
 - Michael Koncsik
-- Maria Oporkina
 - Tine Simenc
