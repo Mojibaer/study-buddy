@@ -52,15 +52,17 @@ export async function copyToClipboard(text) {
 }
 
 export function getFileViewerUrl(fileUrl, fileType) {
-  const encodedUrl = encodeURIComponent(fileUrl)
-
   if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
-    return `https://docs.google.com/viewer?url=${encodedUrl}&embedded=true`
+    return fileUrl
   }
 
   if (fileType === 'docx' || fileUrl.toLowerCase().endsWith('.docx') || fileUrl.toLowerCase().endsWith('.doc')) {
-    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${fileUrl}`
   }
 
   return null
+}
+
+export function isMarkdownFile(fileUrl, fileType) {
+  return fileType === '.md' || fileUrl.toLowerCase().endsWith('.md')
 }

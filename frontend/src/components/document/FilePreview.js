@@ -3,6 +3,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, AlertCircle } from 'lucide-react'
 import { getFileViewerUrl } from '@/lib/utils'
 import { useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 export function FilePreview({ document }) {
     const [error, setError] = useState(false)
@@ -62,7 +63,11 @@ export function FilePreview({ document }) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <TextFilePreview fileUrl={fileUrl} onError={handleIframeError} />
+                    <TextFilePreview
+                        fileUrl={fileUrl}
+                        onError={handleIframeError}
+                        isMarkdown={fileExtension === 'md'}
+                    />
                 </CardContent>
             </Card>
         )
@@ -111,7 +116,7 @@ export function FilePreview({ document }) {
     )
 }
 
-function TextFilePreview({ fileUrl, onError }) {
+function TextFilePreview({ fileUrl, onError, isMarkdown }) {
     const [content, setContent] = useState('')
     const [loading, setLoading] = useState(true)
 
@@ -130,6 +135,14 @@ function TextFilePreview({ fileUrl, onError }) {
 
     if (loading) {
         return <div className="text-center py-8 text-muted-foreground">Lade Vorschau...</div>
+    }
+
+    if (isMarkdown) {
+        return (
+            <div className="w-full max-h-[600px] overflow-auto p-4 prose prose-slate prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-code:bg-muted prose-code:px-1 prose-code:rounded">
+                <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
+        )
     }
 
     return (
