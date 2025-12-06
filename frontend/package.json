@@ -23,6 +23,8 @@
     "@eslint/eslintrc": "^3",
     "@serwist/build": "^9.2.3",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "serwist": "^9.2.3",

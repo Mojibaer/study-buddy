@@ -19,8 +19,7 @@ router = APIRouter()
 async def upload_document(
     file: UploadFile = File(...),
     category: Optional[str] = Form(None),
-    subject: Optional[str] = Form(None),
-    semester: Optional[str] = Form(None),
+    subject_id: int = Form(...),
     tags: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
@@ -38,6 +37,14 @@ async def upload_document(
 
     file_content = await file.read()
     file_size = len(file_content)
+
+    # Look for subject in DB
+    subject = db.query(Subject).filter(Subject.id == subject_id).first()
+    if not subject:
+        raise HTTPException(status_code=400, detail="Invalid subject_id")
+
+    # Automatically set semester from DB
+    semester = subject.semester
 
     # Upload to MinIO
     object_key = upload_file(
@@ -57,8 +64,8 @@ async def upload_document(
         file_size=file_size,
         file_url=get_file_url(object_key),
         category=category,
-        subject=subject,
-        semester=semester,
+        subject=subject.name,
+        semester=subject.semester,
         tags=tag_list,
         extracted_text=extracted_text
     )
