@@ -27,6 +27,7 @@ class Document(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class Subject(Base):
+    __tablename__ = "subjects"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=True)
-    semester = Column(String, nullable=True)
+    name = Column(String, nullable=False)
+    semester = Column(String, nullable=False)

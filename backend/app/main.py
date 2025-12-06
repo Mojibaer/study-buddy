@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import documents, search
+from app.routes import documents, search, subject
 import os
 
 os.makedirs("./uploads", exist_ok=True)
@@ -16,6 +16,7 @@ app.add_middleware(
 )
 
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
+app.include_router(subject.router, prefix="/subject", tags=["Subjects"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
 
 @app.get("/")

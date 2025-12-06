@@ -21,3 +21,16 @@ class DocumentResponse(DocumentBase):
 
     class Config:
         from_attributes = True
+
+class SubjectBase(BaseModel):
+    name: str
+    semester: str | None = None
+
+class SubjectCreate(SubjectBase):
+    pass
+
+class SubjectResponse(SubjectBase):
+    id: int
+
+    class Config:
+        orm_mode = True

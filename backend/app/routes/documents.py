@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import uuid
 
-from app.database import get_db
+from app.database.database import get_db
 from app.database.models import Document
 from app.database.schemas import DocumentResponse
 from app.services.document_service import extract_text_from_bytes
