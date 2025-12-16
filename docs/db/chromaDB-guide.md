@@ -24,13 +24,23 @@ ChromaDB stores document embeddings for semantic search - finding documents by m
 3. Vector stored with metadata in ChromaDB
 4. Search query → converted to vector → cosine similarity finds matches
 
+## Chroma Endpoints
+
+Can be used under `localhost:8001/docs` for debugging.
+
 ## Useful Commands
+
+For more detail debugging may this commands will help you.
+
 ```python
 import chromadb
 
 # Connect
-client = chromadb.PersistentClient(path="./chroma_data")
-collection = client.get_collection("study_documents")
+client = chromadb.HttpClient(
+            host=os.getenv("CHROMA_HOST", "localhost"),
+            port="8100"
+        )
+collection = client.get_collection("<collection_name>")
 
 # Count documents
 collection.count()
@@ -54,24 +64,16 @@ collection.delete(ids=["chroma_uuid"])
 collection.delete(where={})
 
 # Delete entire collection
-client.delete_collection("study_documents")
+client.delete_collection("<collection_name>")
 ```
+
+Chroma official docs: https://cookbook.chromadb.dev/core/
 
 ## Location
 
 ### ChromaDB as Service
 
-Vector database for semantic search.
-
-**Storage path:**
-```
-backend/chroma_data/
-```
-
-**Configuration:**
-```python
-client = chromadb.PersistentClient(path="./chroma_data")
-```
+Vector database for semantic search. The data will be stored on server for both development and production. Be sure to use `test-document` collection for development in .env file.
 
 **Estimated storage:**
 - ~1000 documents ≈ 30-50 MB
