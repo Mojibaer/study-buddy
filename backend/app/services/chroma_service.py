@@ -9,7 +9,7 @@ class ChromaService:
         )
 
         self.collection = self.client.get_or_create_collection(
-            name="documents",
+            name=os.getenv("CHROMA_COLLECTION", "documents"),
             metadata={"hnsw:space": "cosine"}
         )
 
