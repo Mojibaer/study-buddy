@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import documents, search
-import os
-
-os.makedirs("./uploads", exist_ok=True)
+from app.services.chroma_service import chroma_service
 
 app = FastAPI(title="Study Buddy API")
 
@@ -26,38 +24,26 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
-@app.get("/test-chroma")
-def test_chroma():
-    """Test ChromaDB with sample documents"""
+@app.get("/chroma/collections")
+def list_collections():
+    """List all ChromaDB collections"""
+    collections = chroma_service.client.list_collections()
+    return {"collections": [col.name for col in collections]}
 
-    samples = [
-        {
-            "id": "test-1",
-            "text": "Python ist eine interpretierte Programmiersprache mit dynamischer Typisierung.",
-            "metadata": {"category": "programming", "subject": "Python"}
-        },
-        {
-            "id": "test-2",
-            "text": "FastAPI ist ein modernes Web-Framework für Python APIs.",
-            "metadata": {"category": "programming", "subject": "FastAPI"}
-        },
-        {
-            "id": "test-3",
-            "text": "Algorithmen und Datenstrukturen sind fundamental für Informatik.",
-            "metadata": {"category": "theory", "subject": "Algorithms"}
-        }
-    ]
 
-    for sample in samples:
-        chroma_service.add_document(
-            doc_id=sample["id"],
-            text=sample["text"],
-            metadata=sample["metadata"]
-        )
+@app.get("/chroma/count")
+def collection_count():
+    """Get document count in the documents collection"""
+    count = chroma_service.collection.count()
+    return {"collection": "documents", "count": count}
 
-    results = chroma_service.search("Python Framework")
 
+@app.get("/chroma/peek")
+def collection_peek():
+    """Preview documents in the collection"""
+    results = chroma_service.collection.peek()
     return {
-        "message": "Test data added",
-        "search_results": results
+        "ids": results.get("ids", []),
+        "documents": results.get("documents", []),
+        "metadatas": results.get("metadatas", [])
     }
