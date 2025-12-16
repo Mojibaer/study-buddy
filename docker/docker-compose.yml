@@ -41,10 +41,25 @@ services:
     networks:
       - studybuddy-network
 
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: studybuddy-chromadb
+    restart: unless-stopped
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8100:8000"
+    environment:
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - studybuddy-network
+
 volumes:
   postgres_data:
     driver: local
   minio_data:
+    driver: local
+  chroma_data:
     driver: local
 
 networks:
