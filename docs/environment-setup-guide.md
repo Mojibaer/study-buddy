@@ -23,12 +23,11 @@ cat ~/docker/.env
 
 ## Backend Configuration
 
-Copy the `env-example.txt` file in the `backend/` directory to `.env`
+Copy the `.env-example` file in the `backend/` directory to `.env`
 
-Replace the placeholder values with the credentials from the server.
+Replace the placeholder values with the credentials from the server. Only password for Postgres and MinIO is needed.
 
 ## Notes
 
-
-- The server runs PostgreSQL 17 and MinIO in Docker containers
-- Both services are only accessible from the server or via SSH tunnel
+- The server runs PostgreSQL 17, ChromaDB and MinIO in Docker containers
+- All services are only accessible from the server or via SSH tunnel

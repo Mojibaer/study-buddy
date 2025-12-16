@@ -29,9 +29,10 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 
 # Setup environment variables
-cp env-example.txt .env
+cp .env-example .env
 ```
-[Environment-setup-guide](docs/environment-setup-guide.md)
+
+[Environment-setup-guide](../docs/environment-setup-guide.md)
 
 The API runs on `http://localhost:8001`
 
