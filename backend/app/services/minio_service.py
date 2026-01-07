@@ -9,6 +9,7 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_BUCKET = os.getenv("MINIO_BUCKET", "test-documents")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
+MINIO_PUBLIC_URL = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000")
 
 minio_client = Minio(
     MINIO_ENDPOINT,
@@ -18,7 +19,7 @@ minio_client = Minio(
 )
 
 def get_file_url(object_key: str) -> str:
-    return f"{MINIO_ENDPOINT}/{MINIO_BUCKET}/{object_key}"
+    return f"{MINIO_PUBLIC_URL}/{MINIO_BUCKET}/{object_key}"
 
 def ensure_bucket_exists():
     """Create bucket if it doesn't exist."""

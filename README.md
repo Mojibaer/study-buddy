@@ -21,32 +21,45 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 3. **Semantic Search** - AI-powered content search with ChromaDB
 4. **Combined Search** - Semantic search + metadata filters with real-time autocomplete
 5. **File Sharing** - Share documents via WhatsApp and email
+6. **Document Preview** - View documents directly in browser
 
 ### Nice to have
 
 1. **Authentication System** - Secure user login and registration
 2. **User Management** - Role-based access control
-3. **Document Preview** - View documents directly in browser
-4. **Pinboard / Favorites** - Pin important documents for quick access
+3. **Pinboard / Favorites** - Pin important documents for quick access
 
 ## Tech Stack
 ---
 ### Frontend
 - **Next.js** - React framework for production
 - **Shadcn UI** - Modern, accessible UI component library
-- **TanStack Query** - Data fetching and state management
+
+[installation guide](frontend/README.md)
 
 ### Backend
 - **FastAPI** - High-performance REST API framework
 - **ChromaDB** - Vector database for semantic search and embeddings
 
+[installation guide](backend/README.md)
+
 ### Database
 - **PostgreSQL** - Relational database for metadata and user data
 - **ChromaDB** - Vector database for document content and embeddings
 
+    - [postgres guide](docs/db/postgres-guide.md)
+    - [chromaDB guide](docs/db/chromaDB-guide.md)
+
 ### DevOps
-- **Docker** - Containerization for all services
+- **Docker** - Containerization for local postgres instance possible
 - **Nginx** - Reverse proxy and web server
+
+[server-setup-guide](docs/server-setup.md)
+
+### Storage
+- **MinIO** - OpenSource storage application for Documents with S3-API compatibilty
+
+[minio guide](docs/db/minio-storage.md)
 
 ## Contributors
 ---
@@ -54,5 +67,4 @@ These methods can be combined for optimal results (e.g., "Search for 'recursion'
 - Alexander Gherman
 - Andreas Baldauf
 - Michael Koncsik
-- Maria Oporkina
 - Tine Simenc

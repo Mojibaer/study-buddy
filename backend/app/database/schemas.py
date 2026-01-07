@@ -4,6 +4,7 @@ from typing import Optional, List
 
 class DocumentBase(BaseModel):
     filename: str
+    original_filename: str
     category: Optional[str] = None
     subject: Optional[str] = None
     semester: Optional[str] = None

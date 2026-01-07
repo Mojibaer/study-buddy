@@ -11,7 +11,8 @@ Study Buddy Backend is a FastAPI-based REST API that provides document upload, s
 ### Prerequisites
 
 - Python 3.13
-- Docker & Docker Compose
+- Docker & Docker Compose (optional for local development)
+- Project is cloned - `git clone https://git-iit.fh-joanneum.at/swd24-hackathon/study-buddy.git`
 
 ### Setup
 
@@ -21,7 +22,8 @@ cd backend
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Linux
+venv\Scripts\activate     # Windows
 
 # Install dependencies
 pip install -r requirements.txt
@@ -29,6 +31,7 @@ pip install -r requirements.txt
 # Setup environment variables
 cp env-example.txt .env
 ```
+[Environment-setup-guide](docs/environment-setup-guide.md)
 
 The API runs on `http://localhost:8001`
 
@@ -40,17 +43,17 @@ API Documentation: `http://localhost:8001/docs`
 - **Database:** PostgreSQL, ChromaDB
 - **ORM:** SQLAlchemy
 - **Server:** Uvicorn
+- **DB Migrations**: Alembic
 
 ## How to Use
 
 ### Start Server
 
 ```bash
-make dev         # Development with auto-reload
+make run dev         # Development with auto-reload
+# Only needed if Postgres is running locally
 make db-up       # Start PostgreSQL
 make db-down     # Stop PostgreSQL
-alembic revision --autogenerate -m "initial migration" # Alembic init
-alembic upgrade head # Apply migrations
 ```
 
 ### Upload Document

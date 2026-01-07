@@ -147,7 +147,7 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    delete_file(document.file_path)
+    delete_file(document.filename)
 
     if document.chroma_id:
         chroma_service.delete_document(document.chroma_id)
