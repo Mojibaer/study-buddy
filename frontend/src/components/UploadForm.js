@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,18 +12,37 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Upload, Loader2, X } from 'lucide-react'
-import { CATEGORIES, SEMESTERS, getAllSubjects } from '@/lib/constants'
+import { api } from '@/lib/api'
 
 export function UploadForm({ onSuccess }) {
   const [file, setFile] = useState(null)
-  const [category, setCategory] = useState('')
-  const [subject, setSubject] = useState('')
-  const [semester, setSemester] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [subjectId, setSubjectId] = useState('')
+  const [semesterId, setSemesterId] = useState('')
   const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const allSubjects = getAllSubjects()
+  const [filters, setFilters] = useState({ semesters: [], subjects: [], categories: [] })
+  const [filtersLoading, setFiltersLoading] = useState(true)
+
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const data = await api.getFilters()
+        setFilters(data)
+      } catch (err) {
+        console.error('Fehler beim Laden der Filter:', err)
+      } finally {
+        setFiltersLoading(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
+  const filteredSubjects = semesterId
+    ? filters.subjects.filter(s => s.semester_id === parseInt(semesterId))
+    : filters.subjects
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0]
@@ -44,6 +63,11 @@ export function UploadForm({ onSuccess }) {
     setFile(null)
   }
 
+  const handleSemesterChange = (value) => {
+    setSemesterId(value)
+    setSubjectId('')
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -55,28 +79,17 @@ export function UploadForm({ onSuccess }) {
     setLoading(true)
     setError(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-    if (category) formData.append('category', category)
-    if (subject) formData.append('subject', subject)
-    if (semester) formData.append('semester', semester)
-    if (tags) formData.append('tags', tags)
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/documents/upload`, {
-        method: 'POST',
-        body: formData,
+      await api.uploadDocument(file, {
+        category_id: categoryId || null,
+        subject_id: subjectId || null,
+        tags: tags || null,
       })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.detail || 'Upload fehlgeschlagen')
-      }
-
       setFile(null)
-      setCategory('')
-      setSubject('')
-      setSemester('')
+      setCategoryId('')
+      setSubjectId('')
+      setSemesterId('')
       setTags('')
       onSuccess?.()
     } catch (err) {
@@ -84,6 +97,14 @@ export function UploadForm({ onSuccess }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (filtersLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -117,30 +138,14 @@ export function UploadForm({ onSuccess }) {
 
       <div className="space-y-2">
         <Label htmlFor="category">Kategorie</Label>
-        <Select value={category} onValueChange={setCategory}>
+        <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger>
             <SelectValue placeholder="Kategorie wählen" />
           </SelectTrigger>
           <SelectContent>
-            {CATEGORIES.map((cat) => (
-              <SelectItem key={cat.value} value={cat.value}>
-                {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="subject">Fach</Label>
-        <Select value={subject} onValueChange={setSubject}>
-          <SelectTrigger>
-            <SelectValue placeholder="Fach wählen" />
-          </SelectTrigger>
-          <SelectContent>
-            {allSubjects.map((subj) => (
-              <SelectItem key={subj.value} value={subj.label}>
-                {subj.label}
+            {filters.categories.map((cat) => (
+              <SelectItem key={cat.id} value={String(cat.id)}>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -149,14 +154,30 @@ export function UploadForm({ onSuccess }) {
 
       <div className="space-y-2">
         <Label htmlFor="semester">Semester</Label>
-        <Select value={semester} onValueChange={setSemester}>
+        <Select value={semesterId} onValueChange={handleSemesterChange}>
           <SelectTrigger>
             <SelectValue placeholder="Semester wählen" />
           </SelectTrigger>
           <SelectContent>
-            {SEMESTERS.map((sem) => (
-              <SelectItem key={sem} value={sem}>
-                {sem}
+            {filters.semesters.map((sem) => (
+              <SelectItem key={sem.id} value={String(sem.id)}>
+                {sem.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="subject">Fach</Label>
+        <Select value={subjectId} onValueChange={setSubjectId} disabled={!semesterId}>
+          <SelectTrigger>
+            <SelectValue placeholder={semesterId ? "Fach wählen" : "Erst Semester wählen"} />
+          </SelectTrigger>
+          <SelectContent>
+            {filteredSubjects.map((subj) => (
+              <SelectItem key={subj.id} value={String(subj.id)}>
+                {subj.name}
               </SelectItem>
             ))}
           </SelectContent>

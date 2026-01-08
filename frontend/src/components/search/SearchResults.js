@@ -92,22 +92,22 @@ function ResultCard({ result }) {
 function DocumentMetadata({ document }) {
   return (
     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-      {document.category && (
+      {document.category?.name && (
         <div className="flex items-center gap-1">
           <Tag className="w-3 h-3" />
-          <span>{document.category}</span>
+          <span>{document.category.name}</span>
         </div>
       )}
-      {document.subject && (
+      {document.subject?.name && (
         <div className="flex items-center gap-1">
           <FileText className="w-3 h-3" />
-          <span>{document.subject}</span>
+          <span>{document.subject.name}</span>
         </div>
       )}
-      {document.semester && (
+      {document.subject?.semester?.name && (
         <div className="flex items-center gap-1">
           <Calendar className="w-3 h-3" />
-          <span>{document.semester}</span>
+          <span>{document.subject.semester.name}</span>
         </div>
       )}
     </div>

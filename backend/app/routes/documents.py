@@ -2,12 +2,10 @@ from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
-from datetime import datetime
-import uuid
 
-from app.database import get_db
-from app.models import Document
-from app.schemas import DocumentResponse
+from app.database.database import get_db
+from app.database.models import Document, Subject, Category, Semester
+from app.database.schemas import DocumentResponse
 from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
@@ -18,9 +16,8 @@ router = APIRouter()
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
     file: UploadFile = File(...),
-    category: Optional[str] = Form(None),
-    subject: Optional[str] = Form(None),
-    semester: Optional[str] = Form(None),
+    category_id: Optional[int] = Form(None),
+    subject_id: Optional[int] = Form(None),
     tags: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
@@ -36,10 +33,20 @@ async def upload_document(
             detail=f"File type {file_ext} not supported. Allowed: {allowed_extensions}"
         )
 
+    # Validate foreign keys
+    if category_id:
+        category = db.query(Category).filter(Category.id == category_id).first()
+        if not category:
+            raise HTTPException(status_code=400, detail="Category not found")
+
+    if subject_id:
+        subject = db.query(Subject).filter(Subject.id == subject_id).first()
+        if not subject:
+            raise HTTPException(status_code=400, detail="Subject not found")
+
     file_content = await file.read()
     file_size = len(file_content)
 
-    # Upload to MinIO
     object_key = upload_file(
         file_data=file_content,
         original_filename=file.filename,
@@ -47,7 +54,6 @@ async def upload_document(
     )
 
     extracted_text = extract_text_from_bytes(file_content, file_ext)
-
     tag_list = [tag.strip() for tag in tags.split(",")] if tags else []
 
     db_document = Document(
@@ -56,19 +62,22 @@ async def upload_document(
         file_type=file_ext,
         file_size=file_size,
         file_url=get_file_url(object_key),
-        category=category,
-        subject=subject,
-        semester=semester,
-        tags=tag_list,
-        extracted_text=extracted_text
+        category_id=category_id,
+        subject_id=subject_id,
+        tags=tag_list
     )
 
     db.add(db_document)
     db.commit()
     db.refresh(db_document)
 
-    # Add to ChromaDB (if text exists)
+    # Add to ChromaDB
     if extracted_text:
+        # Get names for ChromaDB Metadata
+        category_name = db_document.category.name if db_document.category else ""
+        subject_name = db_document.subject.name if db_document.subject else ""
+        semester_name = db_document.subject.semester.name if db_document.subject else ""
+
         chroma_id = f"doc_{db_document.id}"
         chroma_service.add_document(
             doc_id=chroma_id,
@@ -76,9 +85,9 @@ async def upload_document(
             metadata={
                 "document_id": db_document.id,
                 "filename": file.filename,
-                "category": category or "uncategorized",
-                "subject": subject or "",
-                "semester": semester or "",
+                "category": category_name,
+                "subject": subject_name,
+                "semester": semester_name,
                 "tags": ",".join(tag_list)
             }
         )
@@ -90,8 +99,9 @@ async def upload_document(
 
 @router.get("/", response_model=List[DocumentResponse])
 def list_documents(
-    category: Optional[str] = None,
-    subject: Optional[str] = None,
+    category_id: Optional[int] = None,
+    subject_id: Optional[int] = None,
+    semester_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -99,10 +109,12 @@ def list_documents(
     """
     query = db.query(Document)
 
-    if category:
-        query = query.filter(Document.category == category)
-    if subject:
-        query = query.filter(Document.subject == subject)
+    if category_id:
+        query = query.filter(Document.category_id == category_id)
+    if subject_id:
+        query = query.filter(Document.subject_id == subject_id)
+    if semester_id:
+        query = query.join(Subject).filter(Subject.semester_id == semester_id)
 
     return query.all()
 
@@ -127,7 +139,7 @@ def get_download_url(document_id: int, db: Session = Depends(get_db)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    url = get_presigned_url(document.file_path)
+    url = get_presigned_url(document.filename)
     return {"url": url, "filename": document.original_filename}
 
 

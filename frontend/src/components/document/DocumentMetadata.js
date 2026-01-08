@@ -6,9 +6,9 @@ import { formatDate, formatFileSize } from '@/lib/utils'
 export function DocumentMetadata({ document }) {
     const metadataItems = [
         { icon: FileText, label: 'Dateiname', value: document.original_filename || document.filename },
-        { icon: Folder, label: 'Kategorie', value: document.category },
-        { icon: BookOpen, label: 'Fach', value: document.subject },
-        { icon: Calendar, label: 'Semester', value: document.semester },
+        { icon: Folder, label: 'Kategorie', value: document.category?.name },
+        { icon: BookOpen, label: 'Fach', value: document.subject?.name },
+        { icon: Calendar, label: 'Semester', value: document.subject?.semester?.name },
         { icon: Calendar, label: 'Hochgeladen', value: document.created_at ? formatDate(document.created_at) : null },
         { icon: HardDrive, label: 'Dateigröße', value: document.file_size ? formatFileSize(document.file_size) : null },
     ]

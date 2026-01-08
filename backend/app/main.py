@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import documents, search
+from app.routes import documents, search, filters
 from app.services.chroma_service import chroma_service
 
 app = FastAPI(title="Study Buddy API")
@@ -15,6 +15,7 @@ app.add_middleware(
 
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
+app.include_router(filters.router, prefix="/filters", tags=["filters"])
 
 @app.get("/")
 def read_root():
