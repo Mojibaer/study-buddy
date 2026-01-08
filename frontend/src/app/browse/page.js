@@ -4,92 +4,72 @@ import { Header } from '@/components/layout/Header'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import {
-  Folder,
-  FileText,
-  ChevronRight,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import {
-  STUDIENGANG,
-  SUBJECTS_BY_SEMESTER,
-  CATEGORIES,
-  getSubjectLabel,
-  getCategoryLabel,
-} from '@/lib/constants'
+import { Folder, FileText, ChevronRight } from 'lucide-react'
+import { cn, formatFileSize } from '@/lib/utils'
+import { api } from '@/lib/api'
 
 export default function BrowsePage() {
   const searchParams = useSearchParams()
 
-  const semester = searchParams.get('semester')
-  const subject = searchParams.get('subject')
-  const category = searchParams.get('category')
+  const semesterId = searchParams.get('semester')
+  const subjectId = searchParams.get('subject')
+  const categoryId = searchParams.get('category')
 
-  const [allDocuments, setAllDocuments] = useState([])
+  const [filters, setFilters] = useState({ semesters: [], subjects: [], categories: [] })
   const [documents, setDocuments] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
+  const [allDocuments, setAllDocuments] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchAllDocuments()
+    const loadData = async () => {
+      try {
+        const [filtersData, documentsData] = await Promise.all([
+          api.getFilters(),
+          api.getDocuments()
+        ])
+        setFilters(filtersData)
+        setAllDocuments(documentsData)
+      } catch (err) {
+        console.error('Fehler beim Laden:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [])
 
   useEffect(() => {
-    if (semester && subject && category) {
-      filterDocuments()
+    if (semesterId && subjectId && categoryId) {
+      const filtered = allDocuments.filter((doc) => {
+        const matchesSubject = doc.subject_id === parseInt(subjectId)
+        const matchesCategory = doc.category_id === parseInt(categoryId)
+        return matchesSubject && matchesCategory
+      })
+      setDocuments(filtered)
     }
-  }, [semester, subject, category, allDocuments])
+  }, [semesterId, subjectId, categoryId, allDocuments])
 
-  const fetchAllDocuments = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/documents`)
-      if (response.ok) {
-        const data = await response.json()
-        setAllDocuments(data)
-      }
-    } catch (err) {
-      console.error('Fehler beim Laden:', err)
-    } finally {
-      setInitialLoading(false)
-    }
+  const getSemester = (id) => filters.semesters.find(s => s.id === parseInt(id))
+  const getSubject = (id) => filters.subjects.find(s => s.id === parseInt(id))
+  const getCategory = (id) => filters.categories.find(c => c.id === parseInt(id))
+
+  const getSubjectsForSemester = (semId) => {
+    return filters.subjects.filter(s => s.semester_id === parseInt(semId))
   }
 
-  const filterDocuments = () => {
-    setLoading(true)
-    const semesterData = SUBJECTS_BY_SEMESTER[semester]
-
-    const filtered = allDocuments.filter((doc) => {
-      const matchesSemester = doc.semester === semesterData?.semesterCode
-      const matchesSubject = doc.subject === getSubjectLabel(semester, subject)
-      const matchesCategory = doc.category === category
-      return matchesSemester && matchesSubject && matchesCategory
-    })
-
-    setDocuments(filtered)
-    setLoading(false)
+  const getCountForSemester = (semId) => {
+    const subjectIds = getSubjectsForSemester(semId).map(s => s.id)
+    return allDocuments.filter(doc => subjectIds.includes(doc.subject_id)).length
   }
 
-  const getCountForSemester = (semesterKey) => {
-    const semesterData = SUBJECTS_BY_SEMESTER[semesterKey]
-    return allDocuments.filter((doc) => doc.semester === semesterData?.semesterCode).length
+  const getCountForSubject = (subjId) => {
+    return allDocuments.filter(doc => doc.subject_id === parseInt(subjId)).length
   }
 
-  const getCountForSubject = (semesterKey, subjectValue) => {
-    const semesterData = SUBJECTS_BY_SEMESTER[semesterKey]
-    const subjectLabel = getSubjectLabel(semesterKey, subjectValue)
-    return allDocuments.filter((doc) =>
-      doc.semester === semesterData?.semesterCode &&
-      doc.subject === subjectLabel
-    ).length
-  }
-
-  const getCountForCategory = (semesterKey, subjectValue, categoryValue) => {
-    const semesterData = SUBJECTS_BY_SEMESTER[semesterKey]
-    const subjectLabel = getSubjectLabel(semesterKey, subjectValue)
-    return allDocuments.filter((doc) =>
-      doc.semester === semesterData?.semesterCode &&
-      doc.subject === subjectLabel &&
-      doc.category === categoryValue
+  const getCountForCategory = (subjId, catId) => {
+    return allDocuments.filter(doc =>
+      doc.subject_id === parseInt(subjId) &&
+      doc.category_id === parseInt(catId)
     ).length
   }
 
@@ -102,32 +82,32 @@ export default function BrowsePage() {
   }
 
   const breadcrumbs = [
-    { label: STUDIENGANG, href: '/browse' },
+    { label: 'Software Design & Cloud Computing', href: '/browse' },
   ]
 
-  if (semester) {
+  if (semesterId) {
     breadcrumbs.push({
-      label: SUBJECTS_BY_SEMESTER[semester]?.label || semester,
-      href: buildUrl({ semester }),
+      label: getSemester(semesterId)?.name || semesterId,
+      href: buildUrl({ semester: semesterId }),
     })
   }
 
-  if (subject) {
+  if (subjectId) {
     breadcrumbs.push({
-      label: getSubjectLabel(semester, subject),
-      href: buildUrl({ semester, subject }),
+      label: getSubject(subjectId)?.name || subjectId,
+      href: buildUrl({ semester: semesterId, subject: subjectId }),
     })
   }
 
-  if (category) {
+  if (categoryId) {
     breadcrumbs.push({
-      label: getCategoryLabel(category),
-      href: buildUrl({ semester, subject, category }),
+      label: getCategory(categoryId)?.name || categoryId,
+      href: buildUrl({ semester: semesterId, subject: subjectId, category: categoryId }),
     })
   }
 
   const renderContent = () => {
-    if (initialLoading) {
+    if (loading) {
       return (
         <div className="border rounded-lg p-8 text-center text-muted-foreground">
           Lade...
@@ -135,40 +115,36 @@ export default function BrowsePage() {
       )
     }
 
-    if (semester && subject && category) {
+    if (semesterId && subjectId && categoryId) {
       return (
         <DocumentList
           documents={documents}
-          loading={loading}
           currentPath={searchParams.toString()}
         />
       )
     }
 
-    if (semester && subject) {
+    if (semesterId && subjectId) {
       return (
         <FolderList
-          items={CATEGORIES.map((cat) => ({
-            key: cat.value,
-            label: cat.label,
-            href: buildUrl({ semester, subject, category: cat.value }),
-            count: getCountForCategory(semester, subject, cat.value),
+          items={filters.categories.map((cat) => ({
+            key: cat.id,
+            label: cat.name,
+            href: buildUrl({ semester: semesterId, subject: subjectId, category: cat.id }),
+            count: getCountForCategory(subjectId, cat.id),
           }))}
         />
       )
     }
 
-    if (semester) {
-      const semesterData = SUBJECTS_BY_SEMESTER[semester]
-      if (!semesterData) return <p>Semester nicht gefunden</p>
-
+    if (semesterId) {
       return (
         <FolderList
-          items={semesterData.subjects.map((subj) => ({
-            key: subj.value,
-            label: subj.label,
-            href: buildUrl({ semester, subject: subj.value }),
-            count: getCountForSubject(semester, subj.value),
+          items={getSubjectsForSemester(semesterId).map((subj) => ({
+            key: subj.id,
+            label: subj.name,
+            href: buildUrl({ semester: semesterId, subject: subj.id }),
+            count: getCountForSubject(subj.id),
           }))}
         />
       )
@@ -176,11 +152,11 @@ export default function BrowsePage() {
 
     return (
       <FolderList
-        items={Object.entries(SUBJECTS_BY_SEMESTER).map(([key, data]) => ({
-          key,
-          label: data.label,
-          href: buildUrl({ semester: key }),
-          count: getCountForSemester(key),
+        items={filters.semesters.map((sem) => ({
+          key: sem.id,
+          label: sem.name,
+          href: buildUrl({ semester: sem.id }),
+          count: getCountForSemester(sem.id),
         }))}
       />
     )
@@ -189,15 +165,11 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      {/* Header */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-4">
-          {/* Breadcrumbs */}
           <Breadcrumbs items={breadcrumbs} />
         </div>
       </div>
-
-      {/* Content */}
       <div className="container mx-auto px-4 py-6">
         {renderContent()}
       </div>
@@ -256,15 +228,7 @@ function FolderList({ items }) {
   )
 }
 
-function DocumentList({ documents, loading, currentPath }) {
-  if (loading) {
-    return (
-      <div className="border rounded-lg p-8 text-center text-muted-foreground">
-        Lade Dokumente...
-      </div>
-    )
-  }
-
+function DocumentList({ documents, currentPath }) {
   if (documents.length === 0) {
     return (
       <div className="border rounded-lg p-8 text-center text-muted-foreground">
@@ -297,11 +261,4 @@ function DocumentList({ documents, loading, currentPath }) {
       ))}
     </div>
   )
-}
-
-function formatFileSize(bytes) {
-  if (!bytes) return ''
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
