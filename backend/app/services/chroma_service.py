@@ -1,13 +1,15 @@
+import os
 import chromadb
 
 class ChromaService:
     def __init__(self):
-        self.client = chromadb.PersistentClient(
-            path="./chroma_data"
+        self.client = chromadb.HttpClient(
+            host=os.getenv("CHROMA_HOST", "localhost"),
+            port="8100"
         )
 
         self.collection = self.client.get_or_create_collection(
-            name="documents",
+            name=os.getenv("CHROMA_COLLECTION", "documents"),
             metadata={"hnsw:space": "cosine"}
         )
 
