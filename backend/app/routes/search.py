@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import Optional
 from app.database.database import get_db
-from app.database.models import Document
+from app.database.models import Document, Subject, Category, Semester
 from app.services.chroma_service import chroma_service
 
 router = APIRouter()
@@ -10,28 +10,43 @@ router = APIRouter()
 @router.get("/semantic")
 def semantic_search(
     query: str = Query(..., min_length=1),
-    category: Optional[str] = None,
-    subject: Optional[str] = None,
+    category_id: Optional[int] = None,
+    subject_id: Optional[int] = None,
+    semester_id: Optional[int] = None,
     limit: int = Query(10, ge=1, le=50),
     db: Session = Depends(get_db)
 ):
-    """
-    Semantic search using ChromaDB with optional metadata filters
-    """
-    where_filter = {}
-    if category:
-        where_filter["category"] = category
-    if subject:
-        where_filter["subject"] = subject
+    where_conditions = []
+
+    if category_id:
+        category = db.query(Category).filter(Category.id == category_id).first()
+        if category:
+            where_conditions.append({"category": category.name})
+
+    if subject_id:
+        subject = db.query(Subject).filter(Subject.id == subject_id).first()
+        if subject:
+            where_conditions.append({"subject": subject.name})
+
+    if semester_id:
+        semester = db.query(Semester).filter(Semester.id == semester_id).first()
+        if semester:
+            where_conditions.append({"semester": semester.name})
+
+    where_filter = None
+    if len(where_conditions) == 1:
+        where_filter = where_conditions[0]
+    elif len(where_conditions) > 1:
+        where_filter = {"$and": where_conditions}
 
     chroma_results = chroma_service.search(
         query=query,
         n_results=limit,
-        filter_dict=where_filter if where_filter else None
+        filter_dict=where_filter
     )
 
     if not chroma_results['ids'] or not chroma_results['ids'][0]:
-        return {"results": [], "query": query}
+        return {"results": [], "query": query, "total_results": 0}
 
     doc_ids = [
         int(metadata['document_id'])
@@ -47,13 +62,24 @@ def semantic_search(
             results.append({
                 "document": {
                     "id": doc.id,
-                    "filename": doc.original_filename,
-                    "category": doc.category,
-                    "subject": doc.subject,
+                    "filename": doc.filename,
+                    "original_filename": doc.original_filename,
+                    "file_type": doc.file_type,
+                    "file_size": doc.file_size,
+                    "file_url": doc.file_url,
+                    "category": {"id": doc.category.id, "name": doc.category.name} if doc.category else None,
+                    "subject": {
+                        "id": doc.subject.id,
+                        "name": doc.subject.name,
+                        "semester": {
+                            "id": doc.subject.semester.id,
+                            "name": doc.subject.semester.name
+                        } if doc.subject.semester else None
+                    } if doc.subject else None,
                     "tags": doc.tags
                 },
                 "distance": chroma_results['distances'][0][i],
-                "snippet": chroma_results['documents'][0][i][:200] + "..."
+                "snippet": chroma_results['documents'][0][i][:200] + "..." if chroma_results['documents'][0][i] else ""
             })
 
     return {
