@@ -1,9 +1,9 @@
-.PHONY: help install run dev test clean
+.PHONY: help install run-prod dev test clean db-up db-down db-reset
 
 help:
 	@echo "Available commands:"
 	@echo "  make install          - Install dependencies"
-	@echo "  make run              - Start server (production mode)"
+	@echo "  make run-prod         - Start server (production mode)"
 	@echo "  make dev              - Start server with auto-reload"
 	@echo "  make test             - Test if everything works"
 	@echo "  make clean            - Remove cache files"
@@ -11,8 +11,8 @@ help:
 install:
 	pip install -r requirements.txt
 
-run:
-	uvicorn app.main:app --host 0.0.0.0 --port 8001
+run-prod:
+	gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001
 
 dev:
 	uvicorn app.main:app --reload --port 8001
@@ -25,7 +25,6 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
-	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 
 db-up:

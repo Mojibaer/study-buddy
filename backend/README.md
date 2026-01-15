@@ -21,7 +21,7 @@ Study Buddy Backend is a FastAPI-based REST API that provides document upload, s
 cd backend
 
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Linux
 venv\Scripts\activate     # Windows
 
