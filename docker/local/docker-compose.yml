@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: studybuddy-local-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: studybuddy
+      POSTGRES_USER: studybuddy
+      POSTGRES_PASSWORD: studybuddy123
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studybuddy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: studybuddy-local-chromadb
+    restart: unless-stopped
+    volumes:
+      - chroma_local_data:/chroma/chroma
+    ports:
+      - "8100:8000"
+    environment:
+      - ANONYMIZED_TELEMETRY=FALSE
+
+  minio:
+    image: minio/minio
+    container_name: studybuddy-local-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_local_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_local_data:
+    driver: local
+  chroma_local_data:
+    driver: local
+  minio_local_data:
+    driver: local

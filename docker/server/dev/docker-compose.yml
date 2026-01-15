@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: studybuddy-dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - studybuddy-dev-network
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: studybuddy-dev-chromadb
+    restart: unless-stopped
+    volumes:
+      - chroma_dev_data:/chroma/chroma
+    ports:
+      - "8100:8000"
+    environment:
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - studybuddy-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  chroma_dev_data:
+    driver: local
+
+networks:
+  studybuddy-dev-network:
+    driver: bridge
