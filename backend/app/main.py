@@ -48,3 +48,13 @@ def collection_peek():
         "documents": results.get("documents", []),
         "metadatas": results.get("metadatas", [])
     }
+
+@app.delete("/chroma/{document_id}")
+def delete_from_chroma(document_id: int):
+    """Löscht ein Dokument aus ChromaDB anhand der document_id"""
+    try:
+        chroma_id = f"doc_{document_id}"
+        chroma_service.delete_document(chroma_id)
+        return {"message": f"Document {chroma_id} deleted from ChromaDB"}
+    except Exception as e:
+        return {"error": str(e)}

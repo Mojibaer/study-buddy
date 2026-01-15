@@ -142,7 +142,7 @@ export function UploadForm({ onSuccess }) {
           <SelectTrigger>
             <SelectValue placeholder="Kategorie wählen" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="duration-100">
             {filters.categories.map((cat) => (
               <SelectItem key={cat.id} value={String(cat.id)}>
                 {cat.name}
@@ -158,7 +158,7 @@ export function UploadForm({ onSuccess }) {
           <SelectTrigger>
             <SelectValue placeholder="Semester wählen" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="duration-100">
             {filters.semesters.map((sem) => (
               <SelectItem key={sem.id} value={String(sem.id)}>
                 {sem.name}
@@ -174,7 +174,7 @@ export function UploadForm({ onSuccess }) {
           <SelectTrigger>
             <SelectValue placeholder={semesterId ? "Fach wählen" : "Erst Semester wählen"} />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="duration-100">
             {filteredSubjects.map((subj) => (
               <SelectItem key={subj.id} value={String(subj.id)}>
                 {subj.name}
