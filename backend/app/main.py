@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import documents, search, filters
 from app.services.chroma_service import chroma_service
 
-app = FastAPI(title="Study Buddy API")
+app = FastAPI(
+    title="Study Buddy API",
+    root_path="/api"
+)
 
 app.add_middleware(
     CORSMiddleware,
