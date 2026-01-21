@@ -9,8 +9,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.database import SessionLocal
-from app.models import Subject, Semester
+from app.database import Subject, Semester, SessionLocal
 
 
 def seed_subjects(csv_path: str = "scripts/data/subjects.csv"):
@@ -44,7 +43,7 @@ def seed_subjects(csv_path: str = "scripts/data/subjects.csv"):
 
                 # Check if subject already exists
                 existing = db.query(Subject).filter_by(
-                    name=name, 
+                    name=name,
                     semester_id=semester_id
                 ).first()
 
