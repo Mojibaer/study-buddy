@@ -32,7 +32,7 @@ export const api = {
     if (filters.subject_id) params.append('subject_id', filters.subject_id);
     if (filters.semester_id) params.append('semester_id', filters.semester_id);
 
-    const response = await fetch(`${API_BASE_URL}/documents?${params}`);
+    const response = await fetch(`${API_BASE_URL}/documents/?${params}`);
     if (!response.ok) {
       throw new Error('Failed to fetch documents');
     }
