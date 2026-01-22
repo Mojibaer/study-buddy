@@ -38,25 +38,28 @@ https://minio.mojiverse.dev/
 **CLI (mc client):**
 ```bash
 # Configure alias
-mc alias set studybuddy http://localhost:9000 minioadmin minioadmin # Already created on server, just use mc alias
+mc alias set studybuddy http://localhost:9000 <minio-access-key> <secret_key> # Already created on server, just use mc alias
+
+# Bucket Policy setzen:
+mc anonymous set download local/ <bucket-name>
 
 # List buckets
 mc ls studybuddy
 
 # List files in bucket
-mc ls studybuddy/documents
+mc ls studybuddy/<bucket-name>
 
 # Upload file
-mc cp file.pdf studybuddy/documents/
+mc cp file.pdf studybuddy/<bucket-name>/
 
 # Download file
-mc cp studybuddy/documents/file.pdf ./
+mc cp studybuddy/<bucket-name>/file.pdf ./
 
 # Delete file
-mc rm studybuddy/documents/file.pdf
+mc rm studybuddy/<bucket-name>/file.pdf
 
 # Delete all files in bucket
-mc rm --recursive studybuddy/documents/
+mc rm --recursive studybuddy/<bucket-name>/
 ```
 
 ## Location
