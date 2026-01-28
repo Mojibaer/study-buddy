@@ -1,11 +1,31 @@
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { FileText, Calendar, Tag, ExternalLink } from 'lucide-react'
 
+const RESULTS_PER_PAGE = 5
+
 export function SearchResults({ results }) {
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [results?.query])
   if (!results) return null
+
+  const totalPages = Math.ceil(results.results.length / RESULTS_PER_PAGE)
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE
+  const paginatedResults = results.results.slice(startIndex, startIndex + RESULTS_PER_PAGE)
 
   return (
     <div className="space-y-4">
@@ -18,11 +38,45 @@ export function SearchResults({ results }) {
       {results.results.length === 0 ? (
         <EmptyResults />
       ) : (
-        <div className="grid gap-4">
-          {results.results.map((result, index) => (
-            <ResultCard key={index} result={result} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4">
+            {paginatedResults.map((result, index) => (
+              <ResultCard key={startIndex + index} result={result} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(i + 1)}
+                      isActive={currentPage === i + 1}
+                      className="cursor-pointer"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
       )}
     </div>
   )

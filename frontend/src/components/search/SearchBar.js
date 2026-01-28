@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, SlidersHorizontal, X, Loader2, ArrowUp } from 'lucide-react'
+import { SlidersHorizontal, X, Loader2, ArrowUp } from 'lucide-react'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
 import {
@@ -24,7 +23,6 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { api } from '@/lib/api'
 
 export function SearchBar({ query, setQuery, onSearch, loading, filters: activeFilters, setFilters }) {
