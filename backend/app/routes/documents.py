@@ -78,10 +78,17 @@ async def upload_document(
         subject_name = db_document.subject.name if db_document.subject else ""
         semester_name = db_document.subject.semester.name if db_document.subject else ""
 
+        # Enrich text with metadata for better semantic search
+        searchable_text = extracted_text
+        if subject_name:
+            searchable_text += f" Fach: {subject_name}"
+        if tag_list:
+            searchable_text += f" Tags: {' '.join(tag_list)}"
+
         chroma_id = f"doc_{db_document.id}"
         chroma_service.add_document(
             doc_id=chroma_id,
-            text=extracted_text,
+            text=searchable_text,
             metadata={
                 "document_id": db_document.id,
                 "filename": file.filename,
