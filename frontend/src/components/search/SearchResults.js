@@ -62,10 +62,6 @@ function ResultCard({ result }) {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <div className="text-sm bg-muted p-3 rounded-md">
-          <p className="line-clamp-3 break-all">{result.snippet}</p>
-        </div>
-
         <DocumentMetadata document={document} />
 
         {document.tags && document.tags.length > 0 && (
