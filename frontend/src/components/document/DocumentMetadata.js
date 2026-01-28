@@ -18,7 +18,7 @@ export function DocumentMetadata({ document }) {
             <CardHeader>
                 <CardTitle>Dokument Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 break-all">
                 <div className="grid gap-3">
                     {metadataItems.map((item, index) => {
                         if (!item.value) return null
