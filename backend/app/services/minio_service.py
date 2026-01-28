@@ -66,6 +66,8 @@ def get_presigned_url(object_key: str, expires_hours: int = 1) -> str:
             object_name=object_key,
             expires=timedelta(hours=expires_hours)
         )
+        internal_url = f"{'https' if MINIO_SECURE else 'http'}://{MINIO_ENDPOINT}"
+        url = url.replace(internal_url, MINIO_PUBLIC_URL)
         return url
     except S3Error as e:
         raise Exception(f"MinIO presigned URL error: {e}")
