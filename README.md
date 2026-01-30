@@ -2,6 +2,8 @@
 ---
 A smart web application for managing, searching and sharing academic documents.
 
+Live demo available on https://studybuddy.mojiverse.dev
+
 ## Overview
 ---
 Study Buddy is a web application that enables students to upload, manage, and search their academic documents using three powerful methods:
