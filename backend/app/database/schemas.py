@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional, List
+
 
 # Semester
 class SemesterBase(BaseModel):
@@ -11,9 +11,8 @@ class SemesterCreate(SemesterBase):
 
 class SemesterResponse(SemesterBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
 
 # Category
 class CategoryBase(BaseModel):
@@ -24,9 +23,8 @@ class CategoryCreate(CategoryBase):
 
 class CategoryResponse(CategoryBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
 
 # Subject
 class SubjectBase(BaseModel):
@@ -39,15 +37,14 @@ class SubjectCreate(SubjectBase):
 class SubjectResponse(SubjectBase):
     id: int
     semester: SemesterResponse
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
 
 # Document
 class DocumentBase(BaseModel):
-    subject_id: Optional[int] = None
-    category_id: Optional[int] = None
-    tags: List[str] = []
+    subject_id: int | None = None
+    category_id: int | None = None
+    tags: list[str] = []
 
 class DocumentCreate(DocumentBase):
     filename: str
@@ -58,16 +55,15 @@ class DocumentResponse(DocumentBase):
     original_filename: str
     file_type: str
     file_size: int
-    file_url: Optional[str] = None
-    subject: Optional[SubjectResponse] = None
-    category: Optional[CategoryResponse] = None
+    file_url: str | None = None
+    subject: SubjectResponse | None = None
+    category: CategoryResponse | None = None
     created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
 
 # Filter-Endpoint
 class FiltersResponse(BaseModel):
-    semesters: List[SemesterResponse]
-    subjects: List[SubjectResponse]
-    categories: List[CategoryResponse]
+    semesters: list[SemesterResponse]
+    subjects: list[SubjectResponse]
+    categories: list[CategoryResponse]

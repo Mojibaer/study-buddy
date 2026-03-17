@@ -1,10 +1,13 @@
+from typing import TypeVar
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.models import Category, Document, Semester, Subject
 
+T = TypeVar("T")
 
-def get_or_404(db: Session, model: type, id: int):
+
+def get_or_404(db: Session, model: type[T], id: int) -> T:
     obj = db.query(model).filter(model.id == id).first()
     if not obj:
         raise HTTPException(status_code=404, detail=f"{model.__name__} not found")

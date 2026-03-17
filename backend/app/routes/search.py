@@ -1,22 +1,23 @@
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
-from typing import Optional
+
 from app.database.database import get_db
 from app.database.models import Document, Subject, Category, Semester
 from app.services.chroma_service import chroma_service
 
 router = APIRouter()
 
+
 @router.get("/semantic")
 def semantic_search(
     query: str = Query(..., min_length=1),
-    category_id: Optional[int] = None,
-    subject_id: Optional[int] = None,
-    semester_id: Optional[int] = None,
+    category_id: int | None = None,
+    subject_id: int | None = None,
+    semester_id: int | None = None,
     limit: int = Query(10, ge=1, le=50),
     db: Session = Depends(get_db)
-):
-    where_conditions = []
+) -> dict:
+    where_conditions: list[dict] = []
 
     if category_id:
         category = db.query(Category).filter(Category.id == category_id).first()
@@ -33,7 +34,7 @@ def semantic_search(
         if semester:
             where_conditions.append({"semester": semester.name})
 
-    where_filter = None
+    where_filter: dict | None = None
     if len(where_conditions) == 1:
         where_filter = where_conditions[0]
     elif len(where_conditions) > 1:
@@ -48,7 +49,7 @@ def semantic_search(
     if not chroma_results['ids'] or not chroma_results['ids'][0]:
         return {"results": [], "query": query, "total_results": 0}
 
-    doc_ids = [
+    doc_ids: list[int] = [
         int(metadata['document_id'])
         for metadata in chroma_results['metadatas'][0]
     ]
