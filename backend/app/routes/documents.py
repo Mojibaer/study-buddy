@@ -4,8 +4,9 @@ from typing import List, Optional
 import os
 
 from app.database.database import get_db
-from app.database.models import Document, Subject, Category, Semester
+from app.database.models import Document
 from app.database.schemas import DocumentResponse
+from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
@@ -35,14 +36,10 @@ async def upload_document(
 
     # Validate foreign keys
     if category_id:
-        category = db.query(Category).filter(Category.id == category_id).first()
-        if not category:
-            raise HTTPException(status_code=400, detail="Category not found")
+        get_category_or_404(db, category_id)
 
     if subject_id:
-        subject = db.query(Subject).filter(Subject.id == subject_id).first()
-        if not subject:
-            raise HTTPException(status_code=400, detail="Subject not found")
+        get_subject_or_404(db, subject_id)
 
     file_content = await file.read()
     file_size = len(file_content)
@@ -131,10 +128,7 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
     """
     Get a specific document
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return document
+    return get_document_or_404(db, document_id)
 
 
 @router.get("/{document_id}/download")
@@ -142,9 +136,7 @@ def get_download_url(document_id: int, db: Session = Depends(get_db)):
     """
     Get a temporary download URL for a document
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
+    document = get_document_or_404(db, document_id)
 
     url = get_presigned_url(document.filename)
     return {"url": url, "filename": document.original_filename}
@@ -155,9 +147,7 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
     """
     Delete a document from MinIO and database
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
+    document = get_document_or_404(db, document_id)
 
     delete_file(document.filename)
 

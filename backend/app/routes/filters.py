@@ -4,6 +4,7 @@ from typing import List
 
 from app.database.database import get_db
 from app.database import Semester, Subject, Category, Document
+from app.repositories.crud import get_semester_or_404, get_subject_or_404, get_category_or_404
 from app.database.schemas import (
     SemesterResponse, SemesterCreate,
     SubjectResponse, SubjectCreate,
@@ -85,11 +86,8 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
 
 @router.delete("/semesters/{semester_id}")
 def delete_semester(semester_id: int, db: Session = Depends(get_db)):
-    semester = db.query(Semester).filter(Semester.id == semester_id).first()
-    if not semester:
-        raise HTTPException(status_code=404, detail="Semester not found")
+    semester = get_semester_or_404(db, semester_id)
 
-    # # Validate subjects exists
     if db.query(Subject).filter(Subject.semester_id == semester_id).first():
         raise HTTPException(status_code=400, detail="Cannot delete semester with existing subjects")
 
@@ -100,11 +98,8 @@ def delete_semester(semester_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/subjects/{subject_id}")
 def delete_subject(subject_id: int, db: Session = Depends(get_db)):
-    subject = db.query(Subject).filter(Subject.id == subject_id).first()
-    if not subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
+    subject = get_subject_or_404(db, subject_id)
 
-    # Validate documents exists
     if db.query(Document).filter(Document.subject_id == subject_id).first():
         raise HTTPException(status_code=400, detail="Cannot delete subject with existing documents")
 
@@ -114,11 +109,8 @@ def delete_subject(subject_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/categories/{category_id}")
 def delete_category(category_id: int, db: Session = Depends(get_db)):
-    category = db.query(Category).filter(Category.id == category_id).first()
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
+    category = get_category_or_404(db, category_id)
 
-    # Validate documents exists
     if db.query(Document).filter(Document.category_id == category_id).first():
         raise HTTPException(status_code=400, detail="Cannot delete category with existing documents")
 
