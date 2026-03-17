@@ -1,5 +1,8 @@
+import logging
 import os
 import chromadb
+
+logger = logging.getLogger(__name__)
 
 class ChromaService:
     def __init__(self):
@@ -32,7 +35,7 @@ class ChromaService:
         try:
             self.collection.delete(ids=[doc_id])
         except Exception as e:
-            print(f"Error deleting from ChromaDB: {e}")
+            logger.error("Error deleting from ChromaDB", exc_info=True)
 
 # Singleton instance
 chroma_service = ChromaService()

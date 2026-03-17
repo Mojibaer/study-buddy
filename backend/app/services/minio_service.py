@@ -1,5 +1,8 @@
+import logging
 import os
 from minio import Minio
+
+logger = logging.getLogger(__name__)
 from minio.error import S3Error
 from datetime import timedelta
 import uuid
