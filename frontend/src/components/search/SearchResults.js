@@ -12,8 +12,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { FileText, Calendar, Tag, ExternalLink } from 'lucide-react'
-
-const RESULTS_PER_PAGE = 5
+import { RESULTS_PER_PAGE } from '@/lib/constants'
 
 export function SearchResults({ results }) {
   const [currentPage, setCurrentPage] = useState(1)

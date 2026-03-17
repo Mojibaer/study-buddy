@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,7 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Upload, Loader2, X } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api } from '@/api/client'
+import { useFilters } from '@/hooks/useFilters'
+import { ALLOWED_FILE_TYPES } from '@/lib/constants'
 
 export function UploadForm({ onSuccess }) {
   const [file, setFile] = useState(null)
@@ -23,35 +25,16 @@ export function UploadForm({ onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const [filters, setFilters] = useState({ semesters: [], subjects: [], categories: [] })
-  const [filtersLoading, setFiltersLoading] = useState(true)
-
-  useEffect(() => {
-    const loadFilters = async () => {
-      try {
-        const data = await api.getFilters()
-        setFilters(data)
-      } catch (err) {
-        console.error('Fehler beim Laden der Filter:', err)
-      } finally {
-        setFiltersLoading(false)
-      }
-    }
-    loadFilters()
-  }, [])
-
-  const filteredSubjects = semesterId
-    ? filters.subjects.filter(s => s.semester_id === parseInt(semesterId))
-    : filters.subjects
+  const { filters, loading: filtersLoading, getSubjectsForSemester } = useFilters()
+  const filteredSubjects = getSubjectsForSemester(semesterId)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      const allowedTypes = ['.pdf', '.docx', '.txt', '.md']
       const ext = selectedFile.name.substring(selectedFile.name.lastIndexOf('.')).toLowerCase()
 
-      if (!allowedTypes.includes(ext)) {
-        setError(`Dateityp ${ext} nicht erlaubt. Erlaubt: ${allowedTypes.join(', ')}`)
+      if (!ALLOWED_FILE_TYPES.includes(ext)) {
+        setError(`Dateityp ${ext} nicht erlaubt. Erlaubt: ${ALLOWED_FILE_TYPES.join(', ')}`)
         return
       }
       setFile(selectedFile)
