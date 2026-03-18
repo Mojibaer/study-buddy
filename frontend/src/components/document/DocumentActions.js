@@ -3,21 +3,15 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Download, Share2, Mail, MessageCircle, Link2, Check } from 'lucide-react'
-import { shareViaWhatsApp, shareViaEmail, copyToClipboard } from '@/lib/utils'
-import { useState } from 'react'
+import { shareViaWhatsApp, shareViaEmail } from '@/lib/utils'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 
 export function DocumentActions({ document }) {
-    const [copied, setCopied] = useState(false)
+    const { copied, copy } = useCopyToClipboard()
     const documentUrl = typeof window !== 'undefined' ? window.location.href : ''
     const documentTitle = document.original_filename || document.filename
 
-    const handleCopyLink = async () => {
-        const success = await copyToClipboard(documentUrl)
-        if (success) {
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-        }
-    }
+    const handleCopyLink = () => copy(documentUrl)
 
     const handleDownload = () => {
         if (document.file_url) {

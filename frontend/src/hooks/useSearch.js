@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { api } from '@/lib/api'
+import { api } from '@/api/client'
+import { SEARCH_LIMIT } from '@/lib/constants'
 
 export function useSearch() {
   const [query, setQuery] = useState('')
@@ -24,7 +25,7 @@ export function useSearch() {
 
     try {
       const data = await api.search(trimmedQuery, {
-        limit: 20,
+        limit: SEARCH_LIMIT,
         ...filters
       })
       setResults(data)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { SlidersHorizontal, X, Loader2, ArrowUp } from 'lucide-react'
 import {
   InputGroup,
@@ -23,26 +23,11 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { api } from '@/lib/api'
+import { useFilters } from '@/hooks/useFilters'
 
 export function SearchBar({ query, setQuery, onSearch, loading, filters: activeFilters, setFilters }) {
-  const [filtersData, setFiltersData] = useState({ semesters: [], subjects: [], categories: [] })
-  const [filtersLoading, setFiltersLoading] = useState(true)
+  const { filters: filtersData, loading: filtersLoading, getSubjectsForSemester } = useFilters()
   const [popoverOpen, setPopoverOpen] = useState(false)
-
-  useEffect(() => {
-    const loadFilters = async () => {
-      try {
-        const data = await api.getFilters()
-        setFiltersData(data)
-      } catch (err) {
-        console.error('Fehler beim Laden der Filter:', err)
-      } finally {
-        setFiltersLoading(false)
-      }
-    }
-    loadFilters()
-  }, [])
 
   const handleSubmit = (e) => {
     e?.preventDefault()
@@ -88,9 +73,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
     })
   }
 
-  const filteredSubjects = activeFilters.semester_id
-    ? filtersData.subjects.filter(s => s.semester_id === parseInt(activeFilters.semester_id))
-    : filtersData.subjects
+  const filteredSubjects = getSubjectsForSemester(activeFilters.semester_id)
 
   const getSemesterName = (id) => filtersData.semesters.find(s => s.id === parseInt(id))?.name
   const getSubjectName = (id) => filtersData.subjects.find(s => s.id === parseInt(id))?.name
