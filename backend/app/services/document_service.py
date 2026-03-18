@@ -1,6 +1,9 @@
 import io
+import logging
 from pypdf import PdfReader
 from docx import Document
+
+logger = logging.getLogger(__name__)
 
 def extract_text_from_bytes(file_content: bytes, file_ext: str) -> str:
     """
@@ -25,5 +28,5 @@ def extract_text_from_bytes(file_content: bytes, file_ext: str) -> str:
             return ""
 
     except Exception as e:
-        print(f"Error extracting text: {e}")
+        logger.error("Error extracting text from file", exc_info=True)
         return ""

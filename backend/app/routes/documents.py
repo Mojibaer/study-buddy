@@ -1,11 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List, Optional
 import os
 
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 from app.database.database import get_db
-from app.database.models import Document, Subject, Category, Semester
+from app.database.models import Document, Subject
 from app.database.schemas import DocumentResponse
+from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
@@ -16,14 +17,11 @@ router = APIRouter()
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
     file: UploadFile = File(...),
-    category_id: Optional[int] = Form(None),
-    subject_id: Optional[int] = Form(None),
-    tags: Optional[str] = Form(None),
+    category_id: int | None = Form(None),
+    subject_id: int | None = Form(None),
+    tags: str | None = Form(None),
     db: Session = Depends(get_db)
-):
-    """
-    Upload a document with metadata
-    """
+) -> DocumentResponse:
     allowed_extensions = {".pdf", ".docx", ".txt", ".md"}
     file_ext = os.path.splitext(file.filename)[1].lower()
 
@@ -33,16 +31,11 @@ async def upload_document(
             detail=f"File type {file_ext} not supported. Allowed: {allowed_extensions}"
         )
 
-    # Validate foreign keys
     if category_id:
-        category = db.query(Category).filter(Category.id == category_id).first()
-        if not category:
-            raise HTTPException(status_code=400, detail="Category not found")
+        get_category_or_404(db, category_id)
 
     if subject_id:
-        subject = db.query(Subject).filter(Subject.id == subject_id).first()
-        if not subject:
-            raise HTTPException(status_code=400, detail="Subject not found")
+        get_subject_or_404(db, subject_id)
 
     file_content = await file.read()
     file_size = len(file_content)
@@ -71,14 +64,11 @@ async def upload_document(
     db.commit()
     db.refresh(db_document)
 
-    # Add to ChromaDB
     if extracted_text:
-        # Get names for ChromaDB Metadata
         category_name = db_document.category.name if db_document.category else ""
         subject_name = db_document.subject.name if db_document.subject else ""
         semester_name = db_document.subject.semester.name if db_document.subject else ""
 
-        # Enrich text with metadata for better semantic search
         searchable_text = extracted_text
         if subject_name:
             searchable_text += f" Fach: {subject_name}"
@@ -104,16 +94,13 @@ async def upload_document(
     return db_document
 
 
-@router.get("/", response_model=List[DocumentResponse])
+@router.get("/", response_model=list[DocumentResponse])
 def list_documents(
-    category_id: Optional[int] = None,
-    subject_id: Optional[int] = None,
-    semester_id: Optional[int] = None,
+    category_id: int | None = None,
+    subject_id: int | None = None,
+    semester_id: int | None = None,
     db: Session = Depends(get_db)
-):
-    """
-    List all documents with optional filters
-    """
+) -> list[DocumentResponse]:
     query = db.query(Document)
 
     if category_id:
@@ -127,37 +114,20 @@ def list_documents(
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
-def get_document(document_id: int, db: Session = Depends(get_db)):
-    """
-    Get a specific document
-    """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return document
+def get_document(document_id: int, db: Session = Depends(get_db)) -> DocumentResponse:
+    return get_document_or_404(db, document_id)
 
 
 @router.get("/{document_id}/download")
-def get_download_url(document_id: int, db: Session = Depends(get_db)):
-    """
-    Get a temporary download URL for a document
-    """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-
+def get_download_url(document_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    document = get_document_or_404(db, document_id)
     url = get_presigned_url(document.filename)
     return {"url": url, "filename": document.original_filename}
 
 
 @router.delete("/{document_id}")
-def delete_document(document_id: int, db: Session = Depends(get_db)):
-    """
-    Delete a document from MinIO and database
-    """
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
+def delete_document(document_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    document = get_document_or_404(db, document_id)
 
     delete_file(document.filename)
 
