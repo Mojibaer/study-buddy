@@ -15,6 +15,7 @@ frontend/build
 frontend/.vercel
 frontend/*.tsbuildinfo
 frontend/next-env.d.ts
+frontend/package-lock.json
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
