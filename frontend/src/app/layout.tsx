@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./theme-provider";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import type { Metadata } from "next";
 
 const geistSans = Geist({
@@ -18,14 +20,17 @@ export const metadata: Metadata = {
   title: "Study Buddy",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
-      >
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         <ThemeProvider>
-          {children}
+          <NextIntlClientProvider messages={messages}>
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

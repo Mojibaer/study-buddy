@@ -6,7 +6,7 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Suspense fallback={<div className="p-8 text-center">Lade...</div>}>
+      <Suspense fallback={<div className="p-8 text-center">...</div>}>
         <BrowseContent />
       </Suspense>
     </div>

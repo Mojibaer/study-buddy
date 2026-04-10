@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
@@ -16,16 +17,14 @@ export default function DocumentDetailPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { document, loading, error } = useDocument(params.id)
+  const t = useTranslations()
 
   const fromPath = searchParams.get('from')
   const isFromBrowse = fromPath?.startsWith('/browse')
 
   const handleBack = () => {
-    if (fromPath) {
-      router.push(fromPath)
-    } else {
-      router.back()
-    }
+    if (fromPath) router.push(fromPath)
+    else router.back()
   }
 
   return (
@@ -33,21 +32,11 @@ export default function DocumentDetailPage() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-6">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            className="mb-4"
-          >
+          <Button variant="ghost" onClick={handleBack} className="mb-4">
             {isFromBrowse ? (
-              <>
-                <FolderTree className="w-4 h-4 mr-2" />
-                Zurück zum Explorer
-              </>
+              <><FolderTree className="w-4 h-4 mr-2" />{t('document.backToBrowse')}</>
             ) : (
-              <>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Zurück zur Suche
-              </>
+              <><ArrowLeft className="w-4 h-4 mr-2" />{t('document.backToSearch')}</>
             )}
           </Button>
 
@@ -59,7 +48,7 @@ export default function DocumentDetailPage() {
 
           {error && (
             <Alert variant="destructive">
-              <AlertTitle>Fehler</AlertTitle>
+              <AlertTitle>{t('document.error')}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -69,7 +58,6 @@ export default function DocumentDetailPage() {
               <div className="lg:col-span-2 space-y-6">
                 <FilePreview document={document} />
               </div>
-
               <div className="space-y-6">
                 <DocumentMetadata document={document} />
                 <DocumentActions document={document} />

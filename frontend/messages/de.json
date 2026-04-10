@@ -1,0 +1,94 @@
+{
+  "header": {
+    "exploreFiles": "Dateien erkunden",
+    "upload": "Hochladen",
+    "uploadDialogTitle": "Dokument hochladen"
+  },
+  "footer": {
+    "text": "Hackathon Projekt · FH Joanneum"
+  },
+  "search": {
+    "heading": "Schnell die richtigen Unterlagen finden",
+    "subheading": "Finde schnell die richtigen Inhalte - beschreib einfach was du lernen willst",
+    "placeholder": "z.B. 'Sortieralgorithmen', 'Python Funktionen', 'Lineare Algebra'...",
+    "filterLabel": "Filter",
+    "semester": "Semester",
+    "allSemesters": "Alle Semester",
+    "subject": "Fach",
+    "allSubjects": "Alle Fächer",
+    "category": "Kategorie",
+    "allCategories": "Alle Kategorien",
+    "resetFilters": "Filter zurücksetzen",
+    "results": "{count} Ergebnisse für \"{query}\"",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "noResultsHint": "Versuche andere Suchbegriffe oder lade neue Dokumente hoch.",
+    "matchScore": "Match Score",
+    "showDetails": "Details anzeigen",
+    "error": "Suchfehler"
+  },
+  "features": {
+    "semanticSearch": "Semantische Suche",
+    "semanticSearchDesc": "Suche nach Konzepten, nicht nur Keywords",
+    "easyUpload": "Einfacher Upload",
+    "easyUploadDesc": "PDF, DOCX, TXT, MD unterstützt",
+    "smartFilters": "Smarte Filter",
+    "smartFiltersDesc": "Nach Kategorie, Fach, Semester filtern"
+  },
+  "upload": {
+    "file": "Datei",
+    "fileTypes": "PDF, DOCX, TXT oder MD",
+    "category": "Kategorie",
+    "selectCategory": "Kategorie wählen",
+    "semester": "Semester",
+    "selectSemester": "Semester wählen",
+    "subject": "Fach",
+    "selectSubject": "Fach wählen",
+    "selectSemesterFirst": "Erst Semester wählen",
+    "tags": "Tags",
+    "tagsPlaceholder": "z.B. wichtig, klausurrelevant",
+    "tagsHint": "Kommagetrennt",
+    "submit": "Hochladen",
+    "uploading": "Wird hochgeladen...",
+    "errorFileType": "Dateityp {ext} nicht erlaubt. Erlaubt: {allowed}",
+    "errorNoFile": "Bitte eine Datei auswählen"
+  },
+  "document": {
+    "backToBrowse": "Zurück zum Explorer",
+    "backToSearch": "Zurück zur Suche",
+    "error": "Fehler",
+    "details": "Dokument Details",
+    "filename": "Dateiname",
+    "category": "Kategorie",
+    "subject": "Fach",
+    "semester": "Semester",
+    "uploaded": "Hochgeladen",
+    "fileSize": "Dateigröße",
+    "tags": "Tags",
+    "actions": "Aktionen",
+    "download": "Herunterladen",
+    "shareVia": "Teilen via",
+    "copied": "Kopiert!",
+    "link": "Link",
+    "preview": "Vorschau",
+    "previewUnavailableUrl": "Datei-URL nicht verfügbar",
+    "previewUnavailable": "Vorschau konnte nicht geladen werden. Bitte verwenden Sie den Download-Button.",
+    "previewTypeUnsupported": "Vorschau für diesen Dateityp nicht verfügbar. Bitte verwenden Sie den Download-Button.",
+    "loadingPreview": "Lade Vorschau..."
+  },
+  "browse": {
+    "loading": "Lade...",
+    "noDocuments": "Keine Dokumente in diesem Ordner",
+    "root": "Software Design & Cloud Computing"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "theme": {
+    "label": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  }
+}

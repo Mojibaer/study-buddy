@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { SlidersHorizontal, X, Loader2, ArrowUp } from 'lucide-react'
 import {
   InputGroup,
@@ -38,12 +39,11 @@ interface SearchBarProps {
 export function SearchBar({ query, setQuery, onSearch, loading, filters: activeFilters, setFilters }: SearchBarProps) {
   const { filters: filtersData, loading: filtersLoading, getSubjectsForSemester } = useFilters()
   const [popoverOpen, setPopoverOpen] = useState(false)
+  const t = useTranslations()
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault()
-    if (query.trim()) {
-      onSearch()
-    }
+    if (query.trim()) onSearch()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -54,37 +54,22 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
   }
 
   const handleSemesterChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      semester_id: value === 'all' ? null : value,
-      subject_id: null,
-    }))
+    setFilters(prev => ({ ...prev, semester_id: value === 'all' ? null : value, subject_id: null }))
   }
 
   const handleSubjectChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      subject_id: value === 'all' ? null : value,
-    }))
+    setFilters(prev => ({ ...prev, subject_id: value === 'all' ? null : value }))
   }
 
   const handleCategoryChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      category_id: value === 'all' ? null : value,
-    }))
+    setFilters(prev => ({ ...prev, category_id: value === 'all' ? null : value }))
   }
 
   const clearFilters = () => {
-    setFilters({
-      semester_id: null,
-      subject_id: null,
-      category_id: null,
-    })
+    setFilters({ semester_id: null, subject_id: null, category_id: null })
   }
 
   const filteredSubjects = getSubjectsForSemester(activeFilters.semester_id)
-
   const getSemesterName = (id: string) => filtersData.semesters.find(s => s.id === parseInt(id))?.name
   const getSubjectName = (id: string) => filtersData.subjects.find(s => s.id === parseInt(id))?.name
   const getCategoryName = (id: string) => filtersData.categories.find(c => c.id === parseInt(id))?.name
@@ -96,7 +81,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
     <div className="w-full space-y-2">
       <InputGroup className="[--radius:1rem]">
         <InputGroupTextarea
-          placeholder="z.B. 'Sortieralgorithmen', 'Python Funktionen', 'Lineare Algebra'..."
+          placeholder={t('search.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -106,14 +91,9 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
         <InputGroupAddon align="block-end">
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>
-              <InputGroupButton
-                type="button"
-                variant="outline"
-                className="rounded-full gap-1"
-                size="sm"
-              >
+              <InputGroupButton type="button" variant="outline" className="rounded-full gap-1" size="sm">
                 <SlidersHorizontal className="h-4 w-4" />
-                <span className="hidden sm:inline">Filter</span>
+                <span className="hidden sm:inline">{t('search.filterLabel')}</span>
                 {activeFilterCount > 0 && (
                   <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
                     {activeFilterCount}
@@ -123,7 +103,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
             </PopoverTrigger>
             <PopoverContent align="start" side="top" className="w-80 duration-100">
               <div className="space-y-4">
-                <div className="font-medium">Filter</div>
+                <div className="font-medium">{t('search.filterLabel')}</div>
 
                 {filtersLoading ? (
                   <div className="flex items-center justify-center py-4">
@@ -132,74 +112,47 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>Semester</Label>
-                      <Select
-                        value={activeFilters.semester_id || 'all'}
-                        onValueChange={handleSemesterChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Alle Semester" />
-                        </SelectTrigger>
+                      <Label>{t('search.semester')}</Label>
+                      <Select value={activeFilters.semester_id || 'all'} onValueChange={handleSemesterChange}>
+                        <SelectTrigger><SelectValue placeholder={t('search.allSemesters')} /></SelectTrigger>
                         <SelectContent className="duration-100">
-                          <SelectItem value="all">Alle Semester</SelectItem>
+                          <SelectItem value="all">{t('search.allSemesters')}</SelectItem>
                           {filtersData.semesters.map((sem) => (
-                            <SelectItem key={sem.id} value={String(sem.id)}>
-                              {sem.name}
-                            </SelectItem>
+                            <SelectItem key={sem.id} value={String(sem.id)}>{sem.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Fach</Label>
-                      <Select
-                        value={activeFilters.subject_id || 'all'}
-                        onValueChange={handleSubjectChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Alle Fächer" />
-                        </SelectTrigger>
+                      <Label>{t('search.subject')}</Label>
+                      <Select value={activeFilters.subject_id || 'all'} onValueChange={handleSubjectChange}>
+                        <SelectTrigger><SelectValue placeholder={t('search.allSubjects')} /></SelectTrigger>
                         <SelectContent className="duration-100">
-                          <SelectItem value="all">Alle Fächer</SelectItem>
+                          <SelectItem value="all">{t('search.allSubjects')}</SelectItem>
                           {filteredSubjects.map((subj) => (
-                            <SelectItem key={subj.id} value={String(subj.id)}>
-                              {subj.name}
-                            </SelectItem>
+                            <SelectItem key={subj.id} value={String(subj.id)}>{subj.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Kategorie</Label>
-                      <Select
-                        value={activeFilters.category_id || 'all'}
-                        onValueChange={handleCategoryChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Alle Kategorien" />
-                        </SelectTrigger>
+                      <Label>{t('search.category')}</Label>
+                      <Select value={activeFilters.category_id || 'all'} onValueChange={handleCategoryChange}>
+                        <SelectTrigger><SelectValue placeholder={t('search.allCategories')} /></SelectTrigger>
                         <SelectContent className="duration-100">
-                          <SelectItem value="all">Alle Kategorien</SelectItem>
+                          <SelectItem value="all">{t('search.allCategories')}</SelectItem>
                           {filtersData.categories.map((cat) => (
-                            <SelectItem key={cat.id} value={String(cat.id)}>
-                              {cat.name}
-                            </SelectItem>
+                            <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     {hasActiveFilters && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearFilters}
-                        className="w-full"
-                      >
-                        Filter zurücksetzen
+                      <Button type="button" variant="ghost" size="sm" onClick={clearFilters} className="w-full">
+                        {t('search.resetFilters')}
                       </Button>
                     )}
                   </>
@@ -213,11 +166,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
               {activeFilters.semester_id && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {getSemesterName(activeFilters.semester_id)}
-                  <button
-                    type="button"
-                    onClick={() => handleSemesterChange('all')}
-                    className="hover:bg-muted rounded-full"
-                  >
+                  <button type="button" onClick={() => handleSemesterChange('all')} className="hover:bg-muted rounded-full">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -225,11 +174,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
               {activeFilters.subject_id && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {getSubjectName(activeFilters.subject_id)}
-                  <button
-                    type="button"
-                    onClick={() => handleSubjectChange('all')}
-                    className="hover:bg-muted rounded-full"
-                  >
+                  <button type="button" onClick={() => handleSubjectChange('all')} className="hover:bg-muted rounded-full">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -237,11 +182,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
               {activeFilters.category_id && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {getCategoryName(activeFilters.category_id)}
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryChange('all')}
-                    className="hover:bg-muted rounded-full"
-                  >
+                  <button type="button" onClick={() => handleCategoryChange('all')} className="hover:bg-muted rounded-full">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -257,12 +198,8 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
             disabled={loading || !query.trim()}
             onClick={() => handleSubmit()}
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowUp className="h-4 w-4" />
-            )}
-            <span className="sr-only">Suchen</span>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+            <span className="sr-only">{t('search.filterLabel')}</span>
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
@@ -272,11 +209,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
           {activeFilters.semester_id && (
             <Badge variant="secondary" className="gap-1 text-xs">
               {getSemesterName(activeFilters.semester_id)}
-              <button
-                type="button"
-                onClick={() => handleSemesterChange('all')}
-                className="hover:bg-muted rounded-full"
-              >
+              <button type="button" onClick={() => handleSemesterChange('all')} className="hover:bg-muted rounded-full">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -284,11 +217,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
           {activeFilters.subject_id && (
             <Badge variant="secondary" className="gap-1 text-xs">
               {getSubjectName(activeFilters.subject_id)}
-              <button
-                type="button"
-                onClick={() => handleSubjectChange('all')}
-                className="hover:bg-muted rounded-full"
-              >
+              <button type="button" onClick={() => handleSubjectChange('all')} className="hover:bg-muted rounded-full">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -296,11 +225,7 @@ export function SearchBar({ query, setQuery, onSearch, loading, filters: activeF
           {activeFilters.category_id && (
             <Badge variant="secondary" className="gap-1 text-xs">
               {getCategoryName(activeFilters.category_id)}
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('all')}
-                className="hover:bg-muted rounded-full"
-              >
+              <button type="button" onClick={() => handleCategoryChange('all')} className="hover:bg-muted rounded-full">
                 <X className="h-3 w-3" />
               </button>
             </Badge>

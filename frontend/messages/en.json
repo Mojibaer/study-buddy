@@ -1,0 +1,94 @@
+{
+  "header": {
+    "exploreFiles": "Explore files",
+    "upload": "Upload",
+    "uploadDialogTitle": "Upload document"
+  },
+  "footer": {
+    "text": "Hackathon Project · FH Joanneum"
+  },
+  "search": {
+    "heading": "Find the right study materials fast",
+    "subheading": "Quickly find the right content — just describe what you want to learn",
+    "placeholder": "e.g. 'Sorting algorithms', 'Python functions', 'Linear algebra'...",
+    "filterLabel": "Filter",
+    "semester": "Semester",
+    "allSemesters": "All semesters",
+    "subject": "Subject",
+    "allSubjects": "All subjects",
+    "category": "Category",
+    "allCategories": "All categories",
+    "resetFilters": "Reset filters",
+    "results": "{count} results for \"{query}\"",
+    "noResults": "No results found.",
+    "noResultsHint": "Try different search terms or upload new documents.",
+    "matchScore": "Match Score",
+    "showDetails": "Show details",
+    "error": "Search error"
+  },
+  "features": {
+    "semanticSearch": "Semantic Search",
+    "semanticSearchDesc": "Search by concept, not just keywords",
+    "easyUpload": "Easy Upload",
+    "easyUploadDesc": "PDF, DOCX, TXT, MD supported",
+    "smartFilters": "Smart Filters",
+    "smartFiltersDesc": "Filter by category, subject, semester"
+  },
+  "upload": {
+    "file": "File",
+    "fileTypes": "PDF, DOCX, TXT or MD",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "semester": "Semester",
+    "selectSemester": "Select semester",
+    "subject": "Subject",
+    "selectSubject": "Select subject",
+    "selectSemesterFirst": "Select semester first",
+    "tags": "Tags",
+    "tagsPlaceholder": "e.g. important, exam-relevant",
+    "tagsHint": "Comma-separated",
+    "submit": "Upload",
+    "uploading": "Uploading...",
+    "errorFileType": "File type {ext} not allowed. Allowed: {allowed}",
+    "errorNoFile": "Please select a file"
+  },
+  "document": {
+    "backToBrowse": "Back to Explorer",
+    "backToSearch": "Back to Search",
+    "error": "Error",
+    "details": "Document Details",
+    "filename": "Filename",
+    "category": "Category",
+    "subject": "Subject",
+    "semester": "Semester",
+    "uploaded": "Uploaded",
+    "fileSize": "File size",
+    "tags": "Tags",
+    "actions": "Actions",
+    "download": "Download",
+    "shareVia": "Share via",
+    "copied": "Copied!",
+    "link": "Link",
+    "preview": "Preview",
+    "previewUnavailableUrl": "File URL not available",
+    "previewUnavailable": "Preview could not be loaded. Please use the download button.",
+    "previewTypeUnsupported": "Preview not available for this file type. Please use the download button.",
+    "loadingPreview": "Loading preview..."
+  },
+  "browse": {
+    "loading": "Loading...",
+    "noDocuments": "No documents in this folder",
+    "root": "Software Design & Cloud Computing"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}

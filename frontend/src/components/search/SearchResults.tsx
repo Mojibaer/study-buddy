@@ -1,5 +1,8 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,22 +16,15 @@ import {
 } from '@/components/ui/pagination'
 import { FileText, Calendar, Tag, ExternalLink } from 'lucide-react'
 import { RESULTS_PER_PAGE } from '@/lib/constants'
-import type { SearchResponse, SearchResult, Document } from '@/types'
+import type { SearchResponse, SearchResult } from '@/types'
 
 interface SearchResultsProps {
   results: SearchResponse | null
 }
 
-interface ResultCardProps {
-  result: SearchResult
-}
-
-interface DocumentMetadataProps {
-  document: Document
-}
-
 export function SearchResults({ results }: SearchResultsProps) {
   const [currentPage, setCurrentPage] = useState(1)
+  const t = useTranslations()
 
   useEffect(() => {
     setCurrentPage(1)
@@ -42,19 +38,23 @@ export function SearchResults({ results }: SearchResultsProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold">
-          {results.total_results} Ergebnisse für &quot;{results.query}&quot;
-        </h3>
-      </div>
+      <h3 className="text-xl font-semibold">
+        {t('search.results', { count: results.total_results, query: results.query })}
+      </h3>
 
       {results.results.length === 0 ? (
-        <EmptyResults />
+        <Card>
+          <CardContent className="pt-6 text-center text-muted-foreground">
+            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>{t('search.noResults')}</p>
+            <p className="text-sm mt-2">{t('search.noResultsHint')}</p>
+          </CardContent>
+        </Card>
       ) : (
         <>
           <div className="grid gap-4">
-            {paginatedResults.map((result, index) => (
-              <ResultCard key={startIndex + index} result={result} />
+            {paginatedResults.map((result) => (
+              <ResultCard key={result.document.id} result={result} />
             ))}
           </div>
 
@@ -67,7 +67,6 @@ export function SearchResults({ results }: SearchResultsProps) {
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                   />
                 </PaginationItem>
-
                 {[...Array(totalPages)].map((_, i) => (
                   <PaginationItem key={i}>
                     <PaginationLink
@@ -79,7 +78,6 @@ export function SearchResults({ results }: SearchResultsProps) {
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-
                 <PaginationItem>
                   <PaginationNext
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
@@ -95,84 +93,58 @@ export function SearchResults({ results }: SearchResultsProps) {
   )
 }
 
-function EmptyResults() {
-  return (
-    <Card>
-      <CardContent className="pt-6 text-center text-muted-foreground">
-        <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>Keine Ergebnisse gefunden.</p>
-        <p className="text-sm mt-2">
-          Versuche andere Suchbegriffe oder lade neue Dokumente hoch.
-        </p>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ResultCard({ result }: ResultCardProps) {
+function ResultCard({ result }: { result: SearchResult }) {
+  const t = useTranslations()
   const { document } = result
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              {document.original_filename || document.filename}
-            </CardTitle>
-            <CardDescription className="mt-1">
-              Match Score: {((1 - result.distance) * 100).toFixed(1)}%
-            </CardDescription>
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          {document.original_filename || document.filename}
+        </CardTitle>
+        <CardDescription>
+          {t('search.matchScore')}: {((1 - result.distance) * 100).toFixed(1)}%
+        </CardDescription>
       </CardHeader>
-
       <CardContent className="space-y-3">
-        <DocumentMetadata document={document} />
+        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+          {document.category?.name && (
+            <div className="flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              <span>{document.category.name}</span>
+            </div>
+          )}
+          {document.subject?.name && (
+            <div className="flex items-center gap-1">
+              <FileText className="w-3 h-3" />
+              <span>{document.subject.name}</span>
+            </div>
+          )}
+          {document.subject?.semester?.name && (
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              <span>{document.subject.semester.name}</span>
+            </div>
+          )}
+        </div>
 
         {document.tags && document.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {document.tags.map((tag, i) => (
-              <Badge key={i} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
+              <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
             ))}
           </div>
         )}
 
         <Link href={`/documents/${document.id}`}>
           <Button variant="outline" className="w-full mt-2">
-            Details anzeigen
+            {t('search.showDetails')}
             <ExternalLink className="w-4 h-4 ml-2" />
           </Button>
         </Link>
       </CardContent>
     </Card>
-  )
-}
-
-function DocumentMetadata({ document }: DocumentMetadataProps) {
-  return (
-    <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-      {document.category?.name && (
-        <div className="flex items-center gap-1">
-          <Tag className="w-3 h-3" />
-          <span>{document.category.name}</span>
-        </div>
-      )}
-      {document.subject?.name && (
-        <div className="flex items-center gap-1">
-          <FileText className="w-3 h-3" />
-          <span>{document.subject.name}</span>
-        </div>
-      )}
-      {document.subject?.semester?.name && (
-        <div className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
-          <span>{document.subject.semester.name}</span>
-        </div>
-      )}
-    </div>
   )
 }

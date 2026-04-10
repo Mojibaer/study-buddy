@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { api } from '@/api/client'
 import { useFilters } from '@/hooks/useFilters'
 import { Breadcrumbs } from '@/components/browse/Breadcrumbs'
@@ -11,6 +12,7 @@ import type { Document, BreadcrumbItem, FolderItem } from '@/types'
 
 export default function BrowseContent() {
   const searchParams = useSearchParams()
+  const t = useTranslations()
 
   const semesterId = searchParams.get('semester')
   const subjectId = searchParams.get('subject')
@@ -24,7 +26,7 @@ export default function BrowseContent() {
   useEffect(() => {
     api.getDocuments()
       .then(setAllDocuments)
-      .catch((err: Error) => console.error('Fehler beim Laden:', err))
+      .catch((err: Error) => console.error('Error loading documents:', err))
       .finally(() => setDocsLoading(false))
   }, [])
 
@@ -32,9 +34,7 @@ export default function BrowseContent() {
     if (semesterId && subjectId && categoryId) {
       setDocuments(
         allDocuments.filter(
-          (doc) =>
-            doc.subject_id === parseInt(subjectId) &&
-            doc.category_id === parseInt(categoryId)
+          (doc) => doc.subject_id === parseInt(subjectId) && doc.category_id === parseInt(categoryId)
         )
       )
     }
@@ -45,12 +45,14 @@ export default function BrowseContent() {
   const getCategory = (id: string) => filters.categories.find((c) => c.id === parseInt(id))
 
   const getCountForSemester = (semId: string) => {
-    const subjectIds = getSubjectsForSemester(semId).map((s) => s.id)
-    return allDocuments.filter((doc) => doc.subject_id != null && subjectIds.includes(doc.subject_id)).length
+    const subjectIds = new Set(getSubjectsForSemester(semId).map((s) => s.id))
+    return allDocuments.filter((doc) => doc.subject_id != null && subjectIds.has(doc.subject_id)).length
   }
 
-  const getCountForSubject = (subjId: string) =>
-    allDocuments.filter((doc) => doc.subject_id === parseInt(subjId)).length
+  const getCountForSubject = (subjId: string) => {
+    const id = parseInt(subjId)
+    return allDocuments.filter((doc) => doc.subject_id === id).length
+  }
 
   const getCountForCategory = (subjId: string, catId: string) =>
     allDocuments.filter(
@@ -65,9 +67,7 @@ export default function BrowseContent() {
     return `/browse?${url.toString()}`
   }
 
-  const breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Software Design & Cloud Computing', href: '/browse' },
-  ]
+  const breadcrumbs: BreadcrumbItem[] = [{ label: t('browse.root'), href: '/browse' }]
   if (semesterId) breadcrumbs.push({ label: getSemester(semesterId)?.name || semesterId, href: buildUrl({ semester: semesterId }) })
   if (subjectId) breadcrumbs.push({ label: getSubject(subjectId)?.name || subjectId, href: buildUrl({ semester: semesterId ?? undefined, subject: subjectId }) })
   if (categoryId) breadcrumbs.push({ label: getCategory(categoryId)?.name || categoryId, href: buildUrl({ semester: semesterId ?? undefined, subject: subjectId ?? undefined, category: categoryId }) })
@@ -76,13 +76,11 @@ export default function BrowseContent() {
 
   const renderContent = () => {
     if (loading) {
-      return <div className="border rounded-lg p-8 text-center text-muted-foreground">Lade...</div>
+      return <div className="border rounded-lg p-8 text-center text-muted-foreground">{t('browse.loading')}</div>
     }
-
     if (semesterId && subjectId && categoryId) {
       return <DocumentList documents={documents} currentPath={searchParams.toString()} />
     }
-
     if (semesterId && subjectId) {
       return (
         <FolderList
@@ -95,7 +93,6 @@ export default function BrowseContent() {
         />
       )
     }
-
     if (semesterId) {
       return (
         <FolderList
@@ -108,7 +105,6 @@ export default function BrowseContent() {
         />
       )
     }
-
     return (
       <FolderList
         items={filters.semesters.map((sem): FolderItem => ({
