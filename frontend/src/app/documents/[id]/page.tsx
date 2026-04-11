@@ -1,72 +1,28 @@
-'use client'
+import { api } from '@/api/client'
+import { DocumentDetailView } from './DocumentDetailView'
+import type { Metadata } from 'next'
 
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft, Loader2, FolderTree } from 'lucide-react'
-import { useDocument } from '@/hooks/useDocument'
-import { DocumentMetadata } from '@/components/document/DocumentMetadata'
-import { FilePreview } from '@/components/document/FilePreview'
-import { DocumentActions } from '@/components/document/DocumentActions'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+interface Props {
+  params: Promise<{ id: string }>
+}
 
-export default function DocumentDetailPage() {
-  const params = useParams()
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { document, loading, error } = useDocument(params.id)
-  const t = useTranslations()
-
-  const fromPath = searchParams.get('from')
-  const isFromBrowse = fromPath?.startsWith('/browse')
-
-  const handleBack = () => {
-    if (fromPath) router.push(fromPath)
-    else router.back()
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  try {
+    const document = await api.getDocument(id)
+    const title = document.original_filename || document.filename
+    return {
+      title: `${title} — StudyBuddy`,
+      openGraph: { title: `${title} — StudyBuddy` },
+    }
+  } catch {
+    return { title: 'Dokument — StudyBuddy' }
   }
+}
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <Button variant="ghost" onClick={handleBack} className="mb-4">
-            {isFromBrowse ? (
-              <><FolderTree className="w-4 h-4 mr-2" />{t('document.backToBrowse')}</>
-            ) : (
-              <><ArrowLeft className="w-4 h-4 mr-2" />{t('document.backToSearch')}</>
-            )}
-          </Button>
+export default async function DocumentDetailPage({ params }: Props) {
+  const { id } = await params
+  const document = await api.getDocument(id)
 
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          )}
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertTitle>{t('document.error')}</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {document && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <FilePreview document={document} />
-              </div>
-              <div className="space-y-6">
-                <DocumentMetadata document={document} />
-                <DocumentActions document={document} />
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
-  )
+  return <DocumentDetailView document={document} />
 }

@@ -1,11 +1,12 @@
 {
-  "header": {
+  "actions": {
     "exploreFiles": "Dateien erkunden",
     "upload": "Hochladen",
-    "uploadDialogTitle": "Dokument hochladen"
+    "uploadDialogTitle": "Dokument hochladen",
+    "uploadDialogDescription": "Wähle eine Datei aus und fülle die Details aus, um sie mit anderen Studierenden zu teilen."
   },
   "footer": {
-    "text": "Hackathon Projekt · FH Joanneum"
+    "text": "Startup Projekt · FH Joanneum"
   },
   "search": {
     "heading": "Schnell die richtigen Unterlagen finden",

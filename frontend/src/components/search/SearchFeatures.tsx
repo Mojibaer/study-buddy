@@ -1,37 +1,35 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
+import { Search, Upload, SlidersHorizontal } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-import { useTranslations } from 'next-intl'
-import { Card, CardContent } from '@/components/ui/card'
-import { Search, Upload, Tag, type LucideIcon } from 'lucide-react'
+const FEATURE_CONFIG = [
+  { icon: Search, titleKey: 'features.semanticSearch', descKey: 'features.semanticSearchDesc' },
+  { icon: Upload, titleKey: 'features.easyUpload', descKey: 'features.easyUploadDesc' },
+  { icon: SlidersHorizontal, titleKey: 'features.smartFilters', descKey: 'features.smartFiltersDesc' },
+] as const
 
-interface Feature {
-  icon: LucideIcon
-  title: string
-  description: string
-}
+export async function SearchFeatures() {
+  const t = await getTranslations()
 
-export function SearchFeatures() {
-  const t = useTranslations()
-
-  const features: Feature[] = [
-    { icon: Search, title: t('features.semanticSearch'), description: t('features.semanticSearchDesc') },
-    { icon: Upload, title: t('features.easyUpload'), description: t('features.easyUploadDesc') },
-    { icon: Tag, title: t('features.smartFilters'), description: t('features.smartFiltersDesc') },
-  ]
+  const features: { icon: LucideIcon; title: string; description: string }[] = FEATURE_CONFIG.map((f) => ({
+    icon: f.icon,
+    title: t(f.titleKey),
+    description: t(f.descKey),
+  }))
 
   return (
-    <div className="text-center py-12 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-        {features.map((feature) => (
-          <Card key={feature.title}>
-            <CardContent className="pt-6 text-center">
-              <feature.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold mb-1">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    <div className="border-t border-border pt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      {features.map((feature) => (
+        <div key={feature.title} className="flex flex-col items-center text-center gap-2 md:flex-row md:items-start md:text-left md:gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted shrink-0">
+            <feature.icon className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm text-foreground">{feature.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">{feature.description}</p>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

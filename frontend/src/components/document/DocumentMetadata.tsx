@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Calendar, Tag, Folder, BookOpen, HardDrive } from 'lucide-react'
@@ -14,13 +14,14 @@ interface DocumentMetadataProps {
 
 export function DocumentMetadata({ document }: DocumentMetadataProps) {
   const t = useTranslations()
+  const locale = useLocale()
 
   const metadataItems: { icon: LucideIcon; label: string; value: string | undefined }[] = [
     { icon: FileText, label: t('document.filename'), value: document.original_filename || document.filename },
     { icon: Folder, label: t('document.category'), value: document.category?.name },
     { icon: BookOpen, label: t('document.subject'), value: document.subject?.name },
     { icon: Calendar, label: t('document.semester'), value: document.subject?.semester?.name },
-    { icon: Calendar, label: t('document.uploaded'), value: document.created_at ? formatDate(document.created_at) : undefined },
+    { icon: Calendar, label: t('document.uploaded'), value: document.created_at ? formatDate(document.created_at, locale) : undefined },
     { icon: HardDrive, label: t('document.fileSize'), value: document.file_size ? formatFileSize(document.file_size) : undefined },
   ]
 

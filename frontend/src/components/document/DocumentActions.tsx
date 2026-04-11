@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Download, Share2, Mail, MessageCircle, Link2, Check } from 'lucide-react'
-import { shareViaWhatsApp, shareViaEmail } from '@/lib/utils'
+import { shareViaWhatsApp, shareViaEmail } from '@/lib/browser'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import type { Document } from '@/types'
 

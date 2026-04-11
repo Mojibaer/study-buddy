@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { setLocale } from '@/app/actions'
+import type { Locale } from '@/i18n/routing'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -21,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export function LanguageSwitcher() {
+export function UserPreferencesMenu() {
   const t = useTranslations()
   const locale = useLocale()
   const { theme, setTheme } = useTheme()
@@ -30,7 +31,7 @@ export function LanguageSwitcher() {
 
   const handleLocaleChange = (newLocale: string) => {
     startTransition(async () => {
-      await setLocale(newLocale)
+      await setLocale(newLocale as Locale)
       router.refresh()
     })
   }

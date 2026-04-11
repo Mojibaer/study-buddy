@@ -30,7 +30,7 @@ export function DocumentList({ documents, currentPath }: DocumentListProps) {
           href={`/documents/${doc.id}?from=/browse?${currentPath}`}
           className={cn('flex items-center gap-3 px-4 py-3', 'hover:bg-accent transition-colors', 'min-h-[52px]')}
         >
-          <FileText className="w-5 h-5 text-muted-foreground shrink-0" />
+          <FileText className="w-5 h-5 text-primary shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="truncate">{doc.original_filename || doc.filename}</p>
             <p className="text-xs text-muted-foreground">

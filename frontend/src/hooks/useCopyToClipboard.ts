@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { copyToClipboard } from '@/lib/utils'
+import { copyToClipboard } from '@/lib/browser'
 
 export function useCopyToClipboard(resetDelay = 2000) {
   const [copied, setCopied] = useState(false)

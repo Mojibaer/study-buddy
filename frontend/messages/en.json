@@ -1,11 +1,12 @@
 {
-  "header": {
+  "actions": {
     "exploreFiles": "Explore files",
     "upload": "Upload",
-    "uploadDialogTitle": "Upload document"
+    "uploadDialogTitle": "Upload document",
+    "uploadDialogDescription": "Select a file and fill in the details to share it with other students."
   },
   "footer": {
-    "text": "Hackathon Project · FH Joanneum"
+    "text": "Startup Project · FH Joanneum"
   },
   "search": {
     "heading": "Find the right study materials fast",
