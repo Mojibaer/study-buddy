@@ -39,7 +39,10 @@ async def upload_document(
     if subject_id is not None:
         await get_subject_or_404(db, subject_id)
 
-    file_content = await file.read()
+    MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
+    file_content = await file.read(MAX_UPLOAD_BYTES + 1)
+    if len(file_content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File too large. Maximum allowed size is 50 MB.")
     file_size = len(file_content)
 
     object_key = upload_file(
