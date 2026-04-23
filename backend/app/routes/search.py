@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Query, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database.database import get_db
 from app.database.models import Document, Subject, Category, Semester
@@ -9,28 +11,28 @@ router = APIRouter()
 
 
 @router.get("/semantic")
-def semantic_search(
+async def semantic_search(
     query: str = Query(..., min_length=1),
     category_id: int | None = None,
     subject_id: int | None = None,
     semester_id: int | None = None,
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> dict:
     where_conditions: list[dict] = []
 
-    if category_id:
-        category = db.query(Category).filter(Category.id == category_id).first()
+    if category_id is not None:
+        category = (await db.execute(select(Category).filter(Category.id == category_id))).scalars().first()
         if category:
             where_conditions.append({"category": category.name})
 
-    if subject_id:
-        subject = db.query(Subject).filter(Subject.id == subject_id).first()
+    if subject_id is not None:
+        subject = (await db.execute(select(Subject).filter(Subject.id == subject_id))).scalars().first()
         if subject:
             where_conditions.append({"subject": subject.name})
 
-    if semester_id:
-        semester = db.query(Semester).filter(Semester.id == semester_id).first()
+    if semester_id is not None:
+        semester = (await db.execute(select(Semester).filter(Semester.id == semester_id))).scalars().first()
         if semester:
             where_conditions.append({"semester": semester.name})
 
@@ -54,7 +56,16 @@ def semantic_search(
         for metadata in chroma_results['metadatas'][0]
     ]
 
-    documents = db.query(Document).filter(Document.id.in_(doc_ids)).all()
+    documents = (
+        await db.execute(
+            select(Document)
+            .options(
+                selectinload(Document.category),
+                selectinload(Document.subject).selectinload(Subject.semester)
+            )
+            .filter(Document.id.in_(doc_ids))
+        )
+    ).scalars().all()
 
     results = []
     for i, doc_id in enumerate(doc_ids):
@@ -77,7 +88,6 @@ def semantic_search(
                             "name": doc.subject.semester.name
                         } if doc.subject.semester else None
                     } if doc.subject else None,
-                    "tags": doc.tags
                 },
                 "distance": chroma_results['distances'][0][i],
                 "snippet": chroma_results['documents'][0][i][:200] + "..." if chroma_results['documents'][0][i] else ""
