@@ -9,16 +9,16 @@ help:
 	@echo "  make clean            - Remove cache files"
 
 install:
-	pip install -r requirements.txt
+	uv sync
 
 run-prod:
-	gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001
+	uv run gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001
 
 dev:
-	uvicorn app.main:app --reload --port 8001
+	uv run uvicorn app.main:app --reload --port 8001
 
 test:
-	@python -c "import fastapi; import chromadb; import alembic; print('All packages installed!')"
+	@uv run python -c "import fastapi; import chromadb; import alembic; print('All packages installed!')"
 	@curl -s http://localhost:8001/health || echo "Server not running"
 
 clean:
