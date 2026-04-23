@@ -86,13 +86,13 @@ polars==1.35.2
 polars-runtime-32==1.35.2
 posthog==5.4.0
 protobuf==6.33.0
-psycopg2-binary==2.9.11
+asyncpg==0.30.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pybase64==1.4.2
 pycparser==2.23
 pycryptodome==3.23.0
-pydantic==2.12.3
+pydantic[email]==2.12.3
 pydantic_core==2.41.4
 Pygments==2.19.2
 pypdf==6.4.0
@@ -101,6 +101,7 @@ pyproject_hooks==1.2.0
 python-dateutil==2.9.0.post0
 python-docx==1.2.0
 python-dotenv==1.1.1
+python-magic==0.4.27
 python-multipart==0.0.20
 pytz==2025.2
 PyYAML==6.0.3
