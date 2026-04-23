@@ -1,11 +1,13 @@
 import os
 
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database.database import get_db
 from app.database.models import Document, Subject
-from app.database.schemas import DocumentResponse
+from app.schemas.document import DocumentResponse
 from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
 from app.services.chroma_service import chroma_service
@@ -20,7 +22,7 @@ async def upload_document(
     category_id: int | None = Form(None),
     subject_id: int | None = Form(None),
     tags: str | None = Form(None),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> DocumentResponse:
     allowed_extensions = {".pdf", ".docx", ".txt", ".md"}
     file_ext = os.path.splitext(file.filename)[1].lower()
@@ -31,11 +33,11 @@ async def upload_document(
             detail=f"File type {file_ext} not supported. Allowed: {allowed_extensions}"
         )
 
-    if category_id:
-        get_category_or_404(db, category_id)
+    if category_id is not None:
+        await get_category_or_404(db, category_id)
 
-    if subject_id:
-        get_subject_or_404(db, subject_id)
+    if subject_id is not None:
+        await get_subject_or_404(db, subject_id)
 
     file_content = await file.read()
     file_size = len(file_content)
@@ -57,14 +59,23 @@ async def upload_document(
         file_url=get_file_url(object_key),
         category_id=category_id,
         subject_id=subject_id,
-        tags=tag_list
     )
 
     db.add(db_document)
-    db.commit()
-    db.refresh(db_document)
+    await db.commit()
+    await db.refresh(db_document)
 
     if extracted_text:
+        result = await db.execute(
+            select(Document)
+            .options(
+                selectinload(Document.category),
+                selectinload(Document.subject).selectinload(Subject.semester)
+            )
+            .filter(Document.id == db_document.id)
+        )
+        db_document = result.scalars().first()
+
         category_name = db_document.category.name if db_document.category else ""
         subject_name = db_document.subject.name if db_document.subject else ""
         semester_name = db_document.subject.semester.name if db_document.subject else ""
@@ -89,52 +100,57 @@ async def upload_document(
             }
         )
         db_document.chroma_id = chroma_id
-        db.commit()
+        await db.commit()
+        await db.refresh(db_document)
 
     return db_document
 
 
 @router.get("/", response_model=list[DocumentResponse])
-def list_documents(
+async def list_documents(
     category_id: int | None = None,
     subject_id: int | None = None,
     semester_id: int | None = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> list[DocumentResponse]:
-    query = db.query(Document)
+    query = select(Document).options(
+        selectinload(Document.category),
+        selectinload(Document.subject).selectinload(Subject.semester)
+    )
 
-    if category_id:
+    if category_id is not None:
         query = query.filter(Document.category_id == category_id)
-    if subject_id:
+    if subject_id is not None:
         query = query.filter(Document.subject_id == subject_id)
-    if semester_id:
+    if semester_id is not None:
         query = query.join(Subject).filter(Subject.semester_id == semester_id)
 
-    return query.all()
+    result = await db.execute(query)
+    return result.scalars().all()
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
-def get_document(document_id: int, db: Session = Depends(get_db)) -> DocumentResponse:
-    return get_document_or_404(db, document_id)
+async def get_document(document_id: int, db: AsyncSession = Depends(get_db)) -> DocumentResponse:
+    return await get_document_or_404(db, document_id)
 
 
 @router.get("/{document_id}/download")
-def get_download_url(document_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
-    document = get_document_or_404(db, document_id)
+async def get_download_url(document_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+    document = await get_document_or_404(db, document_id)
     url = get_presigned_url(document.filename)
     return {"url": url, "filename": document.original_filename}
 
 
 @router.delete("/{document_id}")
-def delete_document(document_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
-    document = get_document_or_404(db, document_id)
+async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+    document = await get_document_or_404(db, document_id)
 
     delete_file(document.filename)
 
     if document.chroma_id:
         chroma_service.delete_document(document.chroma_id)
 
-    db.delete(document)
-    db.commit()
+    await db.delete(document)
+    await db.commit()
 
     return {"message": "Document deleted"}
