@@ -101,6 +101,7 @@ pyproject_hooks==1.2.0
 python-dateutil==2.9.0.post0
 python-docx==1.2.0
 python-dotenv==1.1.1
+python-magic==0.4.27
 python-multipart==0.0.20
 pytz==2025.2
 PyYAML==6.0.3

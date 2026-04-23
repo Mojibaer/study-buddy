@@ -1,5 +1,6 @@
 import os
 
+import magic
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,13 +25,20 @@ async def upload_document(
     tags: str | None = Form(None),
     db: AsyncSession = Depends(get_db)
 ) -> DocumentResponse:
-    allowed_extensions = {".pdf", ".docx", ".txt", ".md"}
+    ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
+    ALLOWED_MIME_TYPES = {
+        ".pdf": "application/pdf",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".txt": "text/plain",
+        ".md": "text/plain",
+    }
+
     file_ext = os.path.splitext(file.filename)[1].lower()
 
-    if file_ext not in allowed_extensions:
+    if file_ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
-            detail=f"File type {file_ext} not supported. Allowed: {allowed_extensions}"
+            detail=f"File type {file_ext} not supported. Allowed: {ALLOWED_EXTENSIONS}"
         )
 
     if category_id is not None:
@@ -44,6 +52,13 @@ async def upload_document(
     if len(file_content) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="File too large. Maximum allowed size is 50 MB.")
     file_size = len(file_content)
+
+    detected_mime = magic.Magic(mime=True).from_buffer(file_content)
+    if detected_mime != ALLOWED_MIME_TYPES[file_ext]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File content does not match extension '{file_ext}'."
+        )
 
     object_key = upload_file(
         file_data=file_content,
