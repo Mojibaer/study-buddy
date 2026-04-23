@@ -20,23 +20,34 @@ services:
     networks:
       - studybuddy-staging-network
 
-  chromadb:
-    image: chromadb/chroma:latest
-    container_name: studybuddy-staging-chromadb
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.2
+    container_name: studybuddy-staging-weaviate
     restart: unless-stopped
     volumes:
-      - chroma_staging_data:/chroma/chroma
+      - weaviate_staging_data:/var/lib/weaviate
     ports:
-      - "8100:8000"
+      - "8100:8080"
+      - "50051:50051"
     environment:
-      - ANONYMIZED_TELEMETRY=FALSE
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: ${WEAVIATE_API_KEY}
+      AUTHENTICATION_APIKEY_USERS: ${WEAVIATE_API_USER}
+      AUTHORIZATION_ADMINLIST_ENABLED: "true"
+      AUTHORIZATION_ADMINLIST_USERS: ${WEAVIATE_API_USER}
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_API_BASED_MODULES: "true"
+      CLUSTER_HOSTNAME: "studybuddy-staging-weaviate"
     networks:
       - studybuddy-staging-network
 
 volumes:
   postgres_staging_data:
     driver: local
-  chroma_staging_data:
+  weaviate_staging_data:
     driver: local
 
 networks:
