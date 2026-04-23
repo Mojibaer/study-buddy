@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.semester import SemesterResponse
 
 
 class SubjectBase(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=255)
     semester_id: int
 
 class SubjectCreate(SubjectBase):

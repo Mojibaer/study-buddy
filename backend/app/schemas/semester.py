@@ -1,8 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SemesterBase(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=255)
 
 class SemesterCreate(SemesterBase):
     pass
