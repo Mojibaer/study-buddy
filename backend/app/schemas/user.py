@@ -32,7 +32,6 @@ class UserResponse(BaseModel):
     role: UserRole
     is_active: bool
     email_verified_at: datetime | None = None
-    cohort_id: int | None = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
