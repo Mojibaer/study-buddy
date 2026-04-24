@@ -63,3 +63,6 @@ frontend/.env.development.local
 *.swp
 *.swo
 *~
+
+# Claude Code
+.claude/
