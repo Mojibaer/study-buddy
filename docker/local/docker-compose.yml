@@ -4,53 +4,47 @@ services:
     container_name: studybuddy-local-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: studybuddy
-      POSTGRES_USER: studybuddy
-      POSTGRES_PASSWORD: studybuddy123
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U studybuddy"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - studybuddy-local-network
 
-  chromadb:
-    image: chromadb/chroma:latest
-    container_name: studybuddy-local-chromadb
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.2
+    container_name: studybuddy-local-weaviate
     restart: unless-stopped
     volumes:
-      - chroma_local_data:/chroma/chroma
+      - weaviate_local_data:/var/lib/weaviate
     ports:
-      - "8100:8000"
+      - "8100:8080"
+      - "50051:50051"
     environment:
-      - ANONYMIZED_TELEMETRY=FALSE
-
-  minio:
-    image: minio/minio
-    container_name: studybuddy-local-minio
-    restart: unless-stopped
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_local_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_API_BASED_MODULES: "true"
+      CLUSTER_HOSTNAME: "studybuddy-local-weaviate"
+    networks:
+      - studybuddy-local-network
 
 volumes:
   postgres_local_data:
     driver: local
-  chroma_local_data:
+  weaviate_local_data:
     driver: local
-  minio_local_data:
-    driver: local
+
+networks:
+  studybuddy-local-network:
+    driver: bridge

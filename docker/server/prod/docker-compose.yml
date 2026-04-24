@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17
-    container_name: studybuddy-prod-postgres
+    container_name: studybuddy-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -9,36 +9,47 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - studybuddy-prod-network
+      - studybuddy-network
 
-  chromadb:
-    image: chromadb/chroma:latest
-    container_name: studybuddy-prod-chromadb
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.2
+    container_name: studybuddy-weaviate
     restart: unless-stopped
     volumes:
-      - chroma_prod_data:/chroma/chroma
+      - weaviate_data:/var/lib/weaviate
     ports:
-      - "8101:8000"
+      - "8100:8080"
+      - "50051:50051"
     environment:
-      - ANONYMIZED_TELEMETRY=FALSE
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: ${WEAVIATE_API_KEY}
+      AUTHENTICATION_APIKEY_USERS: ${WEAVIATE_API_USER}
+      AUTHORIZATION_ADMINLIST_ENABLED: "true"
+      AUTHORIZATION_ADMINLIST_USERS: ${WEAVIATE_API_USER}
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_API_BASED_MODULES: "true"
+      CLUSTER_HOSTNAME: "studybuddy-weaviate"
     networks:
-      - studybuddy-prod-network
+      - studybuddy-network
 
 volumes:
-  postgres_prod_data:
+  postgres_data:
     driver: local
-  chroma_prod_data:
+  weaviate_data:
     driver: local
 
 networks:
-  studybuddy-prod-network:
+  studybuddy-network:
     driver: bridge
