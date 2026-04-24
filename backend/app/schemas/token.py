@@ -3,10 +3,17 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
 class RefreshTokenCreate(BaseModel):
     user_id: int
     token_hash: str
     expires_at: datetime
+
 
 class RefreshTokenResponse(BaseModel):
     id: int

@@ -15,8 +15,8 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, nullable=False, unique=True)
-    username = Column(String, nullable=False, unique=True)
-    password_hash = Column(String, nullable=False)
+    username = Column(String, nullable=True, unique=True)
+    password_hash = Column(String, nullable=True)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.student)
     is_active = Column(Boolean, nullable=False, default=True)
     email_verified_at = Column(DateTime(timezone=True), nullable=True)
@@ -32,7 +32,7 @@ class RefreshToken(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    token_hash = Column(String, nullable=False)
+    token_hash = Column(String, nullable=False, index=True)
     revoked = Column(Boolean, nullable=False, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -76,6 +76,8 @@ class Document(Base):
     id = Column(Integer, primary_key=True, index=True)
     subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
+    # SET NULL intentional: documents outlive their uploader. Authz checks must use
+    # uploaded_by == current_user.id, never rely on uploaded_by IS NOT NULL as ownership proof.
     uploaded_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
     filename = Column(String, nullable=False)
