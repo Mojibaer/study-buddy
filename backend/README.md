@@ -1,87 +1,54 @@
-# Study Buddy - Backend
+# Study Buddy — Backend
 
-REST API backend for intelligent document management and semantic search.
+FastAPI backend for document management, semantic search, and JWT authentication.
 
-## Description
+## Prerequisites
 
-Study Buddy Backend is a FastAPI-based REST API that provides document upload, storage, and semantic search capabilities. It uses ChromaDB for vector embeddings and semantic search, PostgreSQL for metadata storage, and supports multiple file formats including PDF, DOCX, TXT, and Markdown.
+- [Python](https://www.python.org/downloads/) >= 3.13
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (package manager)
+- Infrastructure running via Docker Compose — see [docker/local/](../docker/local/)
 
-## Installation
-
-### Prerequisites
-
-- Python 3.13
-- Docker & Docker Compose (optional for local development)
-- Project is cloned - `git clone https://git-iit.fh-joanneum.at/swd24-hackathon/study-buddy.git`
-
-### Setup
+## Setup
 
 ```bash
-# Navigate to backend directory
 cd backend
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Linux
-venv\Scripts\activate     # Windows
-
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
-# Setup environment variables
+# Copy and configure environment variables
 cp .env-example .env
 ```
 
-[Environment-setup-guide](../docs/environment-setup-guide.md)
+Edit `.env` with your credentials — see [docs/environment-setup-guide.md](../docs/environment-setup-guide.md) for details.
 
-The API runs on `http://localhost:8001`
+## Running
 
-API Documentation: `http://localhost:8001/docs`
+```bash
+make dev        # Start with auto-reload (development)
+make run-prod   # Start with Gunicorn (production)
+```
+
+The API runs on `http://localhost:8001`  
+Swagger UI: `http://localhost:8001/docs`
+
+## Database Migrations
+
+```bash
+# Apply all migrations
+uv run alembic upgrade head
+
+# Create a new migration after model changes
+uv run alembic revision --autogenerate -m "description"
+```
 
 ## Tech Stack
 
-- **Framework:** FastAPI
-- **Database:** PostgreSQL, ChromaDB
-- **ORM:** SQLAlchemy
-- **Server:** Uvicorn
-- **DB Migrations**: Alembic
-
-## How to Use
-
-### Start Server
-
-```bash
-make run dev         # Development with auto-reload
-# Only needed if Postgres is running locally
-make db-up       # Start PostgreSQL
-make db-down     # Stop PostgreSQL
-```
-
-### Upload Document
-
-1. Open Swagger UI: `http://localhost:8001/docs`
-2. Find `POST /documents/upload` endpoint
-3. Click "Try it out"
-4. Fill in the form:
-   - **file:** Choose your file (PDF, DOCX, TXT, MD)
-   - **category:** Computer Science
-   - **subject:** Algorithms
-   - **tags:** sorting,algorithms
-5. Click "Execute"
-
-### Search Documents
-
-1. Open Swagger UI: `http://localhost:8001/docs`
-2. Find `GET /search/semantic` endpoint
-3. Click "Try it out"
-4. Enter parameters:
-   - **query:** sorting algorithms
-   - **limit:** 10
-5. Click "Execute"
-
-### List All Documents
-
-1. Open Swagger UI: `http://localhost:8001/docs`
-2. Find `GET /documents` endpoint
-3. Click "Try it out"
-4. Click "Execute"
+- **FastAPI** — Async REST API framework
+- **SQLAlchemy 2** + **Alembic** — ORM and migrations
+- **PostgreSQL 17** — Primary database
+- **Redis 7** — JWT denylist and token caching
+- **Weaviate 1.30** — Semantic search and document embeddings
+- **MinIO** — S3-compatible file storage
+- **PyJWT** + **Argon2** — Authentication and password hashing
+- **Uvicorn** — ASGI server

@@ -1,70 +1,85 @@
 # Study Buddy
----
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.119-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+
 A smart web application for managing, searching and sharing academic documents.
 
-Live demo available on https://studybuddy.mojiverse.dev
-
 ## Overview
----
-Study Buddy is a web application that enables students to upload, manage, and search their academic documents using three powerful methods:
 
-- **Manual Browsing** - Traditional folder/category navigation
-- **Semantic Search** - AI-powered content search (text-based files only)
-- **Metadata Filtering** - Filter by category, tags, semester, subject, etc.
+Study Buddy is an open-source academic document platform built for university students. It gives students a single place to upload, organize, and find course materials — with AI-powered semantic search that understands content, not just filenames.
 
-These methods can be combined for optimal results (e.g., "Search for 'recursion' only in Algorithm course materials").
+Designed to be self-hosted by any university or student organization, Study Buddy is built with a modern, production-ready stack and can be adapted to fit different institutions, curricula, and authentication requirements.
 
 ## Features
----
-### Must have
 
-1. **Document Upload** - Support for PDF, DOCX, TXT, MD, and more
-2. **Manual Browsing** - Traditional folder/category navigation
-3. **Semantic Search** - AI-powered content search with ChromaDB
-4. **Combined Search** - Semantic search + metadata filters with real-time autocomplete
-5. **File Sharing** - Share documents via WhatsApp and email
-6. **Document Preview** - View documents directly in browser
-
-### Nice to have
-
-1. **Authentication System** - Secure user login and registration
-2. **User Management** - Role-based access control
-3. **Pinboard / Favorites** - Pin important documents for quick access
+- **Document Upload** — Support for PDF, DOCX, TXT, MD, and more
+- **Manual Browsing** — Traditional folder/category navigation
+- **Semantic Search** — AI-powered content search with ChromaDB
+- **Combined Search** — Semantic search + metadata filters with real-time autocomplete
+- **Document Preview** — View documents directly in browser
+- **Authentication** — JWT-based auth with email verification and role-based access control
+- **File Sharing** — Share documents via WhatsApp and email
 
 ## Tech Stack
----
-### Frontend
-- **Next.js** - React framework for production
-- **Shadcn UI** - Modern, accessible UI component library
 
-[installation guide](frontend/README.md)
+### Frontend
+- **Next.js 16** — React framework
+- **Tailwind CSS v4** + **shadcn/ui** — Styling and UI components
+- **TypeScript**
 
 ### Backend
-- **FastAPI** - High-performance REST API framework
-- **ChromaDB** - Vector database for semantic search and embeddings
+- **FastAPI** — High-performance async REST API
+- **SQLAlchemy 2** + **Alembic** — ORM and database migrations
+- **PyJWT** + **Argon2** — JWT authentication and password hashing
 
-[installation guide](backend/README.md)
+### Databases
+- **PostgreSQL 17** — Primary relational database
+- **Redis 7** — Token denylist and caching
+- **Weaviate 1.30** — Vector database for document embeddings
 
-### Database
-- **PostgreSQL** - Relational database for metadata and user data
-- **ChromaDB** - Vector database for document content and embeddings
+### Infrastructure
+- **Docker Compose** — Local development environment
+- **MinIO** — S3-compatible object storage for documents
+- **Nginx** — Reverse proxy
 
-    - [postgres guide](docs/db/postgres-guide.md)
-    - [chromaDB guide](docs/db/chromaDB-guide.md)
+## Architecture
 
-### DevOps
-- **Docker** - Containerization for local postgres instance possible
-- **Nginx** - Reverse proxy and web server
+For a detailed overview of how the services interact, see [docs/architecture.md](docs/architecture.md).
 
-[server-setup-guide](docs/server-setup.md)
+## Quick Start
 
-### Storage
-- **MinIO** - OpenSource storage application for Documents with S3-API compatibilty
+```bash
+# 1. Clone the repository
+git clone https://github.com/Mojibaer/study-buddy.git
+cd study-buddy
 
-[minio guide](docs/db/minio-storage.md)
+# 2. Start infrastructure (PostgreSQL, Redis, Weaviate)
+docker compose -f docker/local/docker-compose.yml up -d
+
+# 3. Start backend and frontend
+# See setup guides below
+```
+
+- [Backend setup](backend/README.md)
+- [Frontend setup](frontend/README.md)
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) >= 24 + Docker Compose
+- [Python](https://www.python.org/downloads/) >= 3.13
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager)
+- [Bun](https://bun.sh/) (Frontend package manager)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch conventions, commit style, and PR process.
 
 ## Contributors
----
+
 - Hassan Erfani
 - Alexander Gherman
 - Andreas Baldauf

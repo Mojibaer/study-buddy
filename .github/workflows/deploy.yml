@@ -2,10 +2,12 @@ name: Deploy
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main]
+  release:
+    types: [published]
 
 jobs:
-  release-backend:
+  deploy-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy backend
@@ -15,7 +17,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "${{ github.event_name }}" = "release" ]; then
               DIR=/home/studybuddy/live
               SERVICE=studybuddy-backend
             else
@@ -24,12 +26,11 @@ jobs:
             fi
 
             cd $DIR/backend
-            git pull origin ${{ github.ref_name }}
-            source venv/bin/activate
-            pip install -r requirements.txt
+            git pull origin main
+            uv sync
             sudo systemctl restart $SERVICE
 
-  release-frontend:
+  deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy frontend
@@ -39,7 +40,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "${{ github.event_name }}" = "release" ]; then
               DIR=/home/studybuddy/live
               SERVICE=studybuddy-frontend
             else
@@ -48,7 +49,7 @@ jobs:
             fi
 
             cd $DIR/frontend
-            git pull origin ${{ github.ref_name }}
-            npm ci
-            npm run build
+            git pull origin main
+            bun install --frozen-lockfile
+            bun run build
             sudo systemctl restart $SERVICE
