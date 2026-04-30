@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.core.config import settings
-from app.routes import documents, search, filters
+from app.routes import auth, documents, search, filters
 from app.services.chroma_service import chroma_service
 
 logging.basicConfig(
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
 app.include_router(filters.router, prefix="/filters", tags=["filters"])
