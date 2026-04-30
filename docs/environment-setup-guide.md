@@ -1,33 +1,30 @@
 # Environment Setup Guide
 
-## Prerequisites
+## Local Development
 
-- SSH access to the server (contact @hassan erfani if your SSH key is not registered)
-- Server address: `studybuddy@85.215.241.173`
-
-## Getting Credentials
-
-The database and MinIO credentials are stored on the server.
-
-1. Connect to the server:
+Copy the example file and fill in the values:
 
 ```bash
-ssh studybuddy@85.215.241.173
+cd backend
+cp .env-example .env
 ```
 
-2. View the credentials:
+### Required Variables
 
-```bash
-cat ~/docker/.env
-```
+| Variable | Description |
+|---|---|
+| `SECRET_KEY` | Random string >= 32 characters — run `openssl rand -hex 32` |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string |
+| `MINIO_ENDPOINT` | MinIO host and port |
+| `MINIO_ACCESS_KEY` | MinIO access key |
+| `MINIO_SECRET_KEY` | MinIO secret key |
+| `MINIO_BUCKET` | Bucket name for document storage |
+| `MINIO_PUBLIC_URL` | Public URL for serving files |
 
-## Backend Configuration
+For local development, PostgreSQL and Redis are provided via Docker Compose — see [docker/local/](../docker/local/).
+MinIO does not run locally; the development bucket on the shared MinIO instance is used instead. Contact a maintainer for credentials.
 
-Copy the `.env-example` file in the `backend/` directory to `.env`
+## Staging & Production
 
-Replace the placeholder values with the credentials from the server. Only password for Postgres and MinIO is needed.
-
-## Notes
-
-- The server runs PostgreSQL 17, ChromaDB and MinIO in Docker containers
-- All services are only accessible from the server or via SSH tunnel
+Secrets for staging and production are managed via [Infisical](https://infisical.com/). Contact a maintainer to get access to the project in Infisical.

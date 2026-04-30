@@ -1,16 +1,13 @@
-# Study Buddy - Frontend
+# Study Buddy — Frontend
 
-A modern web application for intelligent search and management of study materials.
+Next.js frontend for document management and semantic search.
 
-## Installation
+## Prerequisites
 
-### Prerequisites
-
-- Node.js 18+
+- [Bun](https://bun.sh/) (package manager)
 - Backend running on `http://localhost:8001`
-- Project is cloned - `git clone https://git-iit.fh-joanneum.at/swd24-hackathon/study-buddy.git`
 
-### Setup
+## Setup
 
 ```bash
 cd frontend
@@ -18,27 +15,20 @@ cd frontend
 # Install dependencies
 bun install
 
-# Start development server
+# Copy and configure environment variables
+cp .env.local.example .env.local
+```
+
+## Running
+
+```bash
 bun dev
 ```
 
 The app runs on `http://localhost:3000`
 
-### Using npm instead of Bun
+## Tech Stack
 
-```bash
-npm install
-npm run dev
-```
-
-## Upgrading Next.js & React
-
-Run this before upgrading to a new major Next.js version. It automatically updates `package.json` and applies any required code changes:
-
-```bash
-npx @next/codemod@canary upgrade latest
-```
-
-No installation needed – `npx` downloads and runs it temporarily.
-
-Updates in `package.json`: `next`, `react`, `react-dom`.
+- **Next.js 16** — React framework
+- **TypeScript**
+- **Tailwind CSS v4** + **shadcn/ui** — Styling and UI components
