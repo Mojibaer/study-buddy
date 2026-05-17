@@ -5,6 +5,7 @@ import type {
   SearchResponse,
   UploadMetadata,
 } from '@/types'
+import { authedFetch } from '@/lib/auth/authClient'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
@@ -55,9 +56,9 @@ export const api = {
     if (metadata?.category_id) formData.append('category_id', metadata.category_id)
     if (metadata?.subject_id) formData.append('subject_id', metadata.subject_id)
     if (metadata?.tags) formData.append('tags', metadata.tags)
-    return fetch(`${API_BASE_URL}/documents/upload`, { method: 'POST', body: formData }).then(handleResponse<Document>)
+    return authedFetch(`${API_BASE_URL}/documents/upload`, { method: 'POST', body: formData }).then(handleResponse<Document>)
   },
 
   deleteDocument: (id: string | number): Promise<void> =>
-    fetch(`${API_BASE_URL}/documents/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
+    authedFetch(`${API_BASE_URL}/documents/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
 }
