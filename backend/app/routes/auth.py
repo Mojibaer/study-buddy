@@ -16,8 +16,8 @@ from app.core.security import (
     create_refresh_token,
     get_password_hash,
     get_refresh_token_expiry,
+    hash_refresh_token,
     verify_password,
-    verify_refresh_token_hash,
 )
 from app.database.database import get_db
 from app.database.models import RefreshToken, User
@@ -167,14 +167,16 @@ async def refresh_tokens(
     if refresh_token is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token")
 
+    # Indexed lookup on token_hash — SHA-256 of the raw token. The hash is
+    # deterministic, so a direct WHERE clause is O(log n) via the index.
+    token_hash = hash_refresh_token(refresh_token)
     result = await db.execute(
-        select(RefreshToken).where(RefreshToken.revoked.is_(False))
+        select(RefreshToken).where(
+            RefreshToken.token_hash == token_hash,
+            RefreshToken.revoked.is_(False),
+        )
     )
-    stored: RefreshToken | None = None
-    for row in result.scalars().all():
-        if verify_refresh_token_hash(refresh_token, row.token_hash):
-            stored = row
-            break
+    stored = result.scalar_one_or_none()
 
     if stored is None or stored.expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")

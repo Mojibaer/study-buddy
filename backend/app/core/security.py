@@ -1,5 +1,4 @@
 import hashlib
-import hmac
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -66,10 +65,6 @@ def create_refresh_token() -> tuple[str, str]:
 
 def hash_refresh_token(raw_token: str) -> str:
     return _sha256_hex(raw_token)
-
-
-def verify_refresh_token_hash(raw_token: str, stored_hash: str) -> bool:
-    return hmac.compare_digest(_sha256_hex(raw_token), stored_hash)
 
 
 def get_refresh_token_expiry() -> datetime:
