@@ -15,8 +15,8 @@ import {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
 /**
- * Refresh proaktiv, wenn der Access Token in weniger als REFRESH_LEEWAY_SECONDS abläuft.
- * 60s ist sicherer Default — verhindert Race mit Server-Clock-Drift.
+ * Refresh proactively if the access token expires in less than REFRESH_LEEWAY_SECONDS.
+ * 60s is a safe default — accounts for minor server/client clock drift.
  */
 const REFRESH_LEEWAY_SECONDS = 60
 
@@ -39,9 +39,9 @@ async function parseError(response: Response): Promise<string> {
 }
 
 /**
- * Mutex für parallele Refresh-Versuche. Bei n gleichzeitigen Requests, die alle
- * refreshen wollen, läuft genau ein Network-Call und alle warten auf dasselbe Promise.
- * Nach Auflösung wird das Promise wieder genullt, damit der nächste Refresh frisch startet.
+ * Mutex for parallel refresh attempts. With n concurrent requests all wanting
+ * to refresh, only one network call runs; the rest await the same promise.
+ * After it resolves, the slot is cleared so the next refresh starts fresh.
  */
 let refreshInFlight: Promise<boolean> | null = null
 
@@ -81,9 +81,9 @@ async function ensureFreshToken(): Promise<string | null> {
 }
 
 /**
- * Wrapper für authentifizierte Requests: Proactive Refresh + Lazy Fallback bei 401.
- * Refresh wird genau einmal pro Request versucht — bei wiederholtem 401 kommt der
- * Error durch, damit der Caller (z.B. UI) auf die Login-Seite umleiten kann.
+ * Wrapper for authenticated requests: proactive refresh + lazy fallback on 401.
+ * Refresh is attempted at most once per request — a repeated 401 surfaces the
+ * error so callers (e.g. UI) can redirect to the login page.
  */
 export async function authedFetch(input: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
@@ -112,15 +112,9 @@ async function handleJson<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>
 }
 
-async function expectStatus(response: Response, expected: number): Promise<void> {
-  if (response.status !== expected) {
-    throw new AuthError(await parseError(response), response.status)
-  }
-}
-
 export const authClient = {
   /**
-   * Schritt 1 des Onboardings: Email registrieren, Verify-Mail wird verschickt (AUTH-16).
+   * Step 1 of onboarding: register the email; verify mail is sent (AUTH-16).
    */
   async register(body: RegisterRequest): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -132,7 +126,8 @@ export const authClient = {
   },
 
   /**
-   * Schritt 2: Verify-Token + Username + Passwort einlösen, Access Token landet im Store.
+   * Step 2: redeem the verify token together with username + password; the
+   * access token lands in the in-memory store.
    */
   async setup(body: SetupRequest): Promise<TokenResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/setup`, {
@@ -147,7 +142,7 @@ export const authClient = {
   },
 
   async login(body: LoginRequest): Promise<TokenResponse> {
-    // Backend nutzt OAuth2PasswordRequestForm — username/password als x-www-form-urlencoded
+    // Backend uses OAuth2PasswordRequestForm — username/password as x-www-form-urlencoded
     const formData = new URLSearchParams()
     formData.set('username', body.email)
     formData.set('password', body.password)

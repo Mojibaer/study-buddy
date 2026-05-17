@@ -7,8 +7,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.dependencies import get_current_active_user
-from app.core.redis import consume_verify_token, store_verify_token
+from app.core.dependencies import get_current_active_user, get_token_payload
+from app.core.redis import consume_verify_token, denylist_token, store_verify_token
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -185,10 +185,20 @@ async def refresh_tokens(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     response: Response,
+    payload: dict = Depends(get_token_payload),
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
-    # Revoke all active refresh tokens for this user
+    # Denylist the access token JTI so it cannot be reused before exp.
+    # TTL equals the token's remaining lifetime — Redis evicts the entry afterwards.
+    jti = payload.get("jti")
+    exp = payload.get("exp")
+    if jti and isinstance(exp, int):
+        now_ts = int(datetime.now(timezone.utc).timestamp())
+        remaining = exp - now_ts
+        if remaining > 0:
+            await denylist_token(jti, remaining)
+
     result = await db.execute(
         select(RefreshToken).where(
             RefreshToken.user_id == current_user.id,

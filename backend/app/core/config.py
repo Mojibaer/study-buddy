@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     JWT_AUDIENCE: str = "studybuddy-client"
     REDIS_URL: str = "redis://localhost:6379"
 
-    # Refresh-Token-Cookie (ADR-0001). Dev: SameSite=lax + Secure=false über plain HTTP localhost.
-    # Prod: SameSite=strict + Secure=true via .env überschreiben.
+    # Refresh token cookie (ADR-0001). Dev defaults: SameSite=lax + Secure=false for plain-HTTP localhost.
+    # Production: override via .env to SameSite=strict + Secure=true.
     REFRESH_COOKIE_NAME: str = "refresh_token"
     REFRESH_COOKIE_PATH: str = "/api/auth"
     REFRESH_COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"

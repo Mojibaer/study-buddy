@@ -9,16 +9,16 @@ import type { UserRole } from '@/types/auth'
 interface ProtectedRouteProps {
   children: React.ReactNode
   /**
-   * Optional: nur User mit dieser Rolle dürfen rein. Ohne Wert reicht ein
-   * eingeloggter, aktiver User.
+   * Optional: only users with this role are let through. When omitted, any
+   * authenticated and active user is accepted.
    */
   requireRole?: UserRole
   /**
-   * Wohin redirected wird, wenn unauthentifiziert. Default: /login
+   * Redirect target when unauthenticated. Default: /login
    */
   loginRedirect?: string
   /**
-   * Wohin redirected wird, wenn eingeloggt aber falsche Rolle. Default: /
+   * Redirect target when authenticated but with the wrong role. Default: /
    */
   forbiddenRedirect?: string
 }

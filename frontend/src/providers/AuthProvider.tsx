@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // App-Bootstrap: einmaliger Silent Refresh über Cookie. Klappt es, ziehen wir
-  // direkt /me; sonst Status auf unauthenticated.
+  // App bootstrap: single silent refresh via cookie. On success we load /me;
+  // otherwise the status drops to unauthenticated.
   useEffect(() => {
     if (bootstrapped.current) return
     bootstrapped.current = true
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadUser])
 
-  // Token-Wechsel aus authClient (z.B. nach login/setup) → User refreshen.
+  // Token changes from authClient (e.g. after login/setup) trigger a /me reload.
   useEffect(() => {
     return subscribe((token) => {
       if (token) {
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (body: LoginRequest): Promise<void> => {
     await authClient.login(body)
-    // loadUser läuft über subscribe-Listener nach setAccessToken
+    // loadUser runs via the subscribe listener after setAccessToken
   }, [])
 
   const register = useCallback(async (body: RegisterRequest): Promise<User> => {
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authClient.logout()
     } catch (err) {
-      // Logout-Fehler nicht durchreichen: lokal sind wir trotzdem ausgeloggt
+      // Don't propagate logout errors — the client is logged out locally regardless
       if (!(err instanceof AuthError) || err.status !== 401) {
         console.error('Logout request failed:', err)
       }

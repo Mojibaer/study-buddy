@@ -6,8 +6,8 @@ import { useTranslations } from 'next-intl'
 import { useAuth } from '@/providers/AuthProvider'
 
 /**
- * Inverse von ProtectedRoute: eingeloggte User werden weggeleitet (Default: /).
- * Setup-Page bekommt eine Sonderbehandlung — siehe allowWhenAuthenticated.
+ * Inverse of ProtectedRoute: authenticated users get redirected away (default: /).
+ * The setup page is the exception — see allowWhenAuthenticated.
  */
 export function GuestRoute({
   children,

@@ -4,8 +4,8 @@ import { routing } from './src/i18n/routing'
 
 const intlMiddleware = createIntlMiddleware(routing)
 
-// Auth- und Role-Checks laufen client-seitig in ProtectedRoute (AUTH-10).
-// Die echte Absicherung sitzt im Backend (require_admin, get_current_active_user).
+// Auth and role checks run client-side in ProtectedRoute (AUTH-10).
+// The real enforcement lives in the backend (require_admin, get_current_active_user).
 export default function middleware(request: NextRequest) {
   return intlMiddleware(request)
 }

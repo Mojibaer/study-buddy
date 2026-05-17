@@ -13,11 +13,8 @@ from app.database.models import User, UserRole
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: AsyncSession = Depends(get_db),
-) -> User:
-    # Unified 401 for all failure cases — intentional, prevents user enumeration
+async def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
+    """Validates the access token and returns the full payload (jti, exp, sub, ...)."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -26,11 +23,22 @@ async def get_current_user(
     payload = decode_token_payload(token)
     if payload is None:
         raise credentials_exception
-
     jti = payload.get("jti")
     if jti is None or await is_token_denied(jti):
         raise credentials_exception
+    return payload
 
+
+async def get_current_user(
+    payload: dict = Depends(get_token_payload),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    # Unified 401 for all failure cases — intentional, prevents user enumeration
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         user_id = int(payload["sub"])
     except (KeyError, ValueError, TypeError):
