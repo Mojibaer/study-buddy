@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +25,27 @@ from app.schemas.user import UserRegister, UserResponse, UserSetup
 router = APIRouter()
 
 
+def _set_refresh_cookie(response: Response, raw_refresh_token: str) -> None:
+    response.set_cookie(
+        key=settings.REFRESH_COOKIE_NAME,
+        value=raw_refresh_token,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        path=settings.REFRESH_COOKIE_PATH,
+        domain=settings.REFRESH_COOKIE_DOMAIN,
+        secure=settings.REFRESH_COOKIE_SECURE,
+        httponly=True,
+        samesite=settings.REFRESH_COOKIE_SAMESITE,
+    )
+
+
+def _clear_refresh_cookie(response: Response) -> None:
+    response.delete_cookie(
+        key=settings.REFRESH_COOKIE_NAME,
+        path=settings.REFRESH_COOKIE_PATH,
+        domain=settings.REFRESH_COOKIE_DOMAIN,
+    )
+
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: UserRegister, db: AsyncSession = Depends(get_db)) -> User:
     result = await db.execute(select(User).where(User.email == body.email))
@@ -44,7 +65,11 @@ async def register(body: UserRegister, db: AsyncSession = Depends(get_db)) -> Us
 
 
 @router.post("/setup", response_model=TokenResponse)
-async def setup(body: UserSetup, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+async def setup(
+    body: UserSetup,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
     user_id = await consume_verify_token(body.token)
     if user_id is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired verification token")
@@ -76,12 +101,14 @@ async def setup(body: UserSetup, db: AsyncSession = Depends(get_db)) -> TokenRes
     ))
     await db.commit()
 
-    return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+    _set_refresh_cookie(response, raw_refresh)
+    return TokenResponse(access_token=access_token)
 
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
     request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
@@ -112,17 +139,25 @@ async def login(
     db.add(db_refresh)
     await db.commit()
 
-    return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+    _set_refresh_cookie(response, raw_refresh)
+    return TokenResponse(access_token=access_token)
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_tokens(raw_refresh_token: str, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+async def refresh_tokens(
+    response: Response,
+    refresh_token: str | None = Cookie(default=None, alias=settings.REFRESH_COOKIE_NAME),
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    if refresh_token is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token")
+
     result = await db.execute(
         select(RefreshToken).where(RefreshToken.revoked.is_(False))
     )
     stored: RefreshToken | None = None
     for row in result.scalars().all():
-        if verify_refresh_token_hash(raw_refresh_token, row.token_hash):
+        if verify_refresh_token_hash(refresh_token, row.token_hash):
             stored = row
             break
 
@@ -143,11 +178,13 @@ async def refresh_tokens(raw_refresh_token: str, db: AsyncSession = Depends(get_
     db.add(new_token)
     await db.commit()
 
-    return TokenResponse(access_token=access_token, refresh_token=raw_new)
+    _set_refresh_cookie(response, raw_new)
+    return TokenResponse(access_token=access_token)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
+    response: Response,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
@@ -161,6 +198,8 @@ async def logout(
     for token in result.scalars().all():
         token.revoked = True
     await db.commit()
+
+    _clear_refresh_cookie(response)
 
 
 @router.get("/me", response_model=UserResponse)

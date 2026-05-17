@@ -13,6 +13,14 @@ class Settings(BaseSettings):
     JWT_AUDIENCE: str = "studybuddy-client"
     REDIS_URL: str = "redis://localhost:6379"
 
+    # Refresh-Token-Cookie (ADR-0001). Dev: SameSite=lax + Secure=false über plain HTTP localhost.
+    # Prod: SameSite=strict + Secure=true via .env überschreiben.
+    REFRESH_COOKIE_NAME: str = "refresh_token"
+    REFRESH_COOKIE_PATH: str = "/api/auth"
+    REFRESH_COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    REFRESH_COOKIE_SECURE: bool = False
+    REFRESH_COOKIE_DOMAIN: str | None = None
+
     @field_validator("SECRET_KEY")
     @classmethod
     def secret_key_min_length(cls, v: str) -> str:
