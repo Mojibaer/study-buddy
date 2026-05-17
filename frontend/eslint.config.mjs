@@ -20,6 +20,22 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      "no-restricted-imports": ["error", {
+        patterns: [
+          {
+            group: ["**/app/(admin)/**"],
+            message: "Admin modules must not be imported from student routes.",
+          },
+          {
+            group: ["**/app/(student)/**"],
+            message: "Student modules must not be imported from admin routes.",
+          },
+        ],
+      }],
+    },
+  },
 ];
 
 export default eslintConfig;
