@@ -91,5 +91,58 @@
     "light": "Hell",
     "dark": "Dunkel",
     "system": "System"
+  },
+  "auth": {
+    "appName": "Study Buddy",
+    "tagline": "Lernunterlagen der FH Joanneum",
+    "login": {
+      "title": "Anmelden",
+      "subtitle": "Willkommen zurück",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "vorname.nachname@edu.fh-joanneum.at",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "Dein Passwort",
+      "submit": "Anmelden",
+      "submitting": "Wird angemeldet...",
+      "noAccount": "Noch kein Konto?",
+      "registerLink": "Registrieren",
+      "errorTitle": "Anmeldung fehlgeschlagen"
+    },
+    "register": {
+      "title": "Registrieren",
+      "subtitle": "Erstelle ein Konto mit deiner FH-Joanneum-E-Mail",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "vorname.nachname@edu.fh-joanneum.at",
+      "submit": "Registrieren",
+      "submitting": "Wird gesendet...",
+      "haveAccount": "Bereits ein Konto?",
+      "loginLink": "Anmelden",
+      "errorTitle": "Registrierung fehlgeschlagen",
+      "successTitle": "Prüfe deine E-Mails",
+      "successMessage": "Wir haben dir einen Bestätigungslink an {email} geschickt. Klicke auf den Link, um dein Konto einzurichten."
+    },
+    "setup": {
+      "title": "Konto einrichten",
+      "subtitle": "Wähle einen Benutzernamen und ein Passwort",
+      "usernameLabel": "Benutzername",
+      "usernamePlaceholder": "max.mustermann",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "Mindestens 12 Zeichen",
+      "passwordConfirmLabel": "Passwort bestätigen",
+      "submit": "Konto erstellen",
+      "submitting": "Wird erstellt...",
+      "errorTitle": "Einrichtung fehlgeschlagen",
+      "missingToken": "Kein Bestätigungstoken gefunden. Bitte verwende den Link aus deiner E-Mail.",
+      "passwordMismatch": "Passwörter stimmen nicht überein"
+    },
+    "validation": {
+      "emailRequired": "E-Mail ist erforderlich",
+      "emailInvalid": "Ungültige E-Mail-Adresse",
+      "emailDomain": "Nur @edu.fh-joanneum.at-Adressen erlaubt",
+      "passwordRequired": "Passwort ist erforderlich",
+      "passwordMinLength": "Passwort muss mindestens 12 Zeichen lang sein",
+      "usernameRequired": "Benutzername ist erforderlich",
+      "usernameMinLength": "Benutzername muss mindestens 3 Zeichen lang sein"
+    }
   }
 }

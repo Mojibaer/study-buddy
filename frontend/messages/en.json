@@ -91,5 +91,58 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "auth": {
+    "appName": "Study Buddy",
+    "tagline": "Study materials of FH Joanneum",
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Welcome back",
+      "emailLabel": "Email",
+      "emailPlaceholder": "first.last@edu.fh-joanneum.at",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "errorTitle": "Sign in failed"
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create an account with your FH Joanneum email",
+      "emailLabel": "Email",
+      "emailPlaceholder": "first.last@edu.fh-joanneum.at",
+      "submit": "Register",
+      "submitting": "Sending...",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "errorTitle": "Registration failed",
+      "successTitle": "Check your email",
+      "successMessage": "We sent a confirmation link to {email}. Click the link to set up your account."
+    },
+    "setup": {
+      "title": "Set up account",
+      "subtitle": "Choose a username and password",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "jane.doe",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 12 characters",
+      "passwordConfirmLabel": "Confirm password",
+      "submit": "Create account",
+      "submitting": "Creating...",
+      "errorTitle": "Setup failed",
+      "missingToken": "No confirmation token found. Please use the link from your email.",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "emailDomain": "Only @edu.fh-joanneum.at addresses allowed",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 12 characters",
+      "usernameRequired": "Username is required",
+      "usernameMinLength": "Username must be at least 3 characters"
+    }
   }
 }
