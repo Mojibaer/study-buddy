@@ -1,14 +1,14 @@
 import os
 
 import magic
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.dependencies import get_current_active_user
 from app.database.database import get_db
-from app.database.models import Document, Subject, User
+from app.database.models import Document, Subject, User, UserRole
 from app.schemas.document import DocumentResponse
 from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
@@ -166,9 +166,20 @@ async def get_download_url(document_id: int, db: AsyncSession = Depends(get_db))
 async def delete_document(
     document_id: int,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
 ) -> dict[str, str]:
     document = await get_document_or_404(db, document_id)
+
+    # Only the uploader or an admin can delete. uploaded_by may be NULL for
+    # documents whose uploader was deleted (SET NULL on user delete) — those
+    # are admin-only by design.
+    is_owner = document.uploaded_by is not None and document.uploaded_by == current_user.id
+    is_admin = current_user.role == UserRole.admin
+    if not (is_owner or is_admin):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not allowed to delete this document",
+        )
 
     delete_file(document.filename)
 
