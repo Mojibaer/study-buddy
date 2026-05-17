@@ -21,6 +21,17 @@ class Settings(BaseSettings):
     REFRESH_COOKIE_SECURE: bool = False
     REFRESH_COOKIE_DOMAIN: str | None = None
 
+    # Mail (Mailpit locally, real SMTP provider in production)
+    SMTP_HOST: str = "localhost"
+    SMTP_PORT: int = 1025
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_STARTTLS: bool = False
+    SMTP_SSL: bool = False
+    MAIL_FROM: str = "no-reply@studybuddy.app"
+    MAIL_FROM_NAME: str = "Study Buddy"
+    FRONTEND_BASE_URL: str = "http://localhost:3000"
+
     @field_validator("SECRET_KEY")
     @classmethod
     def secret_key_min_length(cls, v: str) -> str:

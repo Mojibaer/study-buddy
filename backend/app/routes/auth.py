@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.dependencies import get_current_active_user, get_token_payload
 from app.core.limiter import limiter
 from app.core.redis import consume_verify_token, denylist_token, store_verify_token
+from app.services.email_service import send_verify_email
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -65,7 +66,10 @@ async def register(
 
     verify_token = secrets.token_urlsafe(32)
     await store_verify_token(verify_token, user.id)
-    # TODO: send verify_token via email
+
+    accept_language = request.headers.get("accept-language", "")
+    locale = "de" if accept_language.lower().startswith("de") else "en"
+    await send_verify_email(user.email, verify_token, locale=locale)
 
     return user
 
