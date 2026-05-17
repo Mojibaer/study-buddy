@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import get_current_active_user
+from app.core.dependencies import require_admin
 from app.database.database import get_db
 from app.database.models import Semester, Subject, Category, Document, User
 from app.repositories.crud import get_semester_or_404, get_subject_or_404, get_category_or_404
@@ -33,7 +33,7 @@ async def list_semesters(db: AsyncSession = Depends(get_db)) -> list[SemesterRes
 async def create_semester(
     semester: SemesterCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> SemesterResponse:
     existing = (await db.execute(select(Semester).filter(Semester.name == semester.name))).scalars().first()
     if existing:
@@ -59,7 +59,7 @@ async def list_subjects(semester_id: int | None = None, db: AsyncSession = Depen
 async def create_subject(
     subject: SubjectCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> SubjectResponse:
     await get_semester_or_404(db, subject.semester_id)
 
@@ -80,7 +80,7 @@ async def list_categories(db: AsyncSession = Depends(get_db)) -> list[CategoryRe
 async def create_category(
     category: CategoryCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> CategoryResponse:
     existing = (await db.execute(select(Category).filter(Category.name == category.name))).scalars().first()
     if existing:
@@ -97,7 +97,7 @@ async def create_category(
 async def delete_semester(
     semester_id: int,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> dict[str, str]:
     semester = await get_semester_or_404(db, semester_id)
 
@@ -114,7 +114,7 @@ async def delete_semester(
 async def delete_subject(
     subject_id: int,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> dict[str, str]:
     subject = await get_subject_or_404(db, subject_id)
 
@@ -131,7 +131,7 @@ async def delete_subject(
 async def delete_category(
     category_id: int,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_active_user),
+    _current_user: User = Depends(require_admin),
 ) -> dict[str, str]:
     category = await get_category_or_404(db, category_id)
 
