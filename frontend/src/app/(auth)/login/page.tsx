@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -9,14 +9,24 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { GuestRoute } from '@/components/auth/GuestRoute'
 import { useAuth } from '@/providers/AuthProvider'
 
 const EMAIL_DOMAIN = '@edu.fh-joanneum.at'
 
 export default function LoginPage() {
+  return (
+    <GuestRoute>
+      <LoginForm />
+    </GuestRoute>
+  )
+}
+
+function LoginForm() {
   const t = useTranslations('auth')
   const tv = useTranslations('auth.validation')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -43,7 +53,8 @@ export default function LoginPage() {
     setError(null)
     try {
       await login({ email, password })
-      router.push('/')
+      const next = searchParams.get('next')
+      router.push(next || '/')
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
       setSubmitting(false)

@@ -8,11 +8,20 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { GuestRoute } from '@/components/auth/GuestRoute'
 import { useAuth } from '@/providers/AuthProvider'
 
 const EMAIL_DOMAIN = '@edu.fh-joanneum.at'
 
 export default function RegisterPage() {
+  return (
+    <GuestRoute>
+      <RegisterForm />
+    </GuestRoute>
+  )
+}
+
+function RegisterForm() {
   const t = useTranslations('auth')
   const tv = useTranslations('auth.validation')
   const { register } = useAuth()

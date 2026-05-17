@@ -143,6 +143,15 @@
       "passwordMinLength": "Passwort muss mindestens 12 Zeichen lang sein",
       "usernameRequired": "Benutzername ist erforderlich",
       "usernameMinLength": "Benutzername muss mindestens 3 Zeichen lang sein"
+    },
+    "menu": {
+      "signedInAs": "Angemeldet als",
+      "role": "Rolle",
+      "logout": "Abmelden",
+      "loggingOut": "Wird abgemeldet..."
+    },
+    "guard": {
+      "loading": "Lade..."
     }
   }
 }

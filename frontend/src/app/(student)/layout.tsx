@@ -1,3 +1,5 @@
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return <ProtectedRoute>{children}</ProtectedRoute>
 }
