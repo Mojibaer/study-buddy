@@ -9,6 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
 from app.routes import auth, documents, search, filters
 from app.services.chroma_service import chroma_service
+from app.services.embedding import get_provider
 from app.services.weaviate_service import weaviate_service
 
 logging.basicConfig(
@@ -19,7 +20,9 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    provider = get_provider()
     weaviate_service.connect()
+    weaviate_service.bootstrap_collection(provider.name, provider.dimension)
     try:
         yield
     finally:

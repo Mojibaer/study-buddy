@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     WEAVIATE_GRPC_SECURE: bool = False
     WEAVIATE_API_KEY: str | None = None
 
+    # Embedding
+    EMBEDDING_PROVIDER: Literal["voyage", "fastembed"] = "fastembed"
+    VOYAGE_API_KEY: str | None = None
+    VOYAGE_MODEL: str = "voyage-4-large"
+    FASTEMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
     # Mail (Mailpit locally, real SMTP provider in production)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 1025

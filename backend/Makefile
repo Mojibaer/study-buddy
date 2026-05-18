@@ -18,8 +18,7 @@ dev:
 	uv run uvicorn app.main:app --reload --port 8001
 
 test:
-	@uv run python -c "import fastapi; import alembic; print('All packages installed!')"
-	@curl -s http://localhost:8001/health || echo "Server not running"
+	uv run pytest
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
