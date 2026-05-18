@@ -1,13 +1,14 @@
 import os
 
 import magic
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.dependencies import get_current_active_user
 from app.database.database import get_db
-from app.database.models import Document, Subject
+from app.database.models import Document, Subject, User, UserRole
 from app.schemas.document import DocumentResponse
 from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
@@ -16,6 +17,15 @@ from app.services.minio_service import upload_file, get_presigned_url, delete_fi
 
 router = APIRouter()
 
+ALLOWED_MIME_TYPES = {
+    ".pdf": "application/pdf",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".txt": "text/plain",
+    ".md": "text/plain",
+}
+ALLOWED_EXTENSIONS = set(ALLOWED_MIME_TYPES.keys())
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
+
 
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
@@ -23,16 +33,9 @@ async def upload_document(
     category_id: int | None = Form(None),
     subject_id: int | None = Form(None),
     tags: str | None = Form(None),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> DocumentResponse:
-    ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
-    ALLOWED_MIME_TYPES = {
-        ".pdf": "application/pdf",
-        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ".txt": "text/plain",
-        ".md": "text/plain",
-    }
-
     file_ext = os.path.splitext(file.filename)[1].lower()
 
     if file_ext not in ALLOWED_EXTENSIONS:
@@ -47,7 +50,6 @@ async def upload_document(
     if subject_id is not None:
         await get_subject_or_404(db, subject_id)
 
-    MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
     file_content = await file.read(MAX_UPLOAD_BYTES + 1)
     if len(file_content) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="File too large. Maximum allowed size is 50 MB.")
@@ -77,6 +79,7 @@ async def upload_document(
         file_url=get_file_url(object_key),
         category_id=category_id,
         subject_id=subject_id,
+        uploaded_by=current_user.id,
     )
 
     db.add(db_document)
@@ -160,8 +163,23 @@ async def get_download_url(document_id: int, db: AsyncSession = Depends(get_db))
 
 
 @router.delete("/{document_id}")
-async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def delete_document(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> dict[str, str]:
     document = await get_document_or_404(db, document_id)
+
+    # Only the uploader or an admin can delete. uploaded_by may be NULL for
+    # documents whose uploader was deleted (SET NULL on user delete) — those
+    # are admin-only by design.
+    is_owner = document.uploaded_by is not None and document.uploaded_by == current_user.id
+    is_admin = current_user.role == UserRole.admin
+    if not (is_owner or is_admin):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not allowed to delete this document",
+        )
 
     delete_file(document.filename)
 

@@ -3,8 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.dependencies import require_admin
 from app.database.database import get_db
-from app.database.models import Semester, Subject, Category, Document
+from app.database.models import Semester, Subject, Category, Document, User
 from app.repositories.crud import get_semester_or_404, get_subject_or_404, get_category_or_404
 from app.schemas.semester import SemesterResponse, SemesterCreate
 from app.schemas.subject import SubjectResponse, SubjectCreate
@@ -29,7 +30,11 @@ async def list_semesters(db: AsyncSession = Depends(get_db)) -> list[SemesterRes
 
 
 @router.post("/semesters", response_model=SemesterResponse)
-async def create_semester(semester: SemesterCreate, db: AsyncSession = Depends(get_db)) -> SemesterResponse:
+async def create_semester(
+    semester: SemesterCreate,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> SemesterResponse:
     existing = (await db.execute(select(Semester).filter(Semester.name == semester.name))).scalars().first()
     if existing:
         raise HTTPException(status_code=400, detail="Semester already exists")
@@ -51,7 +56,11 @@ async def list_subjects(semester_id: int | None = None, db: AsyncSession = Depen
 
 
 @router.post("/subjects", response_model=SubjectResponse)
-async def create_subject(subject: SubjectCreate, db: AsyncSession = Depends(get_db)) -> SubjectResponse:
+async def create_subject(
+    subject: SubjectCreate,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> SubjectResponse:
     await get_semester_or_404(db, subject.semester_id)
 
     db_subject = Subject(name=subject.name, semester_id=subject.semester_id)
@@ -68,7 +77,11 @@ async def list_categories(db: AsyncSession = Depends(get_db)) -> list[CategoryRe
 
 
 @router.post("/categories", response_model=CategoryResponse)
-async def create_category(category: CategoryCreate, db: AsyncSession = Depends(get_db)) -> CategoryResponse:
+async def create_category(
+    category: CategoryCreate,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> CategoryResponse:
     existing = (await db.execute(select(Category).filter(Category.name == category.name))).scalars().first()
     if existing:
         raise HTTPException(status_code=400, detail="Category already exists")
@@ -81,7 +94,11 @@ async def create_category(category: CategoryCreate, db: AsyncSession = Depends(g
 
 
 @router.delete("/semesters/{semester_id}")
-async def delete_semester(semester_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def delete_semester(
+    semester_id: int,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> dict[str, str]:
     semester = await get_semester_or_404(db, semester_id)
 
     has_subjects = (await db.execute(select(Subject).filter(Subject.semester_id == semester_id))).scalars().first()
@@ -94,7 +111,11 @@ async def delete_semester(semester_id: int, db: AsyncSession = Depends(get_db)) 
 
 
 @router.delete("/subjects/{subject_id}")
-async def delete_subject(subject_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def delete_subject(
+    subject_id: int,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> dict[str, str]:
     subject = await get_subject_or_404(db, subject_id)
 
     has_documents = (await db.execute(select(Document).filter(Document.subject_id == subject_id))).scalars().first()
@@ -107,7 +128,11 @@ async def delete_subject(subject_id: int, db: AsyncSession = Depends(get_db)) ->
 
 
 @router.delete("/categories/{category_id}")
-async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def delete_category(
+    category_id: int,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(require_admin),
+) -> dict[str, str]:
     category = await get_category_or_404(db, category_id)
 
     has_documents = (await db.execute(select(Document).filter(Document.category_id == category_id))).scalars().first()

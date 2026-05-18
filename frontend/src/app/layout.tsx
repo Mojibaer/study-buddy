@@ -1,6 +1,7 @@
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import { FiltersProvider } from "@/providers/FiltersProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -31,9 +32,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${plusJakartaSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
-            <FiltersProvider>
-              {children}
-            </FiltersProvider>
+            <AuthProvider>
+              <FiltersProvider>
+                {children}
+              </FiltersProvider>
+            </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
