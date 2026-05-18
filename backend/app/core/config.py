@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     REFRESH_COOKIE_SECURE: bool = False
     REFRESH_COOKIE_DOMAIN: str | None = None
 
+    # Weaviate
+    WEAVIATE_HTTP_HOST: str = "localhost"
+    WEAVIATE_HTTP_PORT: int = 8100
+    WEAVIATE_GRPC_HOST: str = "localhost"
+    WEAVIATE_GRPC_PORT: int = 50051
+    WEAVIATE_HTTP_SECURE: bool = False
+    WEAVIATE_GRPC_SECURE: bool = False
+    WEAVIATE_API_KEY: str | None = None
+
     # Mail (Mailpit locally, real SMTP provider in production)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 1025

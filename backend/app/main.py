@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,15 +9,27 @@ from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
 from app.routes import auth, documents, search, filters
 from app.services.chroma_service import chroma_service
+from app.services.weaviate_service import weaviate_service
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    weaviate_service.connect()
+    try:
+        yield
+    finally:
+        weaviate_service.close()
+
+
 app = FastAPI(
     title="Study Buddy API",
-    root_path="/api"
+    root_path="/api",
+    lifespan=lifespan,
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
