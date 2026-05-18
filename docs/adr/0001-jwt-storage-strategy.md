@@ -6,71 +6,71 @@
 
 ## Context
 
-Das Backend gibt nach erfolgreichem Login zwei Tokens aus:
+After login the backend issues two tokens:
 
-- **Access Token** (JWT, HS256, 30 min TTL) — wird bei jedem API-Call mitgeschickt
-- **Refresh Token** (opaque, 7 Tage TTL) — wird verwendet um neue Access Tokens auszustellen
+- **Access Token** (JWT, HS256, 30 min TTL) — sent with every API call
+- **Refresh Token** (opaque random string, 7 day TTL) — exchanged for new access tokens
 
-Aktuell werden beide als JSON-Body zurückgegeben (`TokenResponse`). Wo das Frontend (Next.js 16 SPA) sie speichert, ist noch nicht entschieden. Die Wahl bestimmt die Angriffsfläche für XSS und CSRF.
+The question: where does the frontend store them? The decision determines the XSS and CSRF attack surface.
 
 ### Threat Model
 
-- **XSS** — jede npm-Dependency, jedes user-generated Content Feld kann Schadcode injizieren. In einer modernen SPA mit dutzenden Dependencies ist XSS realistisch.
-- **CSRF** — Angreifer-Website triggert einen authentifizierten Request vom Browser des Opfers. Mit modernen Browser-Defaults (`SameSite=Lax`) und korrekter Cookie-Config gut zu mitigieren.
+- **XSS** — any npm dependency, any user-generated content field can inject malicious JS. In a modern SPA with dozens of dependencies, XSS is realistic.
+- **CSRF** — an attacker-controlled site triggers an authenticated request from the victim's browser. Mitigatable with `SameSite=Strict` cookies plus optional CSRF tokens.
 
-### Optionen
+### Options
 
-| Option | Beschreibung | XSS | CSRF |
+| Option | Description | XSS | CSRF |
 |---|---|---|---|
-| **A** | beide Tokens in `localStorage` | ❌ beide stehlbar via XSS, 7-Tage-Persistenz | ✅ kein Cookie-Flow |
-| **B** | beide Tokens in HttpOnly Cookies | ✅ JS hat keinen Zugriff | ⚠️ mitigierbar mit SameSite+CSRF-Token, aber erzwingt Cookie-Flow für jeden API-Call |
-| **C** | **Hybrid:** Refresh in HttpOnly Cookie, Access in Memory | ✅ Refresh sicher, Access nur 30-min XSS-Fenster | ✅ Cookie nur für `/auth/refresh`, Strict möglich |
+| **A** | both tokens in `localStorage` | ❌ both stealable via XSS, 7-day persistence | ✅ no cookie flow |
+| **B** | both tokens in HttpOnly cookies | ✅ JS has no access | ⚠️ mitigatable with SameSite+CSRF token but forces cookie flow on every API call |
+| **C** | **Hybrid:** refresh in HttpOnly cookie, access in memory | ✅ refresh safe, access only 30-min XSS window | ✅ cookie only on `/auth/*`, Strict possible |
 
 ## Decision
 
 **Option C — Hybrid.**
 
-- **Refresh Token** → HttpOnly Cookie mit `Secure; SameSite=Strict; Path=/api/auth; Max-Age=604800`
-- **Access Token** → JavaScript Module-Variable im Frontend (nicht `localStorage`, nicht `sessionStorage`, nicht `useState`)
+- **Refresh Token** → HttpOnly cookie with `Secure; SameSite=Strict; Path=/api/auth; Max-Age=604800`
+- **Access Token** → JavaScript module variable in the frontend (not `localStorage`, not `sessionStorage`, not `useState`)
 
-> **Cookie-Path-Hinweis:** Der Cookie ist auf `/api/auth` gescoped (nicht nur `/api/auth/refresh`), damit er auch beim `POST /api/auth/logout` mitgeschickt wird. Dort muss das Backend ihn löschen können. Damit ist die CSRF-Angriffsfläche minimal größer als bei einem reinen `/refresh`-Scope — durch `SameSite=Strict` in Production aber weiterhin geschlossen.
+> **Cookie path:** The cookie is scoped to `/api/auth` (not just `/api/auth/refresh`) so it's also sent on `POST /api/auth/logout` — the backend needs it there to delete and denylist. The CSRF surface is minimally larger than a strict `/refresh`-only scope but stays closed with `SameSite=Strict` in production.
 
-### Begründung
+### Rationale
 
-1. Ein 7-Tage-Refresh-Token in `localStorage` ist unverteidigbar — jeder XSS-Treffer öffnet ein 7-Tage-Persistenz-Fenster für den Angreifer.
-2. Cookie-Flow für **jeden** API-Call (Option B) erzwingt CORS `allow_credentials=True` und CSRF-Token überall — die Komplexität bringt keinen Mehrwert gegenüber Bearer Tokens im Header für den Access Token.
-3. Der Refresh-Token-Cookie ist auf `Path=/auth/refresh` beschränkt — er wird nicht bei jedem Request mitgeschickt, sondern nur beim Refresh-Endpoint. Damit ist die CSRF-Angriffsfläche minimal.
-4. `SameSite=Strict` ist nutzbar, weil Frontend und Backend in Production unter derselben Parent-Domain liegen (`app.studybuddy.at` ↔ `api.studybuddy.at`).
-5. Access Token in Memory bedeutet: nach Tab-Close / Browser-Restart ist er weg. Beim nächsten App-Load wird via Silent Refresh ein neuer ausgestellt (Refresh Cookie wird automatisch mitgeschickt).
+1. A 7-day refresh token in `localStorage` is indefensible — any XSS hit opens a 7-day persistence window.
+2. Cookies for **every** API call (Option B) forces CORS `allow_credentials=True` plus CSRF tokens everywhere — complexity without benefit over a Bearer header for the access token.
+3. The refresh cookie is restricted to `Path=/api/auth` — it's not sent on every request, only when refreshing or logging out. CSRF surface is minimal.
+4. `SameSite=Strict` is usable because frontend and backend share the same domain in production (`studybuddy.mojiverse.at`).
+5. Access token in memory: gone after tab close or reload. App load fires a silent refresh; the refresh cookie auto-restores the session.
 
 ## Consequences
 
-### Backend (`app/routes/auth.py`) — **umgesetzt**
+### Backend (`app/routes/auth.py`)
 
-- `POST /auth/login` — Access Token im JSON-Body, Refresh Token als `Set-Cookie`
-- `POST /auth/setup` — analog
-- `POST /auth/refresh` — Refresh Token aus Cookie lesen (nicht aus Body/Query), Cookie rotieren
-- `POST /auth/logout` — Cookie löschen via `delete_cookie`; Access-Token-JTI denylisten ist offen → AUTH-11
-- `TokenResponse` Schema — `refresh_token` Feld entfernt (kommt nur noch via Cookie)
-- Cookie-Settings via `settings.REFRESH_COOKIE_*` in `app/core/config.py` (Dev-Defaults: `SameSite=lax`, `Secure=false`; in Production via `.env` auf `strict` und `true` setzen)
-- CORS-Config — `allow_credentials=True` bereits gesetzt in `main.py`
+- `POST /auth/login` — access token in JSON body, refresh token as `Set-Cookie`
+- `POST /auth/setup` — same
+- `POST /auth/refresh` — reads refresh token from cookie (not body/query), rotates the cookie
+- `POST /auth/logout` — denylists access token JTI (AUTH-11), revokes refresh tokens in DB, clears the cookie
+- `TokenResponse` schema — no `refresh_token` field; it lives in the cookie
+- Cookie settings via `settings.REFRESH_COOKIE_*` in `app/core/config.py` — dev defaults: `SameSite=lax`, `Secure=false`; production overrides to `strict` and `true` via `.env`
+- CORS — `allow_credentials=True` set in `main.py`
 
-### Frontend (Next.js 16, kommt mit AUTH-07)
+### Frontend (Next.js 16)
 
-- Access Token in Module-Variable (z.B. `lib/auth/tokenStore.ts`), niemals Persistenz
-- `fetch`/`axios` mit `credentials: "include"` für `/auth/refresh` und `/auth/logout`
-- App-Load Hook: Silent Refresh vor erstem geschützten Request
-- 401-Interceptor: einmaliger Refresh-Versuch, dann Redirect auf `/login`
-- Login-Form: erhält Access Token aus Response Body, persistiert nichts selbst
+- Access token in `lib/auth/tokenStore.ts` module variable; never persisted
+- `fetch` with `credentials: "include"` on `/auth/refresh` and `/auth/logout`
+- App-load hook (`AuthProvider`) runs silent refresh before the first protected request
+- 401 interceptor: one refresh attempt, then redirect to `/login`
+- Login form: receives access token from response body; persists nothing itself
 
-### Dev-Setup
+### Dev Setup
 
-- Frontend `localhost:3000`, Backend `localhost:8000` — Cookie funktioniert mit `SameSite=Lax` im Dev (Same-Site via `localhost`)
-- In Production: `SameSite=Strict`, weil beide Subdomains der gleichen Site sind
+- Frontend `localhost:3000`, backend `localhost:8001` — cookie works with `SameSite=Lax` (both are same-site under `localhost`)
+- Production: `SameSite=Strict`, both apps on `studybuddy.mojiverse.at`
 
-### Verbleibende Angriffsfläche
+### Remaining Attack Surface
 
-- **CSRF auf `/auth/refresh`** falls `SameSite` jemals auf `Lax`/`None` gelockert wird (z.B. für mobile Clients) → CSRF-Token nachrüsten
-- **XSS-Diebstahl des Access Tokens** im 30-Minuten-Fenster → CSP-Header, Trusted Types, Dependency-Audits
-- **Subdomain-Takeover** auf `*.studybuddy.at` würde Cookie-Diebstahl trotz HttpOnly ermöglichen → DNS und Subdomain-Management dokumentieren
-- **Silent-Refresh-Race** beim App-Load → Loading-State, keine geschützten Requests vor erstem Refresh
+- **CSRF on `/auth/refresh`** if `SameSite` is ever relaxed to `Lax`/`None` (e.g. for mobile clients) → add a CSRF token
+- **XSS theft of the access token** within its 30-minute window → CSP headers, Trusted Types, dependency audits
+- **Subdomain takeover** would allow cookie theft despite HttpOnly → document DNS and subdomain management
+- **Silent-refresh race on app load** → loading state, no protected requests before the first refresh resolves
