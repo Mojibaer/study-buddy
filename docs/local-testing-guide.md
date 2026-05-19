@@ -7,6 +7,16 @@ How to run Study Buddy end-to-end on your machine — including the JWT auth flo
 - Docker + Docker Compose
 - [uv](https://docs.astral.sh/uv/) (backend package manager)
 - [Bun](https://bun.com/) (frontend package manager)
+- GNU Make
+  - Debian/Ubuntu: `sudo apt install make`
+  - Arch: `sudo pacman -S make`
+  - macOS: comes with Xcode Command Line Tools (`xcode-select --install`)
+  - Windows: install via [Chocolatey](https://chocolatey.org/) (`choco install make`), [Scoop](https://scoop.sh/) (`scoop install make`), or just use WSL
+- `libmagic` (system library used for MIME-type detection on document upload)
+  - Debian/Ubuntu: `sudo apt install libmagic1`
+  - Arch: `sudo pacman -S file`
+  - macOS: `brew install libmagic`
+  - NixOS: add `pkgs.file` to your shell environment
 - `openssl` (for generating `SECRET_KEY`)
 
 ## 1. Environment Files
@@ -46,7 +56,7 @@ cd backend
 make db-up
 ```
 
-`db-up` runs `docker compose up -d` on the local compose file. Verify everything is healthy:
+`db-up` wraps `docker compose` against `docker/local/docker-compose.yml`. Verify everything is healthy:
 
 ```bash
 docker ps
@@ -108,6 +118,8 @@ bun dev                 # Next.js on port 3000
 | No email arrives in Mailpit | Mailpit container down | `docker ps` — restart with `make db-up` |
 | Login succeeds but `/me` returns 401 | Stale cookie from previous run | Clear cookies for `localhost:8001` |
 | Database errors after pulling code | New migrations not applied | `uv run alembic upgrade head` |
+| `password authentication failed for user "..."` on migrations | Postgres volume baked credentials from a previous run | `make db-reset` (drops volumes, recreates with current `.env`) |
+| Backend crashes with `ImportError: failed to find libmagic` | System library missing | Install libmagic — see Prerequisites |
 
 ## 8. Useful Make Targets
 
