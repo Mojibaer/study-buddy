@@ -44,10 +44,23 @@ services:
     networks:
       - studybuddy-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: studybuddy-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - studybuddy-network
+
 volumes:
   postgres_data:
     driver: local
   weaviate_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:

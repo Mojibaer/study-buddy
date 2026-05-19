@@ -28,11 +28,11 @@ clean:
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 
 db-up:
-	docker compose up -d
+	docker compose -f ../docker/local/docker-compose.yml --env-file ../docker/local/.env up -d
 
 db-down:
-	docker compose down
+	docker compose -f ../docker/local/docker-compose.yml --env-file ../docker/local/.env down
 
 db-reset:
-	docker compose down -v
-	docker compose up -d
+	docker compose -f ../docker/local/docker-compose.yml --env-file ../docker/local/.env down -v
+	docker compose -f ../docker/local/docker-compose.yml --env-file ../docker/local/.env up -d

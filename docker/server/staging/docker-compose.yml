@@ -44,10 +44,37 @@ services:
     networks:
       - studybuddy-staging-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: studybuddy-staging-redis
+    restart: unless-stopped
+    volumes:
+      - redis_staging_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - studybuddy-staging-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: studybuddy-staging-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - studybuddy-staging-network
+
 volumes:
   postgres_staging_data:
     driver: local
   weaviate_staging_data:
+    driver: local
+  redis_staging_data:
     driver: local
 
 networks:
