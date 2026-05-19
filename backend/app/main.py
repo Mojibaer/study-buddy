@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,15 +10,38 @@ from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
 from app.routes import auth, documents, search, filters
 from app.services.chroma_service import chroma_service
+from app.services.embedding import build_provider
+from app.services.weaviate_service import WeaviateService
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Provider construction may download a model (FastEmbed) and connect()
+    # / bootstrap_collection() block on network I/O — keep them off the loop.
+    provider = await asyncio.to_thread(build_provider)
+    weaviate = WeaviateService()
+    await asyncio.to_thread(weaviate.connect)
+    await asyncio.to_thread(
+        weaviate.bootstrap_collection, provider.name, provider.dimension
+    )
+
+    app.state.embedding_provider = provider
+    app.state.weaviate = weaviate
+    try:
+        yield
+    finally:
+        await asyncio.to_thread(weaviate.close)
+
+
 app = FastAPI(
     title="Study Buddy API",
-    root_path="/api"
+    root_path="/api",
+    lifespan=lifespan,
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

@@ -21,6 +21,26 @@ class Settings(BaseSettings):
     REFRESH_COOKIE_SECURE: bool = False
     REFRESH_COOKIE_DOMAIN: str | None = None
 
+    # Weaviate
+    WEAVIATE_HTTP_HOST: str = "localhost"
+    WEAVIATE_HTTP_PORT: int = 8100
+    WEAVIATE_GRPC_HOST: str = "localhost"
+    WEAVIATE_GRPC_PORT: int = 50051
+    WEAVIATE_HTTP_SECURE: bool = False
+    WEAVIATE_GRPC_SECURE: bool = False
+    WEAVIATE_API_KEY: str | None = None
+
+    # Embedding
+    EMBEDDING_PROVIDER: Literal["voyage", "fastembed"] = "fastembed"
+    VOYAGE_API_KEY: str | None = None
+    VOYAGE_MODEL: Literal[
+        "voyage-4-large",
+        "voyage-3-large",
+        "voyage-3",
+        "voyage-3-lite",
+    ] = "voyage-4-large"
+    FASTEMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
     # Mail (Mailpit locally, real SMTP provider in production)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 1025
