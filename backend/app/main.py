@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -9,8 +10,8 @@ from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
 from app.routes import auth, documents, search, filters
 from app.services.chroma_service import chroma_service
-from app.services.embedding import get_provider
-from app.services.weaviate_service import weaviate_service
+from app.services.embedding import build_provider
+from app.services.weaviate_service import WeaviateService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,13 +21,21 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    provider = get_provider()
-    weaviate_service.connect()
-    weaviate_service.bootstrap_collection(provider.name, provider.dimension)
+    # Provider construction may download a model (FastEmbed) and connect()
+    # / bootstrap_collection() block on network I/O — keep them off the loop.
+    provider = await asyncio.to_thread(build_provider)
+    weaviate = WeaviateService()
+    await asyncio.to_thread(weaviate.connect)
+    await asyncio.to_thread(
+        weaviate.bootstrap_collection, provider.name, provider.dimension
+    )
+
+    app.state.embedding_provider = provider
+    app.state.weaviate = weaviate
     try:
         yield
     finally:
-        weaviate_service.close()
+        await asyncio.to_thread(weaviate.close)
 
 
 app = FastAPI(

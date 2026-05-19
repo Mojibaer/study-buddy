@@ -3,23 +3,16 @@ import os
 import pytest
 
 from app.core.config import Settings
-from app.services.embedding.factory import get_provider
+from app.services.embedding.factory import build_provider
 from app.services.embedding.fastembed import FastEmbedProvider
 from app.services.embedding.voyage import VoyageProvider
-
-
-@pytest.fixture(autouse=True)
-def _clear_factory_cache():
-    get_provider.cache_clear()
-    yield
-    get_provider.cache_clear()
 
 
 def test_factory_returns_fastembed_by_default(monkeypatch):
     monkeypatch.setenv("EMBEDDING_PROVIDER", "fastembed")
     monkeypatch.setattr("app.services.embedding.factory.settings", Settings())
 
-    provider = get_provider()
+    provider = build_provider()
 
     assert isinstance(provider, FastEmbedProvider)
     assert provider.name == "fastembed"
@@ -31,7 +24,7 @@ def test_factory_voyage_without_key_raises(monkeypatch):
     monkeypatch.setattr("app.services.embedding.factory.settings", Settings())
 
     with pytest.raises(RuntimeError, match="VOYAGE_API_KEY"):
-        get_provider()
+        build_provider()
 
 
 def test_factory_unknown_provider_raises(monkeypatch):
@@ -41,7 +34,7 @@ def test_factory_unknown_provider_raises(monkeypatch):
     )
 
     with pytest.raises(RuntimeError, match="Unknown EMBEDDING_PROVIDER"):
-        get_provider()
+        build_provider()
 
 
 def test_fastembed_returns_correct_dimension():
@@ -54,6 +47,14 @@ def test_fastembed_returns_correct_dimension():
     assert provider.dimension == 384
     assert len(vector) == 384
     assert all(isinstance(x, float) for x in vector)
+
+
+def test_fastembed_embed_query_matches_embed():
+    provider = FastEmbedProvider(
+        model="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    )
+
+    assert provider.embed_query("Hallo Welt") == provider.embed("Hallo Welt")
 
 
 def test_fastembed_embed_many_returns_one_vector_per_input():

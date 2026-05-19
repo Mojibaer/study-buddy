@@ -62,6 +62,3 @@ class WeaviateService:
             ],
         )
         logger.info("Created Weaviate collection %s (dim=%d)", name, dimension)
-
-
-weaviate_service = WeaviateService()

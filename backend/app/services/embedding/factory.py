@@ -1,11 +1,8 @@
-from functools import lru_cache
-
 from app.core.config import settings
 from app.services.embedding.base import EmbeddingProvider
 
 
-@lru_cache(maxsize=1)
-def get_provider() -> EmbeddingProvider:
+def build_provider() -> EmbeddingProvider:
     if settings.EMBEDDING_PROVIDER == "voyage":
         if not settings.VOYAGE_API_KEY:
             raise RuntimeError(

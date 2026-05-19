@@ -25,6 +25,10 @@ class VoyageProvider:
         result = self._client.embed([text], model=self._model, input_type="document")
         return result.embeddings[0]
 
+    def embed_query(self, text: str) -> list[float]:
+        result = self._client.embed([text], model=self._model, input_type="query")
+        return result.embeddings[0]
+
     def embed_many(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []

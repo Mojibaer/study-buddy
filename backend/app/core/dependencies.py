@@ -1,6 +1,6 @@
 from typing import Callable, Coroutine
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +9,8 @@ from app.core.redis import is_token_denied
 from app.core.security import decode_token_payload
 from app.database.database import get_db
 from app.database.models import User, UserRole
+from app.services.embedding import EmbeddingProvider
+from app.services.weaviate_service import WeaviateService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -74,3 +76,11 @@ def require_role(role: UserRole) -> Callable[[User], Coroutine[None, None, User]
 
 
 require_admin = require_role(UserRole.admin)
+
+
+def get_weaviate(request: Request) -> WeaviateService:
+    return request.app.state.weaviate
+
+
+def get_embedding_provider(request: Request) -> EmbeddingProvider:
+    return request.app.state.embedding_provider

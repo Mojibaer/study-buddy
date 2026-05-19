@@ -170,6 +170,9 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "integration: requires running docker compose services (Weaviate, Postgres, ...)",
+]
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::UserWarning",

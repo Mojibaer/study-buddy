@@ -33,7 +33,12 @@ class Settings(BaseSettings):
     # Embedding
     EMBEDDING_PROVIDER: Literal["voyage", "fastembed"] = "fastembed"
     VOYAGE_API_KEY: str | None = None
-    VOYAGE_MODEL: str = "voyage-4-large"
+    VOYAGE_MODEL: Literal[
+        "voyage-4-large",
+        "voyage-3-large",
+        "voyage-3",
+        "voyage-3-lite",
+    ] = "voyage-4-large"
     FASTEMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
     # Mail (Mailpit locally, real SMTP provider in production)

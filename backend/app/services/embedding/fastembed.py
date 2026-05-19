@@ -14,6 +14,11 @@ class FastEmbedProvider:
         vector = next(iter(self._model.embed([text])))
         return vector.tolist()
 
+    def embed_query(self, text: str) -> list[float]:
+        # MiniLM is a symmetric model; document and query embeddings live
+        # in the same space, so the query path reuses embed().
+        return self.embed(text)
+
     def embed_many(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
