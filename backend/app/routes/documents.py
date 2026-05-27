@@ -190,6 +190,8 @@ async def delete_document(
     document_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
+    provider: EmbeddingProvider = Depends(get_embedding_provider),
+    weaviate: WeaviateService = Depends(get_weaviate),
 ) -> dict[str, str]:
     document = await get_document_or_404(db, document_id)
 
@@ -206,8 +208,15 @@ async def delete_document(
 
     delete_file(document.filename)
 
-    if document.chroma_id:
-        chroma_service.delete_document(document.chroma_id)
+    try:
+        await asyncio.to_thread(
+            weaviate.delete_document, provider.name, document.id
+        )
+    except Exception:
+        logger.exception(
+            "Failed to delete Weaviate vector for document %d; continuing",
+            document.id,
+        )
 
     await db.delete(document)
     await db.commit()
