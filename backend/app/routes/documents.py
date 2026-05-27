@@ -1,3 +1,5 @@
+import asyncio
+import logging
 import os
 
 import magic
@@ -6,14 +8,21 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import get_current_active_user
+from app.core.dependencies import (
+    get_current_active_user,
+    get_embedding_provider,
+    get_weaviate,
+)
 from app.database.database import get_db
 from app.database.models import Document, Subject, User, UserRole
 from app.schemas.document import DocumentResponse
 from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
 from app.services.document_service import extract_text_from_bytes
-from app.services.chroma_service import chroma_service
+from app.services.embedding import EmbeddingProvider
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
+from app.services.weaviate_service import WeaviateService, document_uuid
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -26,6 +35,9 @@ ALLOWED_MIME_TYPES = {
 ALLOWED_EXTENSIONS = set(ALLOWED_MIME_TYPES.keys())
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
 
+EMBED_TEXT_MAX_CHARS = 8000
+SNIPPET_MAX_CHARS = 500
+
 
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
@@ -35,6 +47,8 @@ async def upload_document(
     tags: str | None = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
+    provider: EmbeddingProvider = Depends(get_embedding_provider),
+    weaviate: WeaviateService = Depends(get_weaviate),
 ) -> DocumentResponse:
     file_ext = os.path.splitext(file.filename)[1].lower()
 
@@ -83,7 +97,14 @@ async def upload_document(
     )
 
     db.add(db_document)
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception:
+        try:
+            delete_file(object_key)
+        except Exception:
+            logger.exception("Failed to clean up MinIO object %s after Postgres commit error", object_key)
+        raise
     await db.refresh(db_document)
 
     if extracted_text:
@@ -97,9 +118,7 @@ async def upload_document(
         )
         db_document = result.scalars().first()
 
-        category_name = db_document.category.name if db_document.category else ""
         subject_name = db_document.subject.name if db_document.subject else ""
-        semester_name = db_document.subject.semester.name if db_document.subject else ""
 
         searchable_text = extracted_text
         if subject_name:
@@ -107,22 +126,26 @@ async def upload_document(
         if tag_list:
             searchable_text += f" Tags: {' '.join(tag_list)}"
 
-        chroma_id = f"doc_{db_document.id}"
-        chroma_service.add_document(
-            doc_id=chroma_id,
-            text=searchable_text,
-            metadata={
-                "document_id": db_document.id,
-                "filename": file.filename,
-                "category": category_name,
-                "subject": subject_name,
-                "semester": semester_name,
-                "tags": ",".join(tag_list)
-            }
-        )
-        db_document.chroma_id = chroma_id
-        await db.commit()
-        await db.refresh(db_document)
+        embed_input = searchable_text[:EMBED_TEXT_MAX_CHARS]
+        snippet = searchable_text[:SNIPPET_MAX_CHARS]
+
+        try:
+            vector = await asyncio.to_thread(provider.embed, embed_input)
+            await asyncio.to_thread(
+                weaviate.insert_document,
+                provider.name,
+                db_document.id,
+                snippet,
+                vector,
+            )
+            db_document.weaviate_id = document_uuid(db_document.id)
+            await db.commit()
+            await db.refresh(db_document)
+        except Exception:
+            logger.exception(
+                "Failed to vectorize document %d; leaving weaviate_id NULL for reindex",
+                db_document.id,
+            )
 
     return db_document
 
@@ -167,6 +190,8 @@ async def delete_document(
     document_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
+    provider: EmbeddingProvider = Depends(get_embedding_provider),
+    weaviate: WeaviateService = Depends(get_weaviate),
 ) -> dict[str, str]:
     document = await get_document_or_404(db, document_id)
 
@@ -183,8 +208,15 @@ async def delete_document(
 
     delete_file(document.filename)
 
-    if document.chroma_id:
-        chroma_service.delete_document(document.chroma_id)
+    try:
+        await asyncio.to_thread(
+            weaviate.delete_document, provider.name, document.id
+        )
+    except Exception:
+        logger.exception(
+            "Failed to delete Weaviate vector for document %d; continuing",
+            document.id,
+        )
 
     await db.delete(document)
     await db.commit()
