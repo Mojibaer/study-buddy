@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from datetime import datetime, timezone
 
 import magic
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
@@ -20,7 +21,7 @@ from app.repositories.crud import get_category_or_404, get_document_or_404, get_
 from app.services.document_service import extract_text_from_bytes
 from app.services.embedding import EmbeddingProvider
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
-from app.services.weaviate_service import WeaviateService, document_uuid
+from app.services.weaviate_service import WeaviateService
 
 logger = logging.getLogger(__name__)
 
@@ -138,12 +139,12 @@ async def upload_document(
                 snippet,
                 vector,
             )
-            db_document.weaviate_id = document_uuid(db_document.id)
+            db_document.vectorized_at = datetime.now(timezone.utc)
             await db.commit()
             await db.refresh(db_document)
         except Exception:
             logger.exception(
-                "Failed to vectorize document %d; leaving weaviate_id NULL for reindex",
+                "Failed to vectorize document %d; leaving vectorized_at NULL for reindex",
                 db_document.id,
             )
 
