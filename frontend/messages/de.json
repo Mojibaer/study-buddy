@@ -335,6 +335,123 @@
       "title": "Kategorien",
       "subtitle": "Semester, Fächer und Dokumentkategorien verwalten"
     },
+    "structure": {
+      "title": "Struktur",
+      "subtitle": "Die Taxonomie verwalten, mit der alle Dokumente organisiert sind",
+      "tabs": {
+        "semesters": "Semester",
+        "subjects": "Fächer",
+        "categories": "Kategorien"
+      },
+      "common": {
+        "actions": "Aktionen",
+        "openMenu": "Aktionen für {name} öffnen",
+        "rename": "Umbenennen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      },
+      "form": {
+        "name": "Name",
+        "semester": "Semester",
+        "selectSemester": "Semester auswählen",
+        "cancel": "Abbrechen",
+        "saving": "Wird gespeichert…",
+        "errors": {
+          "nameRequired": "Name ist erforderlich.",
+          "semesterRequired": "Semester ist erforderlich.",
+          "unknown": "Etwas ist schiefgelaufen"
+        }
+      },
+      "delete": {
+        "cancel": "Abbrechen"
+      },
+      "semesters": {
+        "description": "Oberste Gruppierung für Fächer.",
+        "create": "Semester hinzufügen",
+        "empty": "Noch keine Semester.",
+        "table": {
+          "name": "Name",
+          "subjects": "Fächer",
+          "documents": "Dokumente"
+        },
+        "createDialog": {
+          "title": "Semester hinzufügen",
+          "description": "Semester gruppieren Fächer und indirekt alle ihre Dokumente.",
+          "confirm": "Erstellen"
+        },
+        "renameDialog": {
+          "title": "Semester umbenennen",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Semester löschen?",
+          "description": "{name} wird entfernt.",
+          "warning": "Dieses Semester enthält {subjects, plural, one {# Fach} other {# Fächer}} und {documents, plural, one {# Dokument} other {# Dokumente}}. Fächer ohne Dokumente werden mit dem Semester gelöscht. Das Löschen wird blockiert, wenn noch Dokumente auf die Fächer verweisen.",
+          "confirm": "Löschen"
+        }
+      },
+      "subjects": {
+        "description": "Fächer gehören zu einem Semester und gruppieren zugehörige Dokumente.",
+        "create": "Fach hinzufügen",
+        "empty": "Noch keine Fächer.",
+        "noSemestersTitle": "Keine Semester verfügbar",
+        "noSemestersDescription": "Lege zuerst mindestens ein Semester an, bevor du Fächer hinzufügst.",
+        "table": {
+          "name": "Name",
+          "semester": "Semester",
+          "documents": "Dokumente"
+        },
+        "form": {
+          "semester": "Semester"
+        },
+        "createDialog": {
+          "title": "Fach hinzufügen",
+          "description": "Ein Fach muss zu einem Semester gehören.",
+          "confirm": "Erstellen"
+        },
+        "editDialog": {
+          "title": "Fach bearbeiten",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Fach löschen?",
+          "description": "{name} wird entfernt.",
+          "blocked": "Dieses Fach wird von {count, plural, one {# Dokument} other {# Dokumenten}} verwendet. Verschiebe oder lösche die Dokumente zuerst.",
+          "confirm": "Löschen"
+        }
+      },
+      "categories": {
+        "description": "Kategorien klassifizieren Dokumente nach Typ, z. B. \"Mitschrift\" oder \"Prüfung\".",
+        "create": "Kategorie hinzufügen",
+        "empty": "Noch keine Kategorien.",
+        "table": {
+          "name": "Name",
+          "documents": "Dokumente"
+        },
+        "createDialog": {
+          "title": "Kategorie hinzufügen",
+          "description": "Kategorien klassifizieren Dokumente unabhängig vom Fach.",
+          "confirm": "Erstellen"
+        },
+        "renameDialog": {
+          "title": "Kategorie umbenennen",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Kategorie löschen?",
+          "description": "{name} wird entfernt.",
+          "blocked": "Diese Kategorie wird von {count, plural, one {# Dokument} other {# Dokumenten}} verwendet. Verschiebe oder lösche die Dokumente zuerst.",
+          "confirm": "Löschen"
+        }
+      },
+      "states": {
+        "loading": "Struktur wird geladen…"
+      },
+      "errors": {
+        "loadTitle": "Struktur konnte nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
+    },
     "settings": {
       "title": "Einstellungen",
       "subtitle": "Dashboard-Einstellungen konfigurieren"
