@@ -86,6 +86,7 @@ class Document(Base):
     file_size = Column(Integer, nullable=False)
     file_url = Column(String, nullable=True)
     weaviate_id = Column(String, unique=True, nullable=True)
+    tags = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

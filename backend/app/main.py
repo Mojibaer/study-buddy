@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.limiter import limiter
-from app.routes import auth, documents, search, filters
+from app.routes import auth, documents, search, filters, admin_documents, admin_users
 from app.services.chroma_service import chroma_service
 from app.services.embedding import build_provider
 from app.services.weaviate_service import WeaviateService
@@ -58,6 +58,8 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
 app.include_router(filters.router, prefix="/filters", tags=["filters"])
+app.include_router(admin_documents.router, prefix="/admin/documents", tags=["Admin Documents"])
+app.include_router(admin_users.router, prefix="/admin/users", tags=["Admin Users"])
 
 @app.get("/")
 def read_root():

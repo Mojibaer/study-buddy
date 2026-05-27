@@ -42,3 +42,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+class UserAdminUpdate(BaseModel):
+    role: UserRole | None = None
+    is_active: bool | None = None
