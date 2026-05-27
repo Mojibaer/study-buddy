@@ -176,6 +176,15 @@ These are not user-facing. Regular document deletion goes through `DELETE /docum
 
 FastEmbed is used in tests directly — no mocking. The ONNX model is small and deterministic. Weaviate integration tests hit the compose-local instance; the `@pytest.mark.integration` marker keeps them out of a `pytest -m "not integration"` run when CI is added later.
 
+### Test strategy by layer
+
+| Layer | Strategy |
+|---|---|
+| `WeaviateService` | Real Weaviate via `@pytest.mark.integration` — mocking a thin wrapper around `weaviate-client` would test the mock, not the integration |
+| Routes (upload, search, delete, admin, reindex) | FastAPI `dependency_overrides` for `get_weaviate` and `get_embedding_provider` — Docker-free, exercises real route logic (pre-filter SQL, score mapping, snippet ellipsis, MinIO cleanup, error paths) |
+| Embedding-failure path | `FailingProvider` override that raises on `embed` / `embed_query` — verifies `vectorized_at` stays `NULL` and the route still returns 200 |
+| Upload roundtrip | `@pytest.mark.integration` — real Weaviate + Postgres + MinIO, asserts document is searchable after upload |
+
 ## Infra
 
 ### Local (`docker/local/docker-compose.yml`)
