@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import require_admin
+from app.core.dependencies import get_current_active_user, require_admin
 from app.database.database import get_db
 from app.database.models import Semester, Subject, Category, Document, User
 from app.repositories.crud import get_semester_or_404, get_subject_or_404, get_category_or_404
@@ -16,7 +16,10 @@ router = APIRouter()
 
 
 @router.get("/all", response_model=FiltersResponse)
-async def get_all_filters(db: AsyncSession = Depends(get_db)) -> FiltersResponse:
+async def get_all_filters(
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> FiltersResponse:
     semesters = (await db.execute(select(Semester))).scalars().all()
     subjects = (await db.execute(select(Subject).options(selectinload(Subject.semester)))).scalars().all()
     categories = (await db.execute(select(Category))).scalars().all()
@@ -24,7 +27,10 @@ async def get_all_filters(db: AsyncSession = Depends(get_db)) -> FiltersResponse
 
 
 @router.get("/semesters", response_model=list[SemesterResponse])
-async def list_semesters(db: AsyncSession = Depends(get_db)) -> list[SemesterResponse]:
+async def list_semesters(
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> list[SemesterResponse]:
     result = await db.execute(select(Semester))
     return result.scalars().all()
 
@@ -47,7 +53,11 @@ async def create_semester(
 
 
 @router.get("/subjects", response_model=list[SubjectResponse])
-async def list_subjects(semester_id: int | None = None, db: AsyncSession = Depends(get_db)) -> list[SubjectResponse]:
+async def list_subjects(
+    semester_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> list[SubjectResponse]:
     query = select(Subject).options(selectinload(Subject.semester))
     if semester_id is not None:
         query = query.filter(Subject.semester_id == semester_id)
@@ -71,7 +81,10 @@ async def create_subject(
 
 
 @router.get("/categories", response_model=list[CategoryResponse])
-async def list_categories(db: AsyncSession = Depends(get_db)) -> list[CategoryResponse]:
+async def list_categories(
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> list[CategoryResponse]:
     result = await db.execute(select(Category))
     return result.scalars().all()
 

@@ -6,9 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import get_embedding_provider, get_weaviate
+from app.core.dependencies import (
+    get_current_active_user,
+    get_embedding_provider,
+    get_weaviate,
+)
 from app.database.database import get_db
-from app.database.models import Document, Subject
+from app.database.models import Document, Subject, User
 from app.services.embedding import EmbeddingProvider
 from app.services.weaviate_service import WeaviateService
 
@@ -27,6 +31,7 @@ async def semantic_search(
     db: AsyncSession = Depends(get_db),
     provider: EmbeddingProvider = Depends(get_embedding_provider),
     weaviate: WeaviateService = Depends(get_weaviate),
+    _current_user: User = Depends(get_current_active_user),
 ) -> dict:
     pre_filter_ids: list[int] | None = None
     if category_id is not None or subject_id is not None or semester_id is not None:

@@ -156,7 +156,8 @@ async def list_documents(
     category_id: int | None = None,
     subject_id: int | None = None,
     semester_id: int | None = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
 ) -> list[DocumentResponse]:
     query = select(Document).options(
         selectinload(Document.category),
@@ -175,12 +176,20 @@ async def list_documents(
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
-async def get_document(document_id: int, db: AsyncSession = Depends(get_db)) -> DocumentResponse:
+async def get_document(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> DocumentResponse:
     return await get_document_or_404(db, document_id)
 
 
 @router.get("/{document_id}/download")
-async def get_download_url(document_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def get_download_url(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_active_user),
+) -> dict[str, str]:
     document = await get_document_or_404(db, document_id)
     url = get_presigned_url(document.filename)
     return {"url": url, "filename": document.original_filename}
