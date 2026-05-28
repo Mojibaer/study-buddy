@@ -1,7 +1,14 @@
 import { authedFetch } from "@/lib/auth/authClient";
+import {
+  API_BASE_URL,
+  ApiError,
+  handleAdminResponse as handle,
+} from "@/lib/admin/adminClient";
 import type { Category, Semester, Subject } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+// Re-exported so existing consumers (e.g. SemestersSection) keep importing from here.
+export { ApiError };
+export type { ApiErrorDetail } from "@/lib/admin/adminClient";
 
 export interface SemesterWithCounts extends Semester {
   subject_count: number;
@@ -20,44 +27,6 @@ export interface StructureOverview {
   semesters: SemesterWithCounts[];
   subjects: SubjectWithCounts[];
   categories: CategoryWithCounts[];
-}
-
-export interface ApiErrorDetail {
-  reason?: string;
-  subject_count?: number;
-  document_count?: number;
-}
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public detail?: ApiErrorDetail,
-  ) {
-    super(message);
-  }
-}
-
-async function handle<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let detail: ApiErrorDetail | undefined;
-    let message = response.statusText;
-    try {
-      const body = (await response.json()) as {
-        detail?: string | ApiErrorDetail;
-      };
-      if (typeof body.detail === "string") {
-        message = body.detail;
-      } else if (body.detail && typeof body.detail === "object") {
-        detail = body.detail;
-        message = body.detail.reason ?? response.statusText;
-      }
-    } catch {
-      // keep statusText
-    }
-    throw new ApiError(message, detail);
-  }
-  if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
 }
 
 export const adminStructureClient = {

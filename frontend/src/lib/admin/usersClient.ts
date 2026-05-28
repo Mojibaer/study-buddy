@@ -1,7 +1,6 @@
 import {authedFetch} from '@/lib/auth/authClient'
+import {API_BASE_URL, handleAdminResponse as handle} from '@/lib/admin/adminClient'
 import type {User, UserRole} from '@/types/auth'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
 export interface AdminUsersFilter {
     role?: UserRole
@@ -13,21 +12,6 @@ export interface AdminUsersFilter {
 export interface AdminUserUpdate {
     role?: UserRole
     is_active?: boolean
-}
-
-async function handle<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-        let message: string
-        try {
-            const body = (await response.json()) as { detail?: string; message?: string }
-            message = body.detail || body.message || response.statusText
-        } catch {
-            message = response.statusText
-        }
-        throw new Error(message)
-    }
-    if (response.status === 204) return undefined as T
-    return response.json() as Promise<T>
 }
 
 function buildQuery(filter: AdminUsersFilter): string {

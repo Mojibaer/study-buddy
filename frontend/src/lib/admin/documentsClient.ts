@@ -1,8 +1,10 @@
 import { authedFetch } from "@/lib/auth/authClient";
+import {
+  API_BASE_URL,
+  handleAdminResponse as handle,
+} from "@/lib/admin/adminClient";
 import type { Category, Subject } from "@/types";
 import type { User } from "@/types/auth";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 export interface AdminDocument {
   id: number;
@@ -17,7 +19,6 @@ export interface AdminDocument {
   uploader: User | null;
   subject: Subject;
   category: Category;
-  tags: string[];
   vectorized_at: string | null;
   indexed_in_weaviate: boolean;
   created_at: string;
@@ -37,30 +38,11 @@ export interface AdminDocumentsFilter {
 export interface AdminDocumentUpdate {
   subject_id?: number;
   category_id?: number;
-  tags?: string[];
 }
 
 export interface BulkDeleteResponse {
   deleted: number[];
   not_found: number[];
-}
-
-async function handle<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message: string;
-    try {
-      const body = (await response.json()) as {
-        detail?: string;
-        message?: string;
-      };
-      message = body.detail || body.message || response.statusText;
-    } catch {
-      message = response.statusText;
-    }
-    throw new Error(message);
-  }
-  if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
 }
 
 function buildQuery(filter: AdminDocumentsFilter): string {
