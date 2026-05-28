@@ -1,10 +1,10 @@
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import delete, or_, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import get_current_active_user, require_admin
+from app.core.dependencies import require_admin
 from app.core.redis import store_verify_token
 from app.database.database import get_db
 from app.database.models import RefreshToken, User, UserRole
@@ -27,6 +27,23 @@ def _forbid_self_target(target_id: int, current: User, action: str) -> None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"You cannot {action} your own account",
+        )
+
+
+async def _forbid_last_admin(db: AsyncSession, target: User, action: str) -> None:
+    """Block removing the last active admin, which would lock everyone out."""
+    if target.role != UserRole.admin or not target.is_active:
+        return
+    active_admins = await db.scalar(
+        select(func.count(User.id)).where(
+            User.role == UserRole.admin,
+            User.is_active.is_(True),
+        )
+    )
+    if active_admins is not None and active_admins <= 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"You cannot {action} the last active admin",
         )
 
 
@@ -72,6 +89,8 @@ async def update_user(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="You cannot demote your own admin account",
             )
+        if body.role != UserRole.admin:
+            await _forbid_last_admin(db, user, "demote")
         user.role = body.role
 
     if body.is_active is not None and body.is_active != user.is_active:
@@ -80,6 +99,8 @@ async def update_user(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="You cannot deactivate your own account",
             )
+        if body.is_active is False:
+            await _forbid_last_admin(db, user, "deactivate")
         user.is_active = body.is_active
         if body.is_active is False:
             await _revoke_user_sessions(db, user_id)
@@ -118,13 +139,12 @@ async def resend_verification(
 async def delete_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    admin: User = Depends(get_current_active_user),
+    admin: User = Depends(require_admin),
 ) -> None:
-    if admin.role != UserRole.admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requires admin role")
     _forbid_self_target(user_id, admin, "delete")
 
     user = await _get_user_or_404(db, user_id)
+    await _forbid_last_admin(db, user, "delete")
     await _revoke_user_sessions(db, user_id, delete_rows=True)
     await db.delete(user)
     await db.commit()
