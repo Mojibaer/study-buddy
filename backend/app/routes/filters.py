@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import get_current_active_user, require_admin
+from app.core.dependencies import get_current_active_user
 from app.database.database import get_db
-from app.database.models import Semester, Subject, Category, Document, User
-from app.repositories.crud import get_semester_or_404, get_subject_or_404, get_category_or_404
-from app.schemas.semester import SemesterResponse, SemesterCreate
-from app.schemas.subject import SubjectResponse, SubjectCreate
-from app.schemas.category import CategoryResponse, CategoryCreate
+from app.database.models import Semester, Subject, Category, User
+from app.schemas.semester import SemesterResponse
+from app.schemas.subject import SubjectResponse
+from app.schemas.category import CategoryResponse
 from app.schemas.filter import FiltersResponse
 
+# Read-only filter data for any authenticated user (dropdowns on search/browse).
+# Mutations live in app/routes/admin_structure.py under /admin/structure (admin-only).
 router = APIRouter()
 
 
@@ -35,23 +36,6 @@ async def list_semesters(
     return result.scalars().all()
 
 
-@router.post("/semesters", response_model=SemesterResponse)
-async def create_semester(
-    semester: SemesterCreate,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> SemesterResponse:
-    existing = (await db.execute(select(Semester).filter(Semester.name == semester.name))).scalars().first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Semester already exists")
-
-    db_semester = Semester(name=semester.name)
-    db.add(db_semester)
-    await db.commit()
-    await db.refresh(db_semester)
-    return db_semester
-
-
 @router.get("/subjects", response_model=list[SubjectResponse])
 async def list_subjects(
     semester_id: int | None = None,
@@ -65,21 +49,6 @@ async def list_subjects(
     return result.scalars().all()
 
 
-@router.post("/subjects", response_model=SubjectResponse)
-async def create_subject(
-    subject: SubjectCreate,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> SubjectResponse:
-    await get_semester_or_404(db, subject.semester_id)
-
-    db_subject = Subject(name=subject.name, semester_id=subject.semester_id)
-    db.add(db_subject)
-    await db.commit()
-    await db.refresh(db_subject)
-    return db_subject
-
-
 @router.get("/categories", response_model=list[CategoryResponse])
 async def list_categories(
     db: AsyncSession = Depends(get_db),
@@ -87,71 +56,3 @@ async def list_categories(
 ) -> list[CategoryResponse]:
     result = await db.execute(select(Category))
     return result.scalars().all()
-
-
-@router.post("/categories", response_model=CategoryResponse)
-async def create_category(
-    category: CategoryCreate,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> CategoryResponse:
-    existing = (await db.execute(select(Category).filter(Category.name == category.name))).scalars().first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Category already exists")
-
-    db_category = Category(name=category.name)
-    db.add(db_category)
-    await db.commit()
-    await db.refresh(db_category)
-    return db_category
-
-
-@router.delete("/semesters/{semester_id}")
-async def delete_semester(
-    semester_id: int,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> dict[str, str]:
-    semester = await get_semester_or_404(db, semester_id)
-
-    has_subjects = (await db.execute(select(Subject).filter(Subject.semester_id == semester_id))).scalars().first()
-    if has_subjects:
-        raise HTTPException(status_code=400, detail="Cannot delete semester with existing subjects")
-
-    await db.delete(semester)
-    await db.commit()
-    return {"message": "Semester deleted"}
-
-
-@router.delete("/subjects/{subject_id}")
-async def delete_subject(
-    subject_id: int,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> dict[str, str]:
-    subject = await get_subject_or_404(db, subject_id)
-
-    has_documents = (await db.execute(select(Document).filter(Document.subject_id == subject_id))).scalars().first()
-    if has_documents:
-        raise HTTPException(status_code=400, detail="Cannot delete subject with existing documents")
-
-    await db.delete(subject)
-    await db.commit()
-    return {"message": "Subject deleted"}
-
-
-@router.delete("/categories/{category_id}")
-async def delete_category(
-    category_id: int,
-    db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(require_admin),
-) -> dict[str, str]:
-    category = await get_category_or_404(db, category_id)
-
-    has_documents = (await db.execute(select(Document).filter(Document.category_id == category_id))).scalars().first()
-    if has_documents:
-        raise HTTPException(status_code=400, detail="Cannot delete category with existing documents")
-
-    await db.delete(category)
-    await db.commit()
-    return {"message": "Category deleted"}
