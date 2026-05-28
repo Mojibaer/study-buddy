@@ -284,7 +284,7 @@
         "uploaderId": "User ID",
         "unknownUploader": "Uploader deleted",
         "searchIndex": "Search index",
-        "weaviateId": "Weaviate ID",
+        "vectorizedAt": "Indexed at",
         "notIndexedDescription": "Not present in the search index",
         "orphanedTitle": "Orphaned document",
         "orphanedDescription": "The original uploader has been deleted. This document is no longer attributed to a user, but remains accessible to students.",

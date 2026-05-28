@@ -18,7 +18,7 @@ export interface AdminDocument {
   subject: Subject;
   category: Category;
   tags: string[];
-  weaviate_id: string | null;
+  vectorized_at: string | null;
   indexed_in_weaviate: boolean;
   created_at: string;
   updated_at: string | null;

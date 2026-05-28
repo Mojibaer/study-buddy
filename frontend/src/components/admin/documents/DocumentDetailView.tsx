@@ -187,9 +187,9 @@ export function DocumentDetailView({ id }: DocumentDetailViewProps) {
                         </div>
                         <Separator />
                         <Field
-                            label={tDetail('weaviateId')}
-                            value={document.weaviate_id ?? tDetail('notIndexedDescription')}
-                            mono={document.weaviate_id !== null}
+                            label={tDetail('vectorizedAt')}
+                            value={document.vectorized_at ?? tDetail('notIndexedDescription')}
+                            mono={document.vectorized_at !== null}
                         />
                     </CardContent>
                 </Card>

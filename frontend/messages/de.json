@@ -284,7 +284,7 @@
         "uploaderId": "Benutzer-ID",
         "unknownUploader": "Uploader gelöscht",
         "searchIndex": "Suchindex",
-        "weaviateId": "Weaviate-ID",
+        "vectorizedAt": "Indexiert am",
         "notIndexedDescription": "Nicht im Suchindex vorhanden",
         "orphanedTitle": "Verwaistes Dokument",
         "orphanedDescription": "Der ursprüngliche Uploader wurde gelöscht. Das Dokument ist keinem Benutzer mehr zugeordnet, bleibt aber für Studierende verfügbar.",

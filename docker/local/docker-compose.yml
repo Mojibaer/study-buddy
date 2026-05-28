@@ -70,12 +70,35 @@ services:
     networks:
       - studybuddy-local-network
 
+  minio:
+    image: minio/minio
+    container_name: studybuddy-local-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: studybuddy
+      MINIO_ROOT_PASSWORD: studybuddy123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_local_data:/data
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web UI
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - studybuddy-local-network
+
 volumes:
   postgres_local_data:
     driver: local
   weaviate_local_data:
     driver: local
   redis_local_data:
+    driver: local
+  minio_local_data:
     driver: local
 
 networks:

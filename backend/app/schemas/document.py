@@ -42,7 +42,7 @@ class DocumentAdminResponse(DocumentBase):
     subject: SubjectResponse
     category: CategoryResponse
     tags: list[str] = []
-    weaviate_id: str | None = None
+    vectorized_at: datetime | None = None
     indexed_in_weaviate: bool = False
     created_at: datetime
     updated_at: datetime | None = None

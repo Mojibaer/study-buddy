@@ -1,7 +1,7 @@
 """add_tags_column_to_documents
 
 Revision ID: c0a51ef201e8
-Revises: d35e0586e53a
+Revises: 57b7e0e959e3
 Create Date: 2026-05-27 15:32:01.069706
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision: str = 'a1b2c3d4e5f6'
-down_revision: Union[str, Sequence[str], None] = 'd35e0586e53a'
+revision: str = 'c0a51ef201e8'
+down_revision: Union[str, Sequence[str], None] = '57b7e0e959e3'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

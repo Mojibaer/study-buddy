@@ -26,7 +26,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export const api = {
   // Filters
   getFilters: (): Promise<FiltersResponse> =>
-    fetch(`${API_BASE_URL}/filters/all`).then(handleResponse<FiltersResponse>),
+    authedFetch(`${API_BASE_URL}/filters/all`).then(handleResponse<FiltersResponse>),
 
   // Search
   search: (query: string, filters: Partial<SearchFilters> = {}): Promise<SearchResponse> => {
@@ -35,7 +35,7 @@ export const api = {
     if (filters.subject_id) params.append('subject_id', filters.subject_id)
     if (filters.semester_id) params.append('semester_id', filters.semester_id)
     if (filters.limit) params.append('limit', filters.limit.toString())
-    return fetch(`${API_BASE_URL}/search/semantic?${params}`).then(handleResponse<SearchResponse>)
+    return authedFetch(`${API_BASE_URL}/search/semantic?${params}`).then(handleResponse<SearchResponse>)
   },
 
   // Documents
@@ -44,11 +44,11 @@ export const api = {
     if (filters.category_id) params.append('category_id', filters.category_id)
     if (filters.subject_id) params.append('subject_id', filters.subject_id)
     if (filters.semester_id) params.append('semester_id', filters.semester_id)
-    return fetch(`${API_BASE_URL}/documents/?${params}`).then(handleResponse<Document[]>)
+    return authedFetch(`${API_BASE_URL}/documents/?${params}`).then(handleResponse<Document[]>)
   },
 
   getDocument: (id: string | number): Promise<Document> =>
-    fetch(`${API_BASE_URL}/documents/${id}`).then(handleResponse<Document>),
+    authedFetch(`${API_BASE_URL}/documents/${id}`).then(handleResponse<Document>),
 
   uploadDocument: async (file: File, metadata: UploadMetadata): Promise<Document> => {
     const formData = new FormData()

@@ -1,16 +1,25 @@
 import logging
+import uuid
 
 import weaviate
 from weaviate.classes.config import Configure, DataType, Property
+from weaviate.classes.query import Filter
 from weaviate.exceptions import WeaviateConnectionError
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+# Stable namespace for deterministic document UUIDs — never change, would orphan all existing vectors.
+DOCUMENT_UUID_NAMESPACE = uuid.UUID("6f3b2e4a-3c1d-4d4e-9b3a-5e8f1c2a7d10")
+
 
 def collection_name(provider_name: str) -> str:
     return f"Documents_{provider_name}"
+
+
+def document_uuid(document_id: int) -> str:
+    return str(uuid.uuid5(DOCUMENT_UUID_NAMESPACE, str(document_id)))
 
 
 class WeaviateService:
@@ -62,3 +71,70 @@ class WeaviateService:
             ],
         )
         logger.info("Created Weaviate collection %s (dim=%d)", name, dimension)
+
+    def insert_document(
+        self,
+        provider_name: str,
+        document_id: int,
+        text: str,
+        vector: list[float],
+    ) -> str:
+        name = collection_name(provider_name)
+        obj_uuid = document_uuid(document_id)
+        collection = self.client.collections.get(name)
+        collection.data.insert(
+            uuid=obj_uuid,
+            properties={"document_id": document_id, "text": text},
+            vector=vector,
+        )
+        return obj_uuid
+
+    def delete_document(self, provider_name: str, document_id: int) -> bool:
+        name = collection_name(provider_name)
+        obj_uuid = document_uuid(document_id)
+        collection = self.client.collections.get(name)
+        if not collection.data.exists(obj_uuid):
+            return False
+        collection.data.delete_by_id(obj_uuid)
+        return True
+
+    def search(
+        self,
+        provider_name: str,
+        query_vector: list[float],
+        document_ids: list[int] | None,
+        limit: int,
+    ) -> list[dict]:
+        name = collection_name(provider_name)
+        collection = self.client.collections.get(name)
+        filters = (
+            Filter.by_property("document_id").contains_any(document_ids)
+            if document_ids is not None
+            else None
+        )
+        response = collection.query.near_vector(
+            near_vector=query_vector,
+            limit=limit,
+            filters=filters,
+            return_metadata=["distance"],
+        )
+        results: list[dict] = []
+        for obj in response.objects:
+            distance = obj.metadata.distance if obj.metadata else None
+            score = 1.0 - distance if distance is not None else None
+            results.append(
+                {
+                    "document_id": int(obj.properties["document_id"]),
+                    "text": obj.properties.get("text", ""),
+                    "score": score,
+                }
+            )
+        return results
+
+    def list_collections(self) -> list[str]:
+        return list(self.client.collections.list_all().keys())
+
+    def count(self, provider_name: str) -> int:
+        name = collection_name(provider_name)
+        collection = self.client.collections.get(name)
+        return collection.aggregate.over_all(total_count=True).total_count

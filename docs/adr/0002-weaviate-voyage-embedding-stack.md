@@ -1,8 +1,8 @@
 # ADR-0002: Weaviate + Voyage Embedding Stack
 
 **Status:** Accepted
-**Date:** 2026-05-19
-**Issues:** WAV-01, WAV-02
+**Date:** 2026-05-19 (updated 2026-05-27)
+**Issues:** WAV-01, WAV-02, WAV-03, WAV-04, WAV-05, WAV-06, WAV-07, WAV-08
 
 ## Context
 
@@ -69,6 +69,16 @@ The `EmbeddingProvider` protocol exposes both:
 
 FastEmbed/MiniLM is symmetric; its `embed_query` delegates to `embed`. Voyage's embedding space is trained asymmetrically — mixing modes hurts recall.
 
+### 5a. Deterministic document UUIDs
+
+Weaviate object UUIDs are derived from the Postgres `document_id` via `uuid5(NAMESPACE, str(document_id))` with a fixed namespace constant. This removes a Postgres round-trip on every delete and makes re-uploads idempotent (the second insert overwrites the first object instead of creating a duplicate).
+
+The namespace UUID is hard-coded in `weaviate_service.py` and must never change — rotating it would orphan every previously inserted vector.
+
+### 5b. Truncation
+
+The upload route truncates the embed input at 8000 characters and stores a 500-character snippet on the Weaviate object. Single-vector-per-document is the MVP shape; chunking is out of scope for Phase 2 and tracked as a future ADR.
+
 ### 6. Transport: REST + gRPC
 
 The `weaviate-client v4` connects to both ports:
@@ -96,6 +106,31 @@ weaviate: WeaviateService   = Depends(get_weaviate)
 ```
 
 This keeps construction explicit, makes tests trivial (no `cache_clear` rituals), and matches the rest of the project's DI style.
+
+### 9. Best-effort vectorization, NULL marks the reindex backlog
+
+Upload and delete treat Weaviate as best-effort. If embedding or the Weaviate insert fails after the Postgres commit, the document stays in Postgres + MinIO and `documents.vectorized_at` is left `NULL`. The user does not see a 5xx for a transient Voyage outage.
+
+`vectorized_at IS NULL` is the canonical "needs reindex" marker. `POST /weaviate/reindex` (admin-only) processes the backlog oldest-first, re-downloads the file from MinIO, re-embeds, and sets `vectorized_at = now()` on success.
+
+The earlier `documents.weaviate_id` column was dropped — UUIDs are deterministic (Section 5a), so the persisted UUID added no information beyond what `vectorized_at IS NOT NULL` already conveys.
+
+### 10. Admin endpoints
+
+`/weaviate/*` is mounted under `require_admin` for operational visibility and repair:
+
+| Route | Purpose |
+|---|---|
+| `GET /weaviate/collections` | list all Weaviate collections (across providers) |
+| `GET /weaviate/count` | object count in the active provider collection |
+| `DELETE /weaviate/{document_id}` | remove the vector only — Postgres + MinIO untouched. Repair tool when stores drift apart |
+| `POST /weaviate/reindex` | drain the `vectorized_at IS NULL` backlog |
+
+These are not user-facing. Regular document deletion goes through `DELETE /documents/{id}`, which deletes from MinIO + Postgres + Weaviate.
+
+### 11. Search response shape
+
+`GET /search/semantic` returns Weaviate-native `score` (range `0–1`, higher is better) instead of Chroma's `distance`. Snippet truncation uses an ellipsis suffix only when the snippet was actually truncated. The Postgres pre-filter resolves `category_id` / `subject_id` / `semester_id` to a list of `document_ids` in a single query before the Weaviate `near_vector` call; an empty pre-filter short-circuits to an empty result.
 
 ## Architecture
 
@@ -140,6 +175,15 @@ This keeps construction explicit, makes tests trivial (no `cache_clear` rituals)
 | Voyage e2e | dimension assertion for `voyage-4-large` | requires `VOYAGE_API_KEY` | auto-skipped when key missing |
 
 FastEmbed is used in tests directly — no mocking. The ONNX model is small and deterministic. Weaviate integration tests hit the compose-local instance; the `@pytest.mark.integration` marker keeps them out of a `pytest -m "not integration"` run when CI is added later.
+
+### Test strategy by layer
+
+| Layer | Strategy |
+|---|---|
+| `WeaviateService` | Real Weaviate via `@pytest.mark.integration` — mocking a thin wrapper around `weaviate-client` would test the mock, not the integration |
+| Routes (upload, search, delete, admin, reindex) | FastAPI `dependency_overrides` for `get_weaviate` and `get_embedding_provider` — Docker-free, exercises real route logic (pre-filter SQL, score mapping, snippet ellipsis, MinIO cleanup, error paths) |
+| Embedding-failure path | `FailingProvider` override that raises on `embed` / `embed_query` — verifies `vectorized_at` stays `NULL` and the route still returns 200 |
+| Upload roundtrip | `@pytest.mark.integration` — real Weaviate + Postgres + MinIO, asserts document is searchable after upload |
 
 ## Infra
 
@@ -189,9 +233,11 @@ Weaviate runs behind API-key auth (`WEAVIATE_API_KEY`). `VOYAGE_API_KEY` is inje
 - The default 384-dim MiniLM produces noticeably lower-quality semantic results than `voyage-4-large` (2048-dim). External contributors evaluating retrieval quality must set `VOYAGE_API_KEY`.
 - A model swap inside `FASTEMBED_MODEL` does not invalidate the existing `Documents_fastembed` collection. A future safeguard (dimension assertion or namespaced collection) is tracked outside Phase 1.
 - The Weaviate-client v4 sync API is wrapped in `to_thread`. If hot-path latency becomes an issue, migrate to its async client.
+- Embedding failures during upload are silent to the user (the document still appears). The `vectorized_at IS NULL` marker and admin reindex endpoint are the recovery path — there is no in-UI signal that a document is not yet searchable.
+- The `contains_any([document_ids])` pre-filter scales fine up to a few thousand IDs; beyond that, filter properties would need to be duplicated into Weaviate (which would break Section 4) and should trigger a re-evaluation.
 
 ## Out of scope (later phases)
 
-- Document upload, semantic search, document delete, debug endpoints — Phase 2 (WAV-03/04/05/06).
-- Removal of the previous ChromaDB integration (`chroma_service`, `reindex_chroma.py`, `chromadb` dependency, `CHROMA_*` env vars, `/chroma/*` routes) — Phase 3 (WAV-07).
+- Chunking strategy (multiple vectors per document, re-ranking) — separate ADR when retrieval quality on long documents becomes the bottleneck.
 - Infisical-driven secret injection for staging / production deployment.
+- Background reindex worker — `POST /weaviate/reindex` is admin-triggered for now.

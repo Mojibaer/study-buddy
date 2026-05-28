@@ -1,9 +1,16 @@
+import asyncio
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import require_admin
+from app.core.dependencies import (
+    get_embedding_provider,
+    get_weaviate,
+    require_admin,
+)
 from app.database.database import get_db
 from app.database.models import Document, Subject, User
 from app.repositories.crud import (
@@ -17,8 +24,11 @@ from app.schemas.document import (
     DocumentBulkDeleteRequest,
     DocumentBulkDeleteResponse,
 )
-from app.services.chroma_service import chroma_service
+from app.services.embedding import EmbeddingProvider
 from app.services.minio_service import delete_file
+from app.services.weaviate_service import WeaviateService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -51,8 +61,8 @@ def _to_admin_response(document: Document) -> DocumentAdminResponse:
         "uploaded_by": document.uploaded_by,
         "uploader": document.uploaded_by_user,
         "tags": _parse_tags(document.tags),
-        "weaviate_id": document.weaviate_id,
-        "indexed_in_weaviate": document.weaviate_id is not None,
+        "vectorized_at": document.vectorized_at,
+        "indexed_in_weaviate": document.vectorized_at is not None,
         "created_at": document.created_at,
         "updated_at": document.updated_at,
     })
@@ -104,9 +114,9 @@ async def list_documents(
     elif orphaned is False:
         query = query.where(Document.uploaded_by.is_not(None))
     if indexed is True:
-        query = query.where(Document.weaviate_id.is_not(None))
+        query = query.where(Document.vectorized_at.is_not(None))
     elif indexed is False:
-        query = query.where(Document.weaviate_id.is_(None))
+        query = query.where(Document.vectorized_at.is_(None))
     if search:
         pattern = f"%{search.lower()}%"
         query = query.where(
@@ -160,9 +170,11 @@ async def delete_document(
     document_id: int,
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_admin),
+    provider: EmbeddingProvider = Depends(get_embedding_provider),
+    weaviate: WeaviateService = Depends(get_weaviate),
 ) -> None:
     document = await get_document_or_404(db, document_id)
-    _delete_artifacts(document)
+    await _delete_artifacts(document, provider, weaviate)
     await db.delete(document)
     await db.commit()
 
@@ -172,6 +184,8 @@ async def bulk_delete_documents(
     body: DocumentBulkDeleteRequest,
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_admin),
+    provider: EmbeddingProvider = Depends(get_embedding_provider),
+    weaviate: WeaviateService = Depends(get_weaviate),
 ) -> DocumentBulkDeleteResponse:
     if not body.ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No document ids provided")
@@ -181,7 +195,7 @@ async def bulk_delete_documents(
     found_ids = {doc.id for doc in found}
 
     for document in found:
-        _delete_artifacts(document)
+        await _delete_artifacts(document, provider, weaviate)
         await db.delete(document)
     await db.commit()
 
@@ -191,13 +205,20 @@ async def bulk_delete_documents(
     )
 
 
-def _delete_artifacts(document: Document) -> None:
+async def _delete_artifacts(
+    document: Document,
+    provider: EmbeddingProvider,
+    weaviate: WeaviateService,
+) -> None:
     try:
         delete_file(document.filename)
     except Exception:
-        pass
-    if document.weaviate_id:
+        logger.exception("Failed to delete file for document %d; continuing", document.id)
+    if document.vectorized_at is not None:
         try:
-            chroma_service.delete_document(document.weaviate_id)
+            await asyncio.to_thread(weaviate.delete_document, provider.name, document.id)
         except Exception:
-            pass
+            logger.exception(
+                "Failed to delete Weaviate vector for document %d; continuing",
+                document.id,
+            )
