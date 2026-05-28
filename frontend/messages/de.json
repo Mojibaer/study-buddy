@@ -92,6 +92,366 @@
     "dark": "Dunkel",
     "system": "System"
   },
+  "admin": {
+    "brand": "Admin",
+    "brandSubtitle": "Study Buddy",
+    "nav": {
+      "dashboard": "Übersicht",
+      "users": "Benutzer",
+      "documents": "Dokumente",
+      "categories": "Kategorien",
+      "settings": "Einstellungen"
+    },
+    "shell": {
+      "openNavigation": "Navigation öffnen",
+      "closeNavigation": "Navigation schließen",
+      "navigationLabel": "Admin-Navigation",
+      "navigationDescription": "Hauptnavigation für das Admin-Dashboard"
+    },
+    "dashboard": {
+      "title": "Übersicht",
+      "subtitle": "Willkommen im Admin-Bereich"
+    },
+    "users": {
+      "title": "Benutzer",
+      "subtitle": "Studierende und Admin-Konten verwalten",
+      "toolbar": {
+        "searchPlaceholder": "Nach E-Mail oder Benutzername suchen",
+        "roleLabel": "Rolle",
+        "anyRole": "Alle Rollen",
+        "role": {
+          "student": "Studierend",
+          "admin": "Admin"
+        },
+        "statusLabel": "Status",
+        "anyStatus": "Alle Status",
+        "status": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv"
+        },
+        "verificationLabel": "Verifizierung",
+        "anyVerification": "Alle Verifizierungen",
+        "verification": {
+          "verified": "Verifiziert",
+          "unverified": "Nicht verifiziert"
+        },
+        "clear": "Filter zurücksetzen"
+      },
+      "table": {
+        "user": "Benutzer",
+        "role": "Rolle",
+        "status": "Status",
+        "verification": "Verifizierung",
+        "createdAt": "Registriert",
+        "actions": "Aktionen",
+        "unnamed": "Kein Benutzername"
+      },
+      "role": {
+        "student": "Studierend",
+        "admin": "Admin"
+      },
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "verified": "Verifiziert",
+        "unverified": "Nicht verifiziert"
+      },
+      "actions": {
+        "menu": "Aktionsmenü öffnen",
+        "resendVerification": "Bestätigungs-E-Mail erneut senden",
+        "activate": "Konto aktivieren",
+        "deactivate": "Konto deaktivieren",
+        "promote": "Zum Admin befördern",
+        "demote": "Auf Studierend zurückstufen",
+        "delete": "Benutzer löschen"
+      },
+      "confirm": {
+        "deactivate": {
+          "title": "Konto deaktivieren?",
+          "description": "{email} kann sich nicht mehr anmelden. Aktive Sitzungen werden beendet. Das Konto kann jederzeit wieder aktiviert werden.",
+          "confirm": "Deaktivieren"
+        },
+        "activate": {
+          "title": "Konto aktivieren?",
+          "description": "{email} kann sich danach wieder anmelden.",
+          "confirm": "Aktivieren"
+        },
+        "promote": {
+          "title": "Zum Admin befördern?",
+          "description": "{email} erhält vollständigen administrativen Zugriff auf Study Buddy.",
+          "confirm": "Befördern"
+        },
+        "demote": {
+          "title": "Auf Studierend zurückstufen?",
+          "description": "{email} verliert den administrativen Zugriff.",
+          "confirm": "Zurückstufen"
+        },
+        "delete": {
+          "title": "Benutzer löschen?",
+          "description": "{email} wird endgültig entfernt. Hochgeladene Dokumente bleiben erhalten, sind aber nicht mehr zugeordnet. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirm": "Löschen"
+        }
+      },
+      "states": {
+        "loading": "Benutzer werden geladen…",
+        "empty": "Keine Benutzer entsprechen den aktuellen Filtern."
+      },
+      "errors": {
+        "loadTitle": "Benutzer konnten nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
+    },
+    "actions": {
+      "label": "Aktionen",
+      "cancel": "Abbrechen",
+      "working": "Wird ausgeführt…",
+      "unknownError": "Etwas ist schiefgelaufen"
+    },
+    "documents": {
+      "title": "Dokumente",
+      "subtitle": "Hochgeladene Lernunterlagen prüfen und verwalten",
+      "toolbar": {
+        "searchPlaceholder": "Nach Dateiname oder Tag suchen",
+        "semesterLabel": "Semester",
+        "anySemester": "Alle Semester",
+        "subjectLabel": "Fach",
+        "anySubject": "Alle Fächer",
+        "categoryLabel": "Kategorie",
+        "anyCategory": "Alle Kategorien",
+        "uploaderLabel": "Hochgeladen von",
+        "anyUploader": "Alle",
+        "uploader": {
+          "hasUploader": "Mit Uploader",
+          "orphaned": "Nur verwaiste"
+        },
+        "indexLabel": "Index",
+        "anyIndexed": "Alle Indexzustände",
+        "indexed": {
+          "yes": "Indiziert",
+          "no": "Nicht indiziert"
+        },
+        "clear": "Filter zurücksetzen"
+      },
+      "table": {
+        "selectAll": "Alle Dokumente auswählen",
+        "selectRow": "{name} auswählen",
+        "document": "Dokument",
+        "subject": "Fach",
+        "category": "Kategorie",
+        "uploader": "Uploader",
+        "index": "Index",
+        "size": "Größe",
+        "uploaded": "Hochgeladen",
+        "actions": "Aktionen",
+        "open": "Dokument öffnen",
+        "idLabel": "ID {id}"
+      },
+      "status": {
+        "indexed": "Indiziert",
+        "notIndexed": "Nicht indiziert",
+        "orphaned": "Verwaist"
+      },
+      "bulk": {
+        "selected": "{count, plural, one {# Dokument ausgewählt} other {# Dokumente ausgewählt}}",
+        "clear": "Aufheben",
+        "delete": "Auswahl löschen",
+        "confirm": {
+          "title": "{count, plural, one {# Dokument} other {# Dokumente}} löschen?",
+          "description": "Die ausgewählten Dokumente werden endgültig aus dem Speicher und dem Suchindex entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirm": "Löschen"
+        }
+      },
+      "detail": {
+        "backToList": "Zurück zu Dokumenten",
+        "download": "Herunterladen",
+        "edit": "Metadaten bearbeiten",
+        "delete": "Dokument löschen",
+        "idLabel": "ID {id}",
+        "classification": "Zuordnung",
+        "subject": "Fach",
+        "semester": "Semester",
+        "category": "Kategorie",
+        "notSet": "Nicht gesetzt",
+        "storage": "Speicher",
+        "size": "Größe",
+        "storedFilename": "Gespeicherter Dateiname",
+        "uploadedAt": "Hochgeladen",
+        "updatedAt": "Zuletzt aktualisiert",
+        "uploader": "Uploader",
+        "uploaderEmail": "E-Mail",
+        "uploaderId": "Benutzer-ID",
+        "unknownUploader": "Uploader gelöscht",
+        "searchIndex": "Suchindex",
+        "vectorizedAt": "Indexiert am",
+        "notIndexedDescription": "Nicht im Suchindex vorhanden",
+        "orphanedTitle": "Verwaistes Dokument",
+        "orphanedDescription": "Der ursprüngliche Uploader wurde gelöscht. Das Dokument ist keinem Benutzer mehr zugeordnet, bleibt aber für Studierende verfügbar.",
+        "notFoundTitle": "Dokument nicht gefunden",
+        "notFoundDescription": "Das Dokument wurde möglicherweise gelöscht oder die ID ist ungültig.",
+        "confirm": {
+          "delete": {
+            "title": "Dokument löschen?",
+            "description": "{name} wird endgültig aus dem Speicher und dem Suchindex entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm": "Löschen"
+          }
+        }
+      },
+      "edit": {
+        "title": "Metadaten bearbeiten",
+        "backToDetail": "Zurück zum Dokument",
+        "semester": "Semester",
+        "selectSemester": "Semester auswählen",
+        "subject": "Fach",
+        "selectSubject": "Fach auswählen",
+        "selectSemesterFirst": "Zuerst Semester auswählen",
+        "category": "Kategorie",
+        "selectCategory": "Kategorie auswählen",
+        "save": "Änderungen speichern",
+        "saving": "Wird gespeichert…",
+        "cancel": "Abbrechen",
+        "notFoundTitle": "Dokument nicht gefunden",
+        "notFoundDescription": "Das Dokument wurde möglicherweise gelöscht oder die ID ist ungültig.",
+        "errors": {
+          "title": "Änderungen konnten nicht gespeichert werden",
+          "missingFields": "Fach und Kategorie sind erforderlich.",
+          "unknown": "Etwas ist schiefgelaufen"
+        }
+      },
+      "states": {
+        "loading": "Dokumente werden geladen…",
+        "empty": "Keine Dokumente entsprechen den aktuellen Filtern."
+      },
+      "errors": {
+        "loadTitle": "Dokumente konnten nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
+    },
+    "categories": {
+      "title": "Kategorien",
+      "subtitle": "Semester, Fächer und Dokumentkategorien verwalten"
+    },
+    "structure": {
+      "title": "Struktur",
+      "subtitle": "Die Taxonomie verwalten, mit der alle Dokumente organisiert sind",
+      "tabs": {
+        "semesters": "Semester",
+        "subjects": "Fächer",
+        "categories": "Kategorien"
+      },
+      "common": {
+        "actions": "Aktionen",
+        "openMenu": "Aktionen für {name} öffnen",
+        "rename": "Umbenennen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      },
+      "form": {
+        "name": "Name",
+        "semester": "Semester",
+        "selectSemester": "Semester auswählen",
+        "cancel": "Abbrechen",
+        "saving": "Wird gespeichert…",
+        "errors": {
+          "nameRequired": "Name ist erforderlich.",
+          "semesterRequired": "Semester ist erforderlich.",
+          "unknown": "Etwas ist schiefgelaufen"
+        }
+      },
+      "delete": {
+        "cancel": "Abbrechen"
+      },
+      "semesters": {
+        "description": "Oberste Gruppierung für Fächer.",
+        "create": "Semester hinzufügen",
+        "empty": "Noch keine Semester.",
+        "table": {
+          "name": "Name",
+          "subjects": "Fächer",
+          "documents": "Dokumente"
+        },
+        "createDialog": {
+          "title": "Semester hinzufügen",
+          "description": "Semester gruppieren Fächer und indirekt alle ihre Dokumente.",
+          "confirm": "Erstellen"
+        },
+        "renameDialog": {
+          "title": "Semester umbenennen",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Semester löschen?",
+          "description": "{name} wird entfernt.",
+          "warning": "Dieses Semester enthält {subjects, plural, one {# Fach} other {# Fächer}} und {documents, plural, one {# Dokument} other {# Dokumente}}. Fächer ohne Dokumente werden mit dem Semester gelöscht. Das Löschen wird blockiert, wenn noch Dokumente auf die Fächer verweisen.",
+          "confirm": "Löschen"
+        }
+      },
+      "subjects": {
+        "description": "Fächer gehören zu einem Semester und gruppieren zugehörige Dokumente.",
+        "create": "Fach hinzufügen",
+        "empty": "Noch keine Fächer.",
+        "noSemestersTitle": "Keine Semester verfügbar",
+        "noSemestersDescription": "Lege zuerst mindestens ein Semester an, bevor du Fächer hinzufügst.",
+        "table": {
+          "name": "Name",
+          "semester": "Semester",
+          "documents": "Dokumente"
+        },
+        "form": {
+          "semester": "Semester"
+        },
+        "createDialog": {
+          "title": "Fach hinzufügen",
+          "description": "Ein Fach muss zu einem Semester gehören.",
+          "confirm": "Erstellen"
+        },
+        "editDialog": {
+          "title": "Fach bearbeiten",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Fach löschen?",
+          "description": "{name} wird entfernt.",
+          "blocked": "Dieses Fach wird von {count, plural, one {# Dokument} other {# Dokumenten}} verwendet. Verschiebe oder lösche die Dokumente zuerst.",
+          "confirm": "Löschen"
+        }
+      },
+      "categories": {
+        "description": "Kategorien klassifizieren Dokumente nach Typ, z. B. \"Mitschrift\" oder \"Prüfung\".",
+        "create": "Kategorie hinzufügen",
+        "empty": "Noch keine Kategorien.",
+        "table": {
+          "name": "Name",
+          "documents": "Dokumente"
+        },
+        "createDialog": {
+          "title": "Kategorie hinzufügen",
+          "description": "Kategorien klassifizieren Dokumente unabhängig vom Fach.",
+          "confirm": "Erstellen"
+        },
+        "renameDialog": {
+          "title": "Kategorie umbenennen",
+          "confirm": "Speichern"
+        },
+        "deleteDialog": {
+          "title": "Kategorie löschen?",
+          "description": "{name} wird entfernt.",
+          "blocked": "Diese Kategorie wird von {count, plural, one {# Dokument} other {# Dokumenten}} verwendet. Verschiebe oder lösche die Dokumente zuerst.",
+          "confirm": "Löschen"
+        }
+      },
+      "states": {
+        "loading": "Struktur wird geladen…"
+      },
+      "errors": {
+        "loadTitle": "Struktur konnte nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Dashboard-Einstellungen konfigurieren"
+    }
+  },
   "auth": {
     "appName": "Study Buddy",
     "tagline": "Lernunterlagen der FH Joanneum",

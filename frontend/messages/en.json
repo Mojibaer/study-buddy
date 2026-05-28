@@ -92,6 +92,366 @@
     "dark": "Dark",
     "system": "System"
   },
+  "admin": {
+    "brand": "Admin",
+    "brandSubtitle": "Study Buddy",
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "documents": "Documents",
+      "categories": "Categories",
+      "settings": "Settings"
+    },
+    "shell": {
+      "openNavigation": "Open navigation",
+      "closeNavigation": "Close navigation",
+      "navigationLabel": "Admin navigation",
+      "navigationDescription": "Primary navigation for the admin dashboard"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Welcome to the admin area"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage student and admin accounts",
+      "toolbar": {
+        "searchPlaceholder": "Search by email or username",
+        "roleLabel": "Role",
+        "anyRole": "Any role",
+        "role": {
+          "student": "Student",
+          "admin": "Admin"
+        },
+        "statusLabel": "Status",
+        "anyStatus": "Any status",
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "verificationLabel": "Verification",
+        "anyVerification": "Any verification",
+        "verification": {
+          "verified": "Verified",
+          "unverified": "Unverified"
+        },
+        "clear": "Clear filters"
+      },
+      "table": {
+        "user": "User",
+        "role": "Role",
+        "status": "Status",
+        "verification": "Verification",
+        "createdAt": "Registered",
+        "actions": "Actions",
+        "unnamed": "No username"
+      },
+      "role": {
+        "student": "Student",
+        "admin": "Admin"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "verified": "Verified",
+        "unverified": "Unverified"
+      },
+      "actions": {
+        "menu": "Open actions menu",
+        "resendVerification": "Resend verification email",
+        "activate": "Activate account",
+        "deactivate": "Deactivate account",
+        "promote": "Promote to admin",
+        "demote": "Demote to student",
+        "delete": "Delete user"
+      },
+      "confirm": {
+        "deactivate": {
+          "title": "Deactivate account?",
+          "description": "{email} will no longer be able to sign in. Active sessions are revoked. You can reactivate the account at any time.",
+          "confirm": "Deactivate"
+        },
+        "activate": {
+          "title": "Activate account?",
+          "description": "{email} will be able to sign in again.",
+          "confirm": "Activate"
+        },
+        "promote": {
+          "title": "Promote to admin?",
+          "description": "{email} will gain full administrative access to Study Buddy.",
+          "confirm": "Promote"
+        },
+        "demote": {
+          "title": "Demote to student?",
+          "description": "{email} will lose administrative access.",
+          "confirm": "Demote"
+        },
+        "delete": {
+          "title": "Delete user?",
+          "description": "{email} will be permanently removed. Uploaded documents are kept but become unattributed. This action cannot be undone.",
+          "confirm": "Delete"
+        }
+      },
+      "states": {
+        "loading": "Loading users…",
+        "empty": "No users match the current filters."
+      },
+      "errors": {
+        "loadTitle": "Could not load users",
+        "retry": "Retry"
+      }
+    },
+    "actions": {
+      "label": "Actions",
+      "cancel": "Cancel",
+      "working": "Working…",
+      "unknownError": "Something went wrong"
+    },
+    "documents": {
+      "title": "Documents",
+      "subtitle": "Review and manage uploaded study materials",
+      "toolbar": {
+        "searchPlaceholder": "Search by filename or tag",
+        "semesterLabel": "Semester",
+        "anySemester": "Any semester",
+        "subjectLabel": "Subject",
+        "anySubject": "Any subject",
+        "categoryLabel": "Category",
+        "anyCategory": "Any category",
+        "uploaderLabel": "Uploader",
+        "anyUploader": "Any uploader",
+        "uploader": {
+          "hasUploader": "Has uploader",
+          "orphaned": "Orphaned only"
+        },
+        "indexLabel": "Index",
+        "anyIndexed": "Any index state",
+        "indexed": {
+          "yes": "Indexed",
+          "no": "Not indexed"
+        },
+        "clear": "Clear filters"
+      },
+      "table": {
+        "selectAll": "Select all documents",
+        "selectRow": "Select {name}",
+        "document": "Document",
+        "subject": "Subject",
+        "category": "Category",
+        "uploader": "Uploader",
+        "index": "Index",
+        "size": "Size",
+        "uploaded": "Uploaded",
+        "actions": "Actions",
+        "open": "Open document",
+        "idLabel": "ID {id}"
+      },
+      "status": {
+        "indexed": "Indexed",
+        "notIndexed": "Not indexed",
+        "orphaned": "Orphaned"
+      },
+      "bulk": {
+        "selected": "{count, plural, one {# document selected} other {# documents selected}}",
+        "clear": "Clear",
+        "delete": "Delete selected",
+        "confirm": {
+          "title": "Delete {count, plural, one {# document} other {# documents}}?",
+          "description": "The selected documents will be permanently removed from storage and the search index. This action cannot be undone.",
+          "confirm": "Delete"
+        }
+      },
+      "detail": {
+        "backToList": "Back to documents",
+        "download": "Download",
+        "edit": "Edit metadata",
+        "delete": "Delete document",
+        "idLabel": "ID {id}",
+        "classification": "Classification",
+        "subject": "Subject",
+        "semester": "Semester",
+        "category": "Category",
+        "notSet": "Not set",
+        "storage": "Storage",
+        "size": "Size",
+        "storedFilename": "Stored filename",
+        "uploadedAt": "Uploaded",
+        "updatedAt": "Last updated",
+        "uploader": "Uploader",
+        "uploaderEmail": "Email",
+        "uploaderId": "User ID",
+        "unknownUploader": "Uploader deleted",
+        "searchIndex": "Search index",
+        "vectorizedAt": "Indexed at",
+        "notIndexedDescription": "Not present in the search index",
+        "orphanedTitle": "Orphaned document",
+        "orphanedDescription": "The original uploader has been deleted. This document is no longer attributed to a user, but remains accessible to students.",
+        "notFoundTitle": "Document not found",
+        "notFoundDescription": "The document may have been deleted or the ID is invalid.",
+        "confirm": {
+          "delete": {
+            "title": "Delete document?",
+            "description": "{name} will be permanently removed from storage and the search index. This action cannot be undone.",
+            "confirm": "Delete"
+          }
+        }
+      },
+      "edit": {
+        "title": "Edit metadata",
+        "backToDetail": "Back to document",
+        "semester": "Semester",
+        "selectSemester": "Select semester",
+        "subject": "Subject",
+        "selectSubject": "Select subject",
+        "selectSemesterFirst": "Select semester first",
+        "category": "Category",
+        "selectCategory": "Select category",
+        "save": "Save changes",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "notFoundTitle": "Document not found",
+        "notFoundDescription": "The document may have been deleted or the ID is invalid.",
+        "errors": {
+          "title": "Could not save changes",
+          "missingFields": "Subject and category are required.",
+          "unknown": "Something went wrong"
+        }
+      },
+      "states": {
+        "loading": "Loading documents…",
+        "empty": "No documents match the current filters."
+      },
+      "errors": {
+        "loadTitle": "Could not load documents",
+        "retry": "Retry"
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Manage semesters, subjects, and document categories"
+    },
+    "structure": {
+      "title": "Structure",
+      "subtitle": "Manage the taxonomy that organises all documents",
+      "tabs": {
+        "semesters": "Semesters",
+        "subjects": "Subjects",
+        "categories": "Categories"
+      },
+      "common": {
+        "actions": "Actions",
+        "openMenu": "Open actions for {name}",
+        "rename": "Rename",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "form": {
+        "name": "Name",
+        "semester": "Semester",
+        "selectSemester": "Select a semester",
+        "cancel": "Cancel",
+        "saving": "Saving…",
+        "errors": {
+          "nameRequired": "Name is required.",
+          "semesterRequired": "Semester is required.",
+          "unknown": "Something went wrong"
+        }
+      },
+      "delete": {
+        "cancel": "Cancel"
+      },
+      "semesters": {
+        "description": "Top-level grouping for subjects.",
+        "create": "Add semester",
+        "empty": "No semesters yet.",
+        "table": {
+          "name": "Name",
+          "subjects": "Subjects",
+          "documents": "Documents"
+        },
+        "createDialog": {
+          "title": "Add semester",
+          "description": "Semesters group subjects and indirectly all of their documents.",
+          "confirm": "Create"
+        },
+        "renameDialog": {
+          "title": "Rename semester",
+          "confirm": "Save"
+        },
+        "deleteDialog": {
+          "title": "Delete semester?",
+          "description": "{name} will be removed.",
+          "warning": "This semester contains {subjects, plural, one {# subject} other {# subjects}} and {documents, plural, one {# document} other {# documents}}. Subjects without documents will be deleted along with the semester. Deletion is blocked if any documents still reference its subjects.",
+          "confirm": "Delete"
+        }
+      },
+      "subjects": {
+        "description": "Subjects belong to a semester and group related documents.",
+        "create": "Add subject",
+        "empty": "No subjects yet.",
+        "noSemestersTitle": "No semesters available",
+        "noSemestersDescription": "Create at least one semester before adding subjects.",
+        "table": {
+          "name": "Name",
+          "semester": "Semester",
+          "documents": "Documents"
+        },
+        "form": {
+          "semester": "Semester"
+        },
+        "createDialog": {
+          "title": "Add subject",
+          "description": "A subject must belong to a semester.",
+          "confirm": "Create"
+        },
+        "editDialog": {
+          "title": "Edit subject",
+          "confirm": "Save"
+        },
+        "deleteDialog": {
+          "title": "Delete subject?",
+          "description": "{name} will be removed.",
+          "blocked": "This subject is referenced by {count, plural, one {# document} other {# documents}}. Reassign or delete the documents first.",
+          "confirm": "Delete"
+        }
+      },
+      "categories": {
+        "description": "Categories classify documents by type, e.g. \"Notes\" or \"Exam\".",
+        "create": "Add category",
+        "empty": "No categories yet.",
+        "table": {
+          "name": "Name",
+          "documents": "Documents"
+        },
+        "createDialog": {
+          "title": "Add category",
+          "description": "Categories classify documents independently of their subject.",
+          "confirm": "Create"
+        },
+        "renameDialog": {
+          "title": "Rename category",
+          "confirm": "Save"
+        },
+        "deleteDialog": {
+          "title": "Delete category?",
+          "description": "{name} will be removed.",
+          "blocked": "This category is used by {count, plural, one {# document} other {# documents}}. Reassign or delete the documents first.",
+          "confirm": "Delete"
+        }
+      },
+      "states": {
+        "loading": "Loading structure…"
+      },
+      "errors": {
+        "loadTitle": "Could not load structure",
+        "retry": "Retry"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Configure dashboard preferences"
+    }
+  },
   "auth": {
     "appName": "Study Buddy",
     "tagline": "Study materials of FH Joanneum",
