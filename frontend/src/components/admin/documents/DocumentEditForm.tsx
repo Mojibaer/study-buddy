@@ -8,7 +8,6 @@ import { useTranslations } from 'next-intl'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
     Select,
@@ -24,13 +23,6 @@ interface DocumentEditFormProps {
     id: number
 }
 
-function parseTags(input: string): string[] {
-    return input
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-}
-
 export function DocumentEditForm({ id }: DocumentEditFormProps) {
     const t = useTranslations('admin.documents')
     const tEdit = useTranslations('admin.documents.edit')
@@ -41,7 +33,6 @@ export function DocumentEditForm({ id }: DocumentEditFormProps) {
     const [semesterId, setSemesterId] = useState<number | null>(null)
     const [subjectId, setSubjectId] = useState<number | null>(null)
     const [categoryId, setCategoryId] = useState<number | null>(null)
-    const [tagsInput, setTagsInput] = useState<string>('')
     const [hydrated, setHydrated] = useState(false)
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState<string | null>(null)
@@ -50,7 +41,6 @@ export function DocumentEditForm({ id }: DocumentEditFormProps) {
         setSemesterId(document.subject.semester?.id ?? null)
         setSubjectId(document.subject_id)
         setCategoryId(document.category_id)
-        setTagsInput(document.tags.join(', '))
         setHydrated(true)
     }
 
@@ -93,7 +83,6 @@ export function DocumentEditForm({ id }: DocumentEditFormProps) {
             await update({
                 subject_id: subjectId,
                 category_id: categoryId,
-                tags: parseTags(tagsInput),
             })
             router.push(`/admin/documents/${id}`)
         } catch (err) {
@@ -185,17 +174,6 @@ export function DocumentEditForm({ id }: DocumentEditFormProps) {
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <Label htmlFor="tags">{tEdit('tags')}</Label>
-                    <Input
-                        id="tags"
-                        value={tagsInput}
-                        onChange={(e) => setTagsInput(e.target.value)}
-                        placeholder={tEdit('tagsPlaceholder')}
-                    />
-                    <span className="text-xs text-muted-foreground">{tEdit('tagsHint')}</span>
                 </div>
             </div>
 

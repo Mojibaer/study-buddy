@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -116,20 +115,6 @@ export function DocumentDetailView({ id }: DocumentDetailViewProps) {
                             value={document.subject.semester?.name ?? tDetail('notSet')}
                         />
                         <Field label={tDetail('category')} value={document.category.name} />
-                        <div className="flex flex-col gap-1">
-                            <span className="text-xs uppercase text-muted-foreground">{tDetail('tags')}</span>
-                            {document.tags.length === 0 ? (
-                                <span className="text-sm text-muted-foreground">{tDetail('noTags')}</span>
-                            ) : (
-                                <div className="flex flex-wrap gap-1">
-                                    {document.tags.map((tag) => (
-                                        <Badge key={tag} variant="secondary">
-                                            {tag}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
                     </CardContent>
                 </Card>
 

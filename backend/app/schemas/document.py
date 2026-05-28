@@ -41,7 +41,6 @@ class DocumentAdminResponse(DocumentBase):
     uploader: UserResponse | None = None
     subject: SubjectResponse
     category: CategoryResponse
-    tags: list[str] = []
     vectorized_at: datetime | None = None
     indexed_in_weaviate: bool = False
     created_at: datetime
@@ -52,7 +51,6 @@ class DocumentAdminResponse(DocumentBase):
 class DocumentAdminUpdate(BaseModel):
     subject_id: int | None = None
     category_id: int | None = None
-    tags: list[str] | None = None
 
 
 class DocumentBulkDeleteRequest(BaseModel):

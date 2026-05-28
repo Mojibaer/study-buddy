@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -33,19 +33,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def _parse_tags(raw: str | None) -> list[str]:
-    if not raw:
-        return []
-    return [tag.strip() for tag in raw.split(",") if tag.strip()]
-
-
-def _serialize_tags(tags: list[str]) -> str | None:
-    cleaned = [tag.strip() for tag in tags if tag.strip()]
-    if not cleaned:
-        return None
-    return ",".join(cleaned)
-
-
 def _to_admin_response(document: Document) -> DocumentAdminResponse:
     return DocumentAdminResponse.model_validate({
         "id": document.id,
@@ -60,7 +47,6 @@ def _to_admin_response(document: Document) -> DocumentAdminResponse:
         "category": document.category,
         "uploaded_by": document.uploaded_by,
         "uploader": document.uploaded_by_user,
-        "tags": _parse_tags(document.tags),
         "vectorized_at": document.vectorized_at,
         "indexed_in_weaviate": document.vectorized_at is not None,
         "created_at": document.created_at,
@@ -119,12 +105,7 @@ async def list_documents(
         query = query.where(Document.vectorized_at.is_(None))
     if search:
         pattern = f"%{search.lower()}%"
-        query = query.where(
-            or_(
-                Document.original_filename.ilike(pattern),
-                Document.tags.ilike(pattern),
-            )
-        )
+        query = query.where(Document.original_filename.ilike(pattern))
 
     result = await db.execute(query)
     return [_to_admin_response(doc) for doc in result.scalars().all()]
@@ -156,9 +137,6 @@ async def update_document(
     if body.category_id is not None and body.category_id != document.category_id:
         await get_category_or_404(db, body.category_id)
         document.category_id = body.category_id
-
-    if body.tags is not None:
-        document.tags = _serialize_tags(body.tags)
 
     await db.commit()
     refreshed = await _load_document(db, document_id)

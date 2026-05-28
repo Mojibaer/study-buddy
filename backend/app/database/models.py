@@ -87,7 +87,6 @@ class Document(Base):
     file_url = Column(String, nullable=True)
     # NULL = needs (re)indexing. Set to now() after successful Weaviate insert.
     vectorized_at = Column(DateTime(timezone=True), nullable=True)
-    tags = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
