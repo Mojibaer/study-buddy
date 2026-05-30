@@ -82,6 +82,14 @@ curl http://localhost:8001/health
 # {"status":"healthy"}
 ```
 
+Create the first admin (reads `ADMIN_*` from `backend/.env`, idempotent):
+
+```bash
+make create-admin
+```
+
+With the example defaults you can then log in at http://localhost:3000/login with `admin@edu.fh-joanneum.at` / `123456789!`.
+
 ## 4. Frontend
 
 In a new terminal:
