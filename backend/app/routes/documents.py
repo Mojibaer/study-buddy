@@ -187,7 +187,10 @@ async def get_document(
     db: AsyncSession = Depends(get_db),
     _current_user: User = Depends(get_current_active_user),
 ) -> DocumentResponse:
-    return await get_document_or_404(db, document_id)
+    # 404 first, then re-load with relations eager-loaded so serializing
+    # DocumentResponse (subject/category) doesn't trigger a lazy-load -> MissingGreenlet.
+    await get_document_or_404(db, document_id)
+    return await _load_document_with_relations(db, document_id)
 
 
 @router.get("/{document_id}/download")
