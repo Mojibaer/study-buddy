@@ -108,6 +108,7 @@ bun dev                 # Next.js on port 3000
 | Backend | http://localhost:8001 |
 | Backend OpenAPI | http://localhost:8001/docs |
 | Mailpit UI | http://localhost:8025 |
+| MinIO Console | http://localhost:9001 |
 | Postgres | `localhost:5432` |
 | Redis | `localhost:6379` |
 | Weaviate | http://localhost:8100 |
