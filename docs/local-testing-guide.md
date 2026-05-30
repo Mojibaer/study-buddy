@@ -37,7 +37,11 @@ Paste the output into `backend/.env` as `SECRET_KEY=...`. The default `DATABASE_
 
 ### Frontend
 
-`frontend/.env.local` already exists with `NEXT_PUBLIC_API_URL=http://localhost:8001`. No changes needed for local dev.
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+The default `NEXT_PUBLIC_API_URL=http://localhost:8001` works for local dev — no changes needed.
 
 ### Docker (local infrastructure)
 
