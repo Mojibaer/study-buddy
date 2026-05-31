@@ -2,12 +2,13 @@
 
 ## Overview
 
-PostgreSQL stores document metadata - everything except the actual file content and search embeddings.
+PostgreSQL is the source of truth for all relational data - everything except the actual file content and search embeddings.
 
 **What it stores:**
-- File information (filename, size, type, upload date)
-- Organization data (category, subject, semester)
-- Reference to MinIO (file_url) and a `vectorized_at` timestamp marking whether the document has been indexed in Weaviate
+- Users (`users`) — accounts, email, role, password hash, active flag
+- Refresh tokens (`refresh_tokens`) — hashed refresh tokens for session rotation
+- Study structure (`semesters`, `categories`, `subjects`) — the organization hierarchy documents are filed under
+- Documents (`documents`) — file information (filename, size, type, upload date), the uploader, the reference to MinIO (`file_url`), and a `vectorized_at` timestamp marking whether the document has been indexed in Weaviate
 
 **What it doesn't store:**
 - Extracted text → Weaviate (snippet) / MinIO (original)
