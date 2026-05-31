@@ -32,6 +32,11 @@ flow) is documented in **[local-testing-guide.md](local-testing-guide.md)**.
 Once running, the interactive API docs (Swagger UI) are at
 `http://localhost:8001/docs`.
 
+> **Note.** In its current state the project is configured for **local testing
+> only**. Staging and production are not set up — the secrets, deployment
+> targets, and managed services described in the architecture/server docs below
+> are not provisioned. Everything in this tech demo is meant to be run locally.
+
 ## Design decisions (ADRs)
 
 - **[ADR-0001 — JWT Storage Strategy](adr/0001-jwt-storage-strategy.md)** —
@@ -148,3 +153,22 @@ curl -G http://localhost:8001/search/semantic \
   -H "Authorization: Bearer <access_token>" \
   --data-urlencode "query=sorting algorithms" | jq
 ```
+
+---
+
+## Further project documentation
+
+The following documents describe the wider Study Buddy project beyond the tech
+demo. They are provided as context — not all of it is part of what we built for
+this demo.
+
+- **[Architecture Overview](architecture.md)** — how the services (frontend,
+  backend, PostgreSQL, Redis, Weaviate, MinIO) fit together and the request flow.
+- **[ADR-0003 — Admin Area Architecture](adr/0003-admin-area-architecture.md)** —
+  the admin endpoints and frontend structure (outside the tech-demo scope).
+- **Database & storage guides** — [PostgreSQL](db/postgres-guide.md),
+  [Alembic migrations](db/db-migration-alembic.md), [Weaviate](db/weaviate-guide.md),
+  [MinIO](db/minio-storage.md).
+- **[Server Setup](server-setup.md)** — the intended staging/production
+  deployment (VPS, systemd, Nginx, Infisical). Not provisioned in the current
+  state — see the note above.
