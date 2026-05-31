@@ -21,6 +21,9 @@ The full project lives at **[github.com/Mojibaer/study-buddy](https://github.com
 git clone https://github.com/Mojibaer/study-buddy.git
 ```
 
+This document is part of the repository at `docs/techdemo.md` and is the starting
+point for the tech demo documentation.
+
 > **Scope note.** The pure admin-area endpoints (user management, study-structure
 > CRUD, admin document management under `/admin/*`) are **not** part of the tech
 > demo. The **Weaviate admin endpoints** (`/weaviate/*`) **are** part of it —
