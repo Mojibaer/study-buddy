@@ -15,6 +15,12 @@ login, `Authorization: Bearer` on every request) and adds the features we needed
 for a real product — refresh-token rotation, a server-side logout denylist, and
 email-verified onboarding.
 
+The full project lives at **[github.com/Mojibaer/study-buddy](https://github.com/Mojibaer/study-buddy)** — clone it with:
+
+```bash
+git clone https://github.com/Mojibaer/study-buddy.git
+```
+
 > **Scope note.** The pure admin-area endpoints (user management, study-structure
 > CRUD, admin document management under `/admin/*`) are **not** part of the tech
 > demo. The **Weaviate admin endpoints** (`/weaviate/*`) **are** part of it —
