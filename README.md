@@ -52,16 +52,15 @@ For a detailed overview of how the services interact, see [docs/architecture.md]
 ## Quick Start
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Mojibaer/study-buddy.git
 cd study-buddy
-
-# 2. Start infrastructure (PostgreSQL, Redis, Weaviate)
-docker compose -f docker/local/docker-compose.yml up -d
-
-# 3. Start backend and frontend
-# See setup guides below
 ```
+
+Then follow the **[Local Testing Guide](docs/local-testing-guide.md)** — it walks
+through the full end-to-end setup (environment files, infrastructure, backend,
+frontend, admin bootstrap, and the auth flow).
+
+For component-specific details, see also:
 
 - [Backend setup](backend/README.md)
 - [Frontend setup](frontend/README.md)
@@ -72,6 +71,11 @@ docker compose -f docker/local/docker-compose.yml up -d
 - [Python](https://www.python.org/downloads/) >= 3.13
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager)
 - [Bun](https://bun.sh/) (Frontend package manager)
+- GNU Make
+- `libmagic` (MIME-type detection on document upload)
+- `openssl` (for generating `SECRET_KEY`)
+
+OS-specific install commands for `make`, `libmagic`, and `openssl` are in the [Local Testing Guide](docs/local-testing-guide.md#prerequisites).
 
 ## Contributing
 
