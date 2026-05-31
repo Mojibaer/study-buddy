@@ -14,6 +14,8 @@ Study Buddy is an open-source academic document platform built for university st
 
 Designed to be self-hosted by any university or student organization, Study Buddy is built with a modern, production-ready stack and can be adapted to fit different institutions, curricula, and authentication requirements.
 
+An admin dashboard gives maintainers full control over the platform: managing users, moderating uploaded documents, and curating the study structure (semesters, subjects, and categories) that documents are organized under.
+
 ## Features
 
 - **Document Upload** — Support for PDF, DOCX, TXT, MD, and more
@@ -23,6 +25,7 @@ Designed to be self-hosted by any university or student organization, Study Budd
 - **Document Preview** — View documents directly in browser
 - **Authentication** — JWT-based auth with email verification and role-based access control
 - **File Sharing** — Share documents via WhatsApp and email
+- **Admin Dashboard** — Manage users, moderate documents, and curate the study structure (semesters, subjects, categories)
 
 ## Tech Stack
 
