@@ -37,4 +37,4 @@ db-reset:
 	docker compose -f ../docker/local/docker-compose.yml --env-file ../docker/local/.env up -d
 
 create-admin:
-	uv run python scripts/create_admin.py
+	uv run --env-file .env python scripts/create_admin.py

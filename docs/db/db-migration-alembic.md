@@ -10,7 +10,7 @@ Alembic manages database schema migrations - version control for PostgreSQL stru
 
 **What it doesn't do:**
 - Manage data (only structure)
-- Handle ChromaDB or MinIO
+- Handle Weaviate or MinIO
 
 ## How It Works
 
@@ -26,44 +26,42 @@ backend/
 ├── alembic/
 │   ├── env.py               # Migration environment
 │   ├── script.py.mako       # Migration template
-│   └── versions/            # Migration files
-│       ├── 001_initial.py
-│       └── 002_add_file_url.py
+│   └── versions/            # Migration files (hash-prefixed revision IDs)
 ```
 
 ## Useful Commands
+
+The project uses **uv** — prefix Alembic with `uv run` (no virtualenv to activate).
+
 ```bash
-# Activate venv first
 cd backend
-source venv/bin/activate  # Linux
-venv\Scripts\activate     # Windows
 
 # Check current migration status
-alembic current
+uv run alembic current
 
 # Show migration history
-alembic history
+uv run alembic history
 
 # Create new migration (auto-generate from models)
-alembic revision --autogenerate -m "description"
+uv run alembic revision --autogenerate -m "description"
 
 # Create empty migration (manual)
-alembic revision -m "description"
+uv run alembic revision -m "description"
 
 # Apply all pending migrations
-alembic upgrade head
+uv run alembic upgrade head
 
 # Apply next migration
-alembic upgrade +1
+uv run alembic upgrade +1
 
 # Rollback last migration
-alembic downgrade -1
+uv run alembic downgrade -1
 
 # Rollback all migrations
-alembic downgrade base
+uv run alembic downgrade base
 
 # Show SQL without executing
-alembic upgrade head --sql
+uv run alembic upgrade head --sql
 ```
 
 ## Migration File Example
@@ -87,12 +85,11 @@ def downgrade():
 
 ### Alembic Config
 
-**Database URL in `alembic.ini`:**
-```ini
-sqlalchemy.url = postgresql://studybuddy:<password>@localhost:5432/studybuddy
+The `sqlalchemy.url` in `alembic.ini` is only a placeholder. The real connection string is read from the `DATABASE_URL` environment variable in `env.py`:
+
+```python
+# backend/alembic/env.py
+return os.environ["DATABASE_URL"]
 ```
 
-**Or via environment variable in `env.py`:**
-```python
-config.set_main_option('sqlalchemy.url', os.getenv('DATABASE_URL'))
-```
+So migrations use the same `DATABASE_URL` as the running backend — no separate config to keep in sync.

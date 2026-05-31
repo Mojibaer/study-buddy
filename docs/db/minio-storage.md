@@ -8,7 +8,7 @@ MinIO stores the actual document files - PDFs, DOCX, TXT, MD uploaded by users.
 
 **What it doesn't store:**
 - File metadata → PostgreSQL
-- Text content & embeddings → ChromaDB
+- Text snippet & embeddings → Weaviate
 
 **Why MinIO:**
 - S3-compatible API (works with boto3, AWS SDKs)
@@ -22,18 +22,13 @@ MinIO stores the actual document files - PDFs, DOCX, TXT, MD uploaded by users.
 3. Presigned URL created for frontend access
 4. URL stored in PostgreSQL (`file_url`)
 
-## Current Buckets
-```
-documents/          # Production files
-test-documents/     # Development/testing
-```
+## Buckets
+
+The bucket name comes from `MINIO_BUCKET`. The local default (from `backend/.env-example`) is `studybuddy-dev`; staging/production use their own buckets configured via Infisical.
 
 ## Useful Commands
 
-**Web Console:**
-```
-https://minio.mojiverse.dev/
-```
+**Web Console:** locally on http://localhost:9001
 
 **CLI (mc client):**
 ```bash
@@ -68,20 +63,14 @@ mc rm --recursive studybuddy/<bucket-name>/
 
 Object storage for document files.
 
-**Remote connection (from local machine):**
-```env
-MINIO_ENDPOINT=85.215.241.173:9000
-MINIO_ACCESS_KEY=studybuddy
-MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD from .env>
-MINIO_BUCKET=test-documents
-MINIO_PUBLIC_URL=https://studybuddy.mojiverse.dev/files
-```
-
-**Local connection (on server):**
+**Local Docker (default from `backend/.env-example`):**
 ```env
 MINIO_ENDPOINT=localhost:9000
 MINIO_ACCESS_KEY=studybuddy
-MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD from .env>
-MINIO_BUCKET=documents
-MINIO_PUBLIC_URL=https://studybuddy.mojiverse.dev/files
+MINIO_SECRET_KEY=studybuddy123
+MINIO_BUCKET=studybuddy-dev
+MINIO_SECURE=false
+MINIO_PUBLIC_URL=http://localhost:9000
 ```
+
+For staging/production the endpoint, credentials, and public URL are injected via Infisical — see [server-setup.md](../server-setup.md).

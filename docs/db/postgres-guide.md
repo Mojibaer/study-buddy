@@ -2,22 +2,23 @@
 
 ## Overview
 
-PostgreSQL stores document metadata - everything except the actual file content and search embeddings.
+PostgreSQL is the source of truth for all relational data - everything except the actual file content and search embeddings.
 
 **What it stores:**
-- File information (filename, size, type, upload date)
-- Organization data (category, subject, semester, tags)
-- References to MinIO (file_url) and ChromaDB (chroma_id)
+- Users (`users`) — accounts, email, role, password hash, active flag
+- Refresh tokens (`refresh_tokens`) — hashed refresh tokens for session rotation
+- Study structure (`semesters`, `categories`, `subjects`) — the organization hierarchy documents are filed under
+- Documents (`documents`) — file information (filename, size, type, upload date), the uploader, the reference to MinIO (`file_url`), and a `vectorized_at` timestamp marking whether the document has been indexed in Weaviate
 
 **What it doesn't store:**
-- Extracted text → ChromaDB
+- Extracted text → Weaviate (snippet) / MinIO (original)
 - File content → MinIO
-- Search embeddings → ChromaDB
+- Search embeddings → Weaviate
 
 ## Useful Commands
 ```bash
-# Connect to database - on server
-docker exec -it studybuddy-db psql -U studybuddy -d studybuddy
+# Connect to the local database container
+docker exec -it studybuddy-local-postgres psql -U studybuddy-local -d studybuddy-local
 ```
 ```sql
 -- Describe table structure
@@ -27,7 +28,10 @@ docker exec -it studybuddy-db psql -U studybuddy -d studybuddy
 SELECT * FROM documents;
 
 -- Select with readable output
-SELECT id, original_filename, category, semester FROM documents;
+SELECT id, original_filename, category_id, subject_id FROM documents;
+
+-- Documents not yet indexed in Weaviate (reindex backlog)
+SELECT id, original_filename FROM documents WHERE vectorized_at IS NULL;
 
 -- Delete single document
 DELETE FROM documents WHERE id = 1;
@@ -42,14 +46,11 @@ SELECT COUNT(*) FROM documents;
 
 ### PostgreSQL as Service
 
-Database for document metadata.
+Database for document metadata. The backend connects via the async driver (`postgresql+asyncpg://`).
 
-**Remote connection (from local machine):**
+**Local Docker (default from `backend/.env-example`):**
 ```env
-DATABASE_URL=postgresql://studybuddy:<password>@85.215.241.173:5432/studybuddy
+DATABASE_URL=postgresql+asyncpg://studybuddy-local:local-db@localhost:5432/studybuddy-local
 ```
 
-**Local connection (on server or local Docker):**
-```env
-DATABASE_URL=postgresql://studybuddy:<password>@localhost:5432/studybuddy
-```
+For staging/production the connection string (host, credentials) is injected via Infisical — see [server-setup.md](../server-setup.md).

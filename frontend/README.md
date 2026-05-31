@@ -16,7 +16,7 @@ cd frontend
 bun install
 
 # Copy and configure environment variables
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
 ## Running

@@ -18,11 +18,14 @@ Study Buddy runs on a Strato VPS. Backend and frontend are deployed as systemd s
 
 ## Infrastructure Services
 
-PostgreSQL, Redis, Weaviate, and MinIO run via Docker Compose. See [docker/server/](../docker/server/) for the compose files.
+PostgreSQL, Redis, and Weaviate run via Docker Compose. MinIO runs from its own compose file — it is shared across the live and staging deployments. See [docker/server/](../docker/server/) for the compose files.
 
 ```bash
-# Start all infrastructure services
+# PostgreSQL, Redis, Weaviate
 docker compose -f docker/server/prod/docker-compose.yml up -d
+
+# MinIO (shared object storage)
+docker compose -f docker/server/minio/docker-compose.yml up -d
 ```
 
 ## Secrets

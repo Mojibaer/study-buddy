@@ -106,19 +106,12 @@ async def upload_document(
         except Exception:
             logger.exception("Failed to clean up MinIO object %s after Postgres commit error", object_key)
         raise
-    await db.refresh(db_document)
+
+    # Eager-load relationships once. selectinload avoids the lazy-load that would
+    # otherwise fail with MissingGreenlet when the response is serialized.
+    db_document = await _load_document_with_relations(db, db_document.id)
 
     if extracted_text:
-        result = await db.execute(
-            select(Document)
-            .options(
-                selectinload(Document.category),
-                selectinload(Document.subject).selectinload(Subject.semester)
-            )
-            .filter(Document.id == db_document.id)
-        )
-        db_document = result.scalars().first()
-
         subject_name = db_document.subject.name if db_document.subject else ""
 
         searchable_text = extracted_text
@@ -141,7 +134,8 @@ async def upload_document(
             )
             db_document.vectorized_at = datetime.now(timezone.utc)
             await db.commit()
-            await db.refresh(db_document)
+            # commit expired the instance; re-load with relationships for the response
+            db_document = await _load_document_with_relations(db, db_document.id)
         except Exception:
             logger.exception(
                 "Failed to vectorize document %d; leaving vectorized_at NULL for reindex",
@@ -149,6 +143,18 @@ async def upload_document(
             )
 
     return db_document
+
+
+async def _load_document_with_relations(db: AsyncSession, document_id: int) -> Document:
+    result = await db.execute(
+        select(Document)
+        .options(
+            selectinload(Document.category),
+            selectinload(Document.subject).selectinload(Subject.semester),
+        )
+        .filter(Document.id == document_id)
+    )
+    return result.scalars().first()
 
 
 @router.get("/", response_model=list[DocumentResponse])
@@ -181,7 +187,10 @@ async def get_document(
     db: AsyncSession = Depends(get_db),
     _current_user: User = Depends(get_current_active_user),
 ) -> DocumentResponse:
-    return await get_document_or_404(db, document_id)
+    # 404 first, then re-load with relations eager-loaded so serializing
+    # DocumentResponse (subject/category) doesn't trigger a lazy-load -> MissingGreenlet.
+    await get_document_or_404(db, document_id)
+    return await _load_document_with_relations(db, document_id)
 
 
 @router.get("/{document_id}/download")

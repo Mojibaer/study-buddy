@@ -37,7 +37,11 @@ Paste the output into `backend/.env` as `SECRET_KEY=...`. The default `DATABASE_
 
 ### Frontend
 
-`frontend/.env.local` already exists with `NEXT_PUBLIC_API_URL=http://localhost:8001`. No changes needed for local dev.
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+The default `NEXT_PUBLIC_API_URL=http://localhost:8001` works for local dev — no changes needed.
 
 ### Docker (local infrastructure)
 
@@ -78,6 +82,14 @@ curl http://localhost:8001/health
 # {"status":"healthy"}
 ```
 
+Create the first admin (reads `ADMIN_*` from `backend/.env`, idempotent):
+
+```bash
+make create-admin
+```
+
+With the example defaults you can then log in at http://localhost:3000/login with `admin@edu.fh-joanneum.at` / `12345678900!`.
+
 ## 4. Frontend
 
 In a new terminal:
@@ -96,6 +108,7 @@ bun dev                 # Next.js on port 3000
 | Backend | http://localhost:8001 |
 | Backend OpenAPI | http://localhost:8001/docs |
 | Mailpit UI | http://localhost:8025 |
+| MinIO Console | http://localhost:9001 |
 | Postgres | `localhost:5432` |
 | Redis | `localhost:6379` |
 | Weaviate | http://localhost:8100 |
