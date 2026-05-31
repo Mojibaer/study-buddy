@@ -143,10 +143,11 @@ client like **Bruno**, or use **cURL**:
 
 ```bash
 # Login (form-encoded) → access token
+# Use single quotes around the password so the shell doesn't expand `!` and other special characters.
 curl -X POST http://localhost:8001/auth/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "username=you@edu.fh-joanneum.at" \
-  --data-urlencode "password=your-password"
+  --data-urlencode 'password=your-password'
 
 # Authenticated semantic search
 curl -G http://localhost:8001/search/semantic \
