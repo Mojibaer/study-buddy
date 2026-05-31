@@ -15,6 +15,15 @@ login, `Authorization: Bearer` on every request) and adds the features we needed
 for a real product — refresh-token rotation, a server-side logout denylist, and
 email-verified onboarding.
 
+The full project lives at **[github.com/Mojibaer/study-buddy](https://github.com/Mojibaer/study-buddy)** — clone it with:
+
+```bash
+git clone https://github.com/Mojibaer/study-buddy.git
+```
+
+This document is part of the repository at `docs/techdemo.md` and is the starting
+point for the tech demo documentation.
+
 > **Scope note.** The pure admin-area endpoints (user management, study-structure
 > CRUD, admin document management under `/admin/*`) are **not** part of the tech
 > demo. The **Weaviate admin endpoints** (`/weaviate/*`) **are** part of it —
@@ -143,10 +152,11 @@ client like **Bruno**, or use **cURL**:
 
 ```bash
 # Login (form-encoded) → access token
+# Use single quotes around the password so the shell doesn't expand `!` and other special characters.
 curl -X POST http://localhost:8001/auth/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "username=you@edu.fh-joanneum.at" \
-  --data-urlencode "password=your-password"
+  --data-urlencode 'password=your-password'
 
 # Authenticated semantic search
 curl -G http://localhost:8001/search/semantic \
