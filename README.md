@@ -18,7 +18,7 @@ Designed to be self-hosted by any university or student organization, Study Budd
 
 - **Document Upload** — Support for PDF, DOCX, TXT, MD, and more
 - **Manual Browsing** — Traditional folder/category navigation
-- **Semantic Search** — AI-powered content search with ChromaDB
+- **Semantic Search** — AI-powered content search with Weaviate
 - **Combined Search** — Semantic search + metadata filters with real-time autocomplete
 - **Document Preview** — View documents directly in browser
 - **Authentication** — JWT-based auth with email verification and role-based access control
@@ -44,7 +44,6 @@ Designed to be self-hosted by any university or student organization, Study Budd
 ### Infrastructure
 - **Docker Compose** — Local development environment
 - **MinIO** — S3-compatible object storage for documents
-- **Nginx** — Reverse proxy
 
 ## Architecture
 
