@@ -88,7 +88,7 @@ Create the first admin (reads `ADMIN_*` from `backend/.env`, idempotent):
 make create-admin
 ```
 
-With the example defaults you can then log in at http://localhost:3000/login with `admin@edu.fh-joanneum.at` / `123456789!`.
+With the example defaults you can then log in at http://localhost:3000/login with `admin@edu.fh-joanneum.at` / `12345678900!`.
 
 ## 4. Frontend
 
