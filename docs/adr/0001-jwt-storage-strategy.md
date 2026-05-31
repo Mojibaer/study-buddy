@@ -67,6 +67,7 @@ The question: where does the frontend store them? The decision determines the XS
 
 - Frontend `localhost:3000`, backend `localhost:8001` — cookie works with `SameSite=Lax` (both are same-site under `localhost`)
 - Production: `SameSite=Strict`, both apps on `studybuddy.mojiverse.at`
+- **Cookie path in local dev:** the `config.py` default `Path=/api/auth` matches production, where the frontend reaches the backend through an `/api` proxy. Locally the frontend calls the backend directly on `:8001/auth/...` without that proxy, so `backend/.env` overrides `REFRESH_COOKIE_PATH=/auth`. The path must match the actual request path — otherwise the browser doesn't send the cookie on refresh, and every hard reload logs the user out.
 
 ### Remaining Attack Surface
 
