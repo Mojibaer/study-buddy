@@ -489,6 +489,7 @@
       "passwordLabel": "Password",
       "passwordPlaceholder": "At least 12 characters",
       "passwordConfirmLabel": "Confirm password",
+      "passwordConfirmPlaceholder": "Repeat password",
       "submit": "Create account",
       "submitting": "Creating...",
       "errorTitle": "Setup failed",

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/providers/AuthProvider'
 
 const PASSWORD_MIN_LENGTH = 12
@@ -67,7 +68,7 @@ export default function SetupPage() {
         <CardDescription>{t('setup.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" aria-hidden />
@@ -89,32 +90,36 @@ export default function SetupPage() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">{t('setup.passwordLabel')}</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder={t('setup.passwordPlaceholder')}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={submitting}
-              className={AUTH_INPUT_CLASS}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="passwordConfirm">{t('setup.passwordConfirmLabel')}</Label>
-            <Input
-              id="passwordConfirm"
-              type="password"
-              autoComplete="new-password"
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              disabled={submitting}
-              className={AUTH_INPUT_CLASS}
-              required
-            />
+          <Separator />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">{t('setup.passwordLabel')}</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="new-password"
+                placeholder={t('setup.passwordPlaceholder')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={submitting}
+                className={AUTH_INPUT_CLASS}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="passwordConfirm">{t('setup.passwordConfirmLabel')}</Label>
+              <Input
+                id="passwordConfirm"
+                type="password"
+                autoComplete="new-password"
+                placeholder={t('setup.passwordConfirmPlaceholder')}
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                disabled={submitting}
+                className={AUTH_INPUT_CLASS}
+                required
+              />
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? t('setup.submitting') : t('setup.submit')}
