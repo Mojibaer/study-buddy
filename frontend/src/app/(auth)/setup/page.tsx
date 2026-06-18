@@ -32,24 +32,31 @@ export default function SetupPage() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
-  function validate(): string | null {
-    if (!verifyToken) return t('setup.missingToken')
-    if (!username) return tv('usernameRequired')
-    if (username.length < USERNAME_MIN_LENGTH) return tv('usernameMinLength')
-    if (!password) return tv('passwordRequired')
-    if (password.length < PASSWORD_MIN_LENGTH) return tv('passwordMinLength')
-    if (password !== passwordConfirm) return t('setup.passwordMismatch')
-    return null
+  function validate(): { formError?: string; fieldErrors: Record<string, string> } {
+    if (!verifyToken) return { formError: t('setup.missingToken'), fieldErrors: {} }
+    const errors: Record<string, string> = {}
+    if (!username) errors.username = tv('usernameRequired')
+    else if (username.length < USERNAME_MIN_LENGTH) errors.username = tv('usernameMinLength')
+    if (!password) errors.password = tv('passwordRequired')
+    else if (password.length < PASSWORD_MIN_LENGTH) errors.password = tv('passwordMinLength')
+    if (password !== passwordConfirm) errors.passwordConfirm = t('setup.passwordMismatch')
+    return { fieldErrors: errors }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault()
-    const validationError = validate()
-    if (validationError) {
-      setError(validationError)
+    const { formError, fieldErrors: errors } = validate()
+    if (formError) {
+      setError(formError)
       return
     }
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      return
+    }
+    setFieldErrors({})
     setSubmitting(true)
     setError(null)
     try {
@@ -87,8 +94,15 @@ export default function SetupPage() {
               onChange={(e) => setUsername(e.target.value)}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
+              aria-invalid={!!fieldErrors.username}
+              aria-describedby={fieldErrors.username ? 'username-error' : undefined}
               required
             />
+            {fieldErrors.username && (
+              <p id="username-error" className="text-sm text-destructive">
+                {fieldErrors.username}
+              </p>
+            )}
           </div>
           <Separator />
           <div className="space-y-4">
@@ -103,8 +117,15 @@ export default function SetupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={submitting}
                 className={AUTH_INPUT_CLASS}
+                aria-invalid={!!fieldErrors.password}
+                aria-describedby={fieldErrors.password ? 'password-error' : undefined}
                 required
               />
+              {fieldErrors.password && (
+                <p id="password-error" className="text-sm text-destructive">
+                  {fieldErrors.password}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="passwordConfirm">{t('setup.passwordConfirmLabel')}</Label>
@@ -117,8 +138,15 @@ export default function SetupPage() {
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 disabled={submitting}
                 className={AUTH_INPUT_CLASS}
+                aria-invalid={!!fieldErrors.passwordConfirm}
+                aria-describedby={fieldErrors.passwordConfirm ? 'passwordConfirm-error' : undefined}
                 required
               />
+              {fieldErrors.passwordConfirm && (
+                <p id="passwordConfirm-error" className="text-sm text-destructive">
+                  {fieldErrors.passwordConfirm}
+                </p>
+              )}
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>

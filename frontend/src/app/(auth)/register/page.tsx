@@ -33,22 +33,25 @@ function RegisterForm() {
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
-  function validate(): string | null {
-    if (!email) return tv('emailRequired')
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return tv('emailInvalid')
-    if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) return tv('emailDomain')
-    return null
+  function validate(): Record<string, string> {
+    const errors: Record<string, string> = {}
+    if (!email) errors.email = tv('emailRequired')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = tv('emailInvalid')
+    else if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) errors.email = tv('emailDomain')
+    return errors
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault()
-    const validationError = validate()
-    if (validationError) {
-      setError(validationError)
+    const errors = validate()
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
       return
     }
+    setFieldErrors({})
     setSubmitting(true)
     setError(null)
     try {
@@ -105,8 +108,15 @@ function RegisterForm() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               required
             />
+            {fieldErrors.email && (
+              <p id="email-error" className="text-sm text-destructive">
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? t('register.submitting') : t('register.submit')}
