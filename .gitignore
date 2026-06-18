@@ -51,6 +51,9 @@ backend/.env
 frontend/.env.local
 frontend/.env.production.local
 frontend/.env.development.local
+.devcontainer/
+result
+result-*
 
 # Misc
 .DS_Store
