@@ -1,4 +1,4 @@
-import { GraduationCap } from 'lucide-react'
+import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -6,9 +6,16 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 px-4 py-12">
-      <div className="mb-8 flex flex-col items-center gap-2 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <GraduationCap className="h-6 w-6" aria-hidden />
+      <div className="mb-8 flex flex-col items-center gap-3 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border bg-card shadow-sm">
+          <Image
+            src="/logo.svg"
+            alt={t('appName')}
+            width={44}
+            height={44}
+            className="h-10 w-auto"
+            priority
+          />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">{t('appName')}</h1>
         <p className="text-sm text-muted-foreground">{t('tagline')}</p>

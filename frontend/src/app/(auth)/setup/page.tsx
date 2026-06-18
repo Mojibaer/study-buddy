@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
+import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +13,9 @@ import { useAuth } from '@/providers/AuthProvider'
 
 const PASSWORD_MIN_LENGTH = 12
 const USERNAME_MIN_LENGTH = 3
+
+const AUTH_INPUT_CLASS =
+  'h-10 border-input/80 bg-card transition-colors hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/30 focus-visible:ring-[3px]'
 
 export default function SetupPage() {
   const t = useTranslations('auth')
@@ -66,6 +70,7 @@ export default function SetupPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" aria-hidden />
               <AlertTitle>{t('setup.errorTitle')}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -80,6 +85,7 @@ export default function SetupPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
               required
             />
           </div>
@@ -93,6 +99,7 @@ export default function SetupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
               required
             />
           </div>
@@ -105,6 +112,7 @@ export default function SetupPage() {
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
               required
             />
           </div>
