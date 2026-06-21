@@ -34,6 +34,15 @@ export default function SetupPage() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
+  function clearFieldError(field: string): void {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
   function validate(): { formError?: string; fieldErrors: Record<string, string> } {
     if (!verifyToken) return { formError: t('setup.missingToken'), fieldErrors: {} }
     const errors: Record<string, string> = {}
@@ -91,7 +100,10 @@ export default function SetupPage() {
               autoComplete="username"
               placeholder={t('setup.usernamePlaceholder')}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value)
+                clearFieldError('username')
+              }}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
               aria-invalid={!!fieldErrors.username}
@@ -114,7 +126,11 @@ export default function SetupPage() {
                 autoComplete="new-password"
                 placeholder={t('setup.passwordPlaceholder')}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  clearFieldError('password')
+                  clearFieldError('passwordConfirm')
+                }}
                 disabled={submitting}
                 className={AUTH_INPUT_CLASS}
                 aria-invalid={!!fieldErrors.password}
@@ -135,7 +151,10 @@ export default function SetupPage() {
                 autoComplete="new-password"
                 placeholder={t('setup.passwordConfirmPlaceholder')}
                 value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
+                onChange={(e) => {
+                  setPasswordConfirm(e.target.value)
+                  clearFieldError('passwordConfirm')
+                }}
                 disabled={submitting}
                 className={AUTH_INPUT_CLASS}
                 aria-invalid={!!fieldErrors.passwordConfirm}

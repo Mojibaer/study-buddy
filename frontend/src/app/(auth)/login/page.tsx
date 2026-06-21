@@ -39,6 +39,15 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
+  function clearFieldError(field: string): void {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
   function validate(): Record<string, string> {
     const errors: Record<string, string> = {}
     if (!email) errors.email = tv('emailRequired')
@@ -91,7 +100,10 @@ function LoginForm() {
               autoComplete="email"
               placeholder={t('login.emailPlaceholder')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearFieldError('email')
+              }}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
               aria-invalid={!!fieldErrors.email}
@@ -112,7 +124,10 @@ function LoginForm() {
               autoComplete="current-password"
               placeholder={t('login.passwordPlaceholder')}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                clearFieldError('password')
+              }}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
               aria-invalid={!!fieldErrors.password}

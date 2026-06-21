@@ -36,6 +36,15 @@ function RegisterForm() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
+  function clearFieldError(field: string): void {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
   function validate(): Record<string, string> {
     const errors: Record<string, string> = {}
     if (!email) errors.email = tv('emailRequired')
@@ -105,7 +114,10 @@ function RegisterForm() {
               autoComplete="email"
               placeholder={t('register.emailPlaceholder')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearFieldError('email')
+              }}
               disabled={submitting}
               className={AUTH_INPUT_CLASS}
               aria-invalid={!!fieldErrors.email}
