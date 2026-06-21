@@ -25,6 +25,7 @@ class User(Base):
 
     refresh_tokens = relationship("RefreshToken", back_populates="user")
     documents = relationship("Document", back_populates="uploaded_by_user")
+    bookmarks = relationship("Bookmark", back_populates="user", cascade="all, delete-orphan")
 
 
 class RefreshToken(Base):
@@ -94,3 +95,19 @@ class Document(Base):
     subject = relationship("Subject", back_populates="documents")
     category = relationship("Category", back_populates="documents")
     uploaded_by_user = relationship("User", back_populates="documents")
+    bookmarks = relationship("Bookmark", back_populates="document", cascade="all, delete-orphan")
+
+
+class Bookmark(Base):
+    __tablename__ = "bookmarks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship("User", back_populates="bookmarks")
+    document = relationship("Document", back_populates="bookmarks")
+
+    # A user can bookmark a given document only once.
+    __table_args__ = (UniqueConstraint("user_id", "document_id", name="uq_bookmark_user_document"),)

@@ -13,6 +13,7 @@ from app.routes import (
     documents,
     search,
     filters,
+    bookmarks,
     weaviate as weaviate_routes,
     admin_documents,
     admin_users,
@@ -66,6 +67,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/search", tags=["Search"])
 app.include_router(filters.router, prefix="/filters", tags=["filters"])
+app.include_router(bookmarks.router, prefix="/bookmarks", tags=["Bookmarks"])
 app.include_router(weaviate_routes.router, prefix="/weaviate", tags=["Admin/Weaviate"])
 app.include_router(admin_documents.router, prefix="/admin/documents", tags=["Admin Documents"])
 app.include_router(admin_users.router, prefix="/admin/users", tags=["Admin Users"])
