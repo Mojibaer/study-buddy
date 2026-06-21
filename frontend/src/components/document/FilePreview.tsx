@@ -108,7 +108,15 @@ function TextFilePreview({ fileUrl, onError, isMarkdown }: { fileUrl: string; on
 
   if (isMarkdown) {
     return (
-      <div className="w-full max-h-[600px] overflow-auto p-4 prose prose-slate prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-code:bg-muted prose-code:px-1 prose-code:rounded">
+      <div
+        className="w-full max-h-[600px] overflow-auto p-4 prose dark:prose-invert max-w-none
+          prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl
+          prose-a:text-primary
+          prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5
+          prose-code:text-foreground prose-code:font-normal
+          prose-code:before:content-none prose-code:after:content-none
+          prose-pre:bg-muted prose-pre:text-foreground prose-pre:border prose-pre:border-border"
+      >
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     )
