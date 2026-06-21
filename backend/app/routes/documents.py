@@ -45,7 +45,6 @@ async def upload_document(
     file: UploadFile = File(...),
     category_id: int | None = Form(None),
     subject_id: int | None = Form(None),
-    tags: str | None = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
     provider: EmbeddingProvider = Depends(get_embedding_provider),
@@ -84,7 +83,6 @@ async def upload_document(
     )
 
     extracted_text = extract_text_from_bytes(file_content, file_ext)
-    tag_list = [tag.strip() for tag in tags.split(",")] if tags else []
 
     db_document = Document(
         filename=object_key,
@@ -117,8 +115,6 @@ async def upload_document(
         searchable_text = extracted_text
         if subject_name:
             searchable_text += f" Fach: {subject_name}"
-        if tag_list:
-            searchable_text += f" Tags: {' '.join(tag_list)}"
 
         embed_input = searchable_text[:EMBED_TEXT_MAX_CHARS]
         snippet = searchable_text[:SNIPPET_MAX_CHARS]

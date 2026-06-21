@@ -33,7 +33,6 @@ export interface Document {
   file_url?: string
   file_size?: number
   created_at?: string
-  tags?: string[]
   category_id?: number
   subject_id?: number
   category?: Category
@@ -65,7 +64,6 @@ export interface SearchResponse {
 export interface UploadMetadata {
   category_id: string | null
   subject_id: string | null
-  tags: string | null
 }
 
 // --- Breadcrumb ---

@@ -56,7 +56,6 @@ export const api = {
     formData.append('file', file)
     if (metadata?.category_id) formData.append('category_id', metadata.category_id)
     if (metadata?.subject_id) formData.append('subject_id', metadata.subject_id)
-    if (metadata?.tags) formData.append('tags', metadata.tags)
     return authedFetch(`${API_BASE_URL}/documents/upload`, { method: 'POST', body: formData }).then(handleResponse<Document>)
   },
 
