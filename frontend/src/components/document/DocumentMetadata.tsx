@@ -2,8 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { FileText, Calendar, Tag, Folder, BookOpen, HardDrive } from 'lucide-react'
+import { FileText, Calendar, Folder, BookOpen, HardDrive } from 'lucide-react'
 import { formatDate, formatFileSize } from '@/lib/utils'
 import type { Document } from '@/types'
 import type { LucideIcon } from 'lucide-react'
@@ -46,20 +45,6 @@ export function DocumentMetadata({ document }: DocumentMetadataProps) {
             )
           })}
         </div>
-
-        {document.tags && document.tags.length > 0 && (
-          <div className="flex items-start gap-3 pt-2">
-            <Tag className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-muted-foreground mb-2">{t('document.tags')}</div>
-              <div className="flex flex-wrap gap-1">
-                {document.tags.map((tag, i) => (
-                  <Badge key={i} variant="secondary">{tag}</Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

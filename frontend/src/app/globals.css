@@ -46,73 +46,76 @@
 
 :root {
   --radius: 0.625rem;
-  /* StudyBuddy Light Mode */
-  --background: #F8F7FC;
-  --foreground: #1E1B2E;
+  /* StudyBuddy Light Mode — warm-neutral surfaces, violet only as accent.
+     Mirrors the dark palette: low-saturation backgrounds, slightly-soft text
+     (#1F2024 instead of pure black) for comfortable long reading. */
+  --background: #FAFAFA;
+  --foreground: #1F2024;
   --card: #FFFFFF;
-  --card-foreground: #1E1B2E;
+  --card-foreground: #1F2024;
   --popover: #FFFFFF;
-  --popover-foreground: #1E1B2E;
-  --primary: #6C63FF;
+  --popover-foreground: #1F2024;
+  --primary: #6C63FF; /* violet accent — the one branded colour */
   --primary-foreground: #FFFFFF;
-  --secondary: #E5E3F0;
-  --secondary-foreground: #1E1B2E;
-  --muted: #E5E3F0;
-  --muted-foreground: #646176;
-  --accent: #E5E3F0;
-  --accent-foreground: #1E1B2E;
+  --secondary: #F0F0F2;
+  --secondary-foreground: #1F2024;
+  --muted: #F0F0F2;
+  --muted-foreground: #6B6B72; /* neutral grey, AA on white for secondary text */
+  --accent: #F0F0F2;
+  --accent-foreground: #1F2024;
   --destructive: #dc2626;
-  --border: #E5E3F0;
-  --input: #FFFFFF;
+  --border: #E6E6EA;
+  --input: #D8D8DE;
   --ring: #6C63FF;
-  --chart-1: #e06c2b;
+  --chart-1: #6C63FF;
   --chart-2: #3aa88a;
   --chart-3: #2a5fa3;
   --chart-4: #d4b84a;
   --chart-5: #c97c2e;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #1E1B2E;
+  --sidebar-foreground: #1F2024;
   --sidebar-primary: #6C63FF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E5E3F0;
-  --sidebar-accent-foreground: #1E1B2E;
-  --sidebar-border: #E5E3F0;
+  --sidebar-accent: #F0F0F2;
+  --sidebar-accent-foreground: #1F2024;
+  --sidebar-border: #E6E6EA;
   --sidebar-ring: #6C63FF;
 }
 
 .dark {
-  /* StudyBuddy Dark Mode */
-  --background: #12101C;
-  --foreground: #FAF9FE;
-  --card: #1B1929;
-  --card-foreground: #FAF9FE;
-  --popover: #1B1929;
-  --popover-foreground: #FAF9FE;
-  --primary: #6C63FF;
+  /* StudyBuddy Dark Mode — warm-neutral slate surfaces, violet only as accent.
+     Tuned for long reading sessions: low-saturation backgrounds, high-contrast text. */
+  --background: #18191C;
+  --foreground: #E6E7EA;
+  --card: #1F2024;
+  --card-foreground: #E6E7EA;
+  --popover: #1F2024;
+  --popover-foreground: #E6E7EA;
+  --primary: #8B83FF; /* violet accent — the one branded colour on dark */
   --primary-foreground: #FFFFFF;
-  --secondary: #2D2A42;
-  --secondary-foreground: #FAF9FE;
-  --muted: #2D2A42;
-  --muted-foreground: #928FAB;
-  --accent: #2D2A42;
-  --accent-foreground: #FAF9FE;
-  --destructive: #ef4444;
-  --border: #2D2A42;
-  --input: #1B1929;
-  --ring: #6C63FF;
-  --chart-1: #5b6cf5;
+  --secondary: #26272C;
+  --secondary-foreground: #E6E7EA;
+  --muted: #26272C;
+  --muted-foreground: #9B9CA3; /* neutral grey, ~AA on card for secondary text */
+  --accent: #2E2F35;
+  --accent-foreground: #E6E7EA;
+  --destructive: #F26D6D;
+  --border: #2E2F35;
+  --input: #3A3B42;
+  --ring: #8B83FF;
+  --chart-1: #8B83FF;
   --chart-2: #4ab89a;
   --chart-3: #c97c2e;
   --chart-4: #b84fd4;
   --chart-5: #e05252;
-  --sidebar: #1B1929;
-  --sidebar-foreground: #FAF9FE;
-  --sidebar-primary: #6C63FF;
+  --sidebar: #1F2024;
+  --sidebar-foreground: #E6E7EA;
+  --sidebar-primary: #8B83FF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #2D2A42;
-  --sidebar-accent-foreground: #FAF9FE;
-  --sidebar-border: #2D2A42;
-  --sidebar-ring: #6C63FF;
+  --sidebar-accent: #2E2F35;
+  --sidebar-accent-foreground: #E6E7EA;
+  --sidebar-border: #2E2F35;
+  --sidebar-ring: #8B83FF;
 }
 
 @layer base {
@@ -120,6 +123,14 @@
     @apply border-border outline-ring/50 transition-colors duration-150;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -9,8 +9,8 @@
     "text": "Startup Projekt · FH Joanneum"
   },
   "search": {
-    "heading": "Schnell die richtigen Unterlagen finden",
-    "subheading": "Finde schnell die richtigen Inhalte - beschreib einfach was du lernen willst",
+    "heading": "Finde die richtigen Lernmaterialien",
+    "subheading": "Beschreibe einfach, was du lernen möchtest.",
     "placeholder": "z.B. 'Sortieralgorithmen', 'Python Funktionen', 'Lineare Algebra'...",
     "filterLabel": "Filter",
     "semester": "Semester",
@@ -25,7 +25,14 @@
     "noResultsHint": "Versuche andere Suchbegriffe oder lade neue Dokumente hoch.",
     "matchScore": "Match Score",
     "showDetails": "Details anzeigen",
-    "error": "Suchfehler"
+    "error": "Suchfehler",
+    "recentSearches": "Zuletzt gesucht",
+    "match": "Match",
+    "download": "Herunterladen",
+    "bookmark": "Merken",
+    "bookmarked": "Gemerkt",
+    "viewDocument": "Dokument öffnen",
+    "resultsFor": "für „{query}“"
   },
   "features": {
     "semanticSearch": "Semantische Suche",
@@ -45,9 +52,6 @@
     "subject": "Fach",
     "selectSubject": "Fach wählen",
     "selectSemesterFirst": "Erst Semester wählen",
-    "tags": "Tags",
-    "tagsPlaceholder": "z.B. wichtig, klausurrelevant",
-    "tagsHint": "Kommagetrennt",
     "submit": "Hochladen",
     "uploading": "Wird hochgeladen...",
     "errorFileType": "Dateityp {ext} nicht erlaubt. Erlaubt: {allowed}",
@@ -64,7 +68,6 @@
     "semester": "Semester",
     "uploaded": "Hochgeladen",
     "fileSize": "Dateigröße",
-    "tags": "Tags",
     "actions": "Aktionen",
     "download": "Herunterladen",
     "shareVia": "Teilen via",
@@ -74,7 +77,9 @@
     "previewUnavailableUrl": "Datei-URL nicht verfügbar",
     "previewUnavailable": "Vorschau konnte nicht geladen werden. Bitte verwenden Sie den Download-Button.",
     "previewTypeUnsupported": "Vorschau für diesen Dateityp nicht verfügbar. Bitte verwenden Sie den Download-Button.",
-    "loadingPreview": "Lade Vorschau..."
+    "loadingPreview": "Lade Vorschau...",
+    "expand": "Vollbild",
+    "collapse": "Vollbild verlassen"
   },
   "browse": {
     "loading": "Lade...",
@@ -514,5 +519,12 @@
     "guard": {
       "loading": "Lade..."
     }
+  },
+  "bookmarks": {
+    "title": "Gemerkte Dokumente",
+    "empty": "Noch nichts gemerkt",
+    "emptyHint": "Tippe bei einem Suchergebnis auf das Lesezeichen, um es hier zu speichern.",
+    "remove": "Entfernen",
+    "open": "Öffnen"
   }
 }

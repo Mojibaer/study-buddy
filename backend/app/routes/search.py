@@ -14,6 +14,7 @@ from app.core.dependencies import (
 from app.database.database import get_db
 from app.database.models import Document, Subject, User
 from app.services.embedding import EmbeddingProvider
+from app.services.minio_service import get_presigned_url
 from app.services.weaviate_service import WeaviateService
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,7 @@ async def semantic_search(
                 "original_filename": doc.original_filename,
                 "file_type": doc.file_type,
                 "file_size": doc.file_size,
-                "file_url": doc.file_url,
+                "file_url": get_presigned_url(doc.filename) if doc.filename else doc.file_url,
                 "category": {"id": doc.category.id, "name": doc.category.name} if doc.category else None,
                 "subject": {
                     "id": doc.subject.id,

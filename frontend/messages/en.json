@@ -9,8 +9,8 @@
     "text": "Startup Project · FH Joanneum"
   },
   "search": {
-    "heading": "Find the right study materials fast",
-    "subheading": "Quickly find the right content — just describe what you want to learn",
+    "heading": "Find the right study materials",
+    "subheading": "Just describe what you want to learn.",
     "placeholder": "e.g. 'Sorting algorithms', 'Python functions', 'Linear algebra'...",
     "filterLabel": "Filter",
     "semester": "Semester",
@@ -25,7 +25,14 @@
     "noResultsHint": "Try different search terms or upload new documents.",
     "matchScore": "Match Score",
     "showDetails": "Show details",
-    "error": "Search error"
+    "error": "Search error",
+    "recentSearches": "Recent searches",
+    "match": "Match",
+    "download": "Download",
+    "bookmark": "Bookmark",
+    "bookmarked": "Bookmarked",
+    "viewDocument": "Open document",
+    "resultsFor": "for “{query}”"
   },
   "features": {
     "semanticSearch": "Semantic Search",
@@ -45,9 +52,6 @@
     "subject": "Subject",
     "selectSubject": "Select subject",
     "selectSemesterFirst": "Select semester first",
-    "tags": "Tags",
-    "tagsPlaceholder": "e.g. important, exam-relevant",
-    "tagsHint": "Comma-separated",
     "submit": "Upload",
     "uploading": "Uploading...",
     "errorFileType": "File type {ext} not allowed. Allowed: {allowed}",
@@ -64,7 +68,6 @@
     "semester": "Semester",
     "uploaded": "Uploaded",
     "fileSize": "File size",
-    "tags": "Tags",
     "actions": "Actions",
     "download": "Download",
     "shareVia": "Share via",
@@ -74,7 +77,9 @@
     "previewUnavailableUrl": "File URL not available",
     "previewUnavailable": "Preview could not be loaded. Please use the download button.",
     "previewTypeUnsupported": "Preview not available for this file type. Please use the download button.",
-    "loadingPreview": "Loading preview..."
+    "loadingPreview": "Loading preview...",
+    "expand": "Fullscreen",
+    "collapse": "Exit fullscreen"
   },
   "browse": {
     "loading": "Loading...",
@@ -514,5 +519,12 @@
     "guard": {
       "loading": "Loading..."
     }
+  },
+  "bookmarks": {
+    "title": "Saved documents",
+    "empty": "Nothing saved yet",
+    "emptyHint": "Tap the bookmark on a search result to save it here.",
+    "remove": "Remove",
+    "open": "Open"
   }
 }

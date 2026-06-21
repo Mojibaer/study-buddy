@@ -14,7 +14,7 @@ import {
 import { UploadForm } from '@/components/upload/UploadForm'
 
 const pillClass =
-  'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card text-sm text-foreground hover:bg-accent transition-colors'
+  'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary/40 bg-card text-sm text-foreground hover:border-primary/60 hover:bg-accent transition-colors'
 
 export function UploadDialog() {
   const [open, setOpen] = useState(false)

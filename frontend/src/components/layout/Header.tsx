@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { UserPreferencesMenu } from '@/components/layout/UserPreferencesMenu'
+import { SavedSidebar } from '@/components/layout/SavedSidebar'
 
 export function Header() {
   return (
@@ -11,7 +12,10 @@ export function Header() {
           <span className="text-xl font-bold">StudyBuddy</span>
         </Link>
 
-        <UserPreferencesMenu />
+        <div className="flex items-center gap-1">
+          <SavedSidebar />
+          <UserPreferencesMenu />
+        </div>
       </div>
     </header>
   )

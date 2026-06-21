@@ -45,7 +45,6 @@ async def upload_document(
     file: UploadFile = File(...),
     category_id: int | None = Form(None),
     subject_id: int | None = Form(None),
-    tags: str | None = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
     provider: EmbeddingProvider = Depends(get_embedding_provider),
@@ -84,7 +83,6 @@ async def upload_document(
     )
 
     extracted_text = extract_text_from_bytes(file_content, file_ext)
-    tag_list = [tag.strip() for tag in tags.split(",")] if tags else []
 
     db_document = Document(
         filename=object_key,
@@ -117,8 +115,6 @@ async def upload_document(
         searchable_text = extracted_text
         if subject_name:
             searchable_text += f" Fach: {subject_name}"
-        if tag_list:
-            searchable_text += f" Tags: {' '.join(tag_list)}"
 
         embed_input = searchable_text[:EMBED_TEXT_MAX_CHARS]
         snippet = searchable_text[:SNIPPET_MAX_CHARS]
@@ -145,6 +141,16 @@ async def upload_document(
     return db_document
 
 
+def _with_presigned_url(document: Document) -> Document:
+    """Replace the stored (raw, private-bucket) file_url with a fresh presigned
+    URL so the frontend can actually fetch the object (preview/inline view).
+    Signed per-request, so it never expires from the consumer's perspective.
+    The DB column keeps the raw URL; only the response is rewritten."""
+    if document is not None and document.filename:
+        document.file_url = get_presigned_url(document.filename)
+    return document
+
+
 async def _load_document_with_relations(db: AsyncSession, document_id: int) -> Document:
     result = await db.execute(
         select(Document)
@@ -154,7 +160,7 @@ async def _load_document_with_relations(db: AsyncSession, document_id: int) -> D
         )
         .filter(Document.id == document_id)
     )
-    return result.scalars().first()
+    return _with_presigned_url(result.scalars().first())
 
 
 @router.get("/", response_model=list[DocumentResponse])
@@ -178,7 +184,7 @@ async def list_documents(
         query = query.join(Subject).filter(Subject.semester_id == semester_id)
 
     result = await db.execute(query)
-    return result.scalars().all()
+    return [_with_presigned_url(doc) for doc in result.scalars().all()]
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)

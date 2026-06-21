@@ -4,6 +4,7 @@ import type {
   SearchFilters,
   SearchResponse,
   UploadMetadata,
+  BookmarkListResponse,
 } from '@/types'
 import { authedFetch } from '@/lib/auth/authClient'
 
@@ -55,10 +56,19 @@ export const api = {
     formData.append('file', file)
     if (metadata?.category_id) formData.append('category_id', metadata.category_id)
     if (metadata?.subject_id) formData.append('subject_id', metadata.subject_id)
-    if (metadata?.tags) formData.append('tags', metadata.tags)
     return authedFetch(`${API_BASE_URL}/documents/upload`, { method: 'POST', body: formData }).then(handleResponse<Document>)
   },
 
   deleteDocument: (id: string | number): Promise<void> =>
     authedFetch(`${API_BASE_URL}/documents/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
+
+  // Bookmarks
+  getBookmarks: (): Promise<BookmarkListResponse> =>
+    authedFetch(`${API_BASE_URL}/bookmarks`).then(handleResponse<BookmarkListResponse>),
+
+  addBookmark: (id: number): Promise<void> =>
+    authedFetch(`${API_BASE_URL}/bookmarks/${id}`, { method: 'POST' }).then(handleResponse<void>),
+
+  removeBookmark: (id: number): Promise<void> =>
+    authedFetch(`${API_BASE_URL}/bookmarks/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
 }

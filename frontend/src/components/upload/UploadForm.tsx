@@ -26,7 +26,6 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   const [categoryId, setCategoryId] = useState('')
   const [subjectId, setSubjectId] = useState('')
   const [semesterId, setSemesterId] = useState('')
-  const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const t = useTranslations()
@@ -61,13 +60,11 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
       await api.uploadDocument(file, {
         category_id: categoryId || null,
         subject_id: subjectId || null,
-        tags: tags || null,
       })
       setFile(null)
       setCategoryId('')
       setSubjectId('')
       setSemesterId('')
-      setTags('')
       onSuccess?.()
     } catch (err) {
       setError((err as Error).message)
@@ -137,12 +134,6 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label>{t('upload.tags')}</Label>
-        <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t('upload.tagsPlaceholder')} />
-        <p className="text-xs text-muted-foreground">{t('upload.tagsHint')}</p>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
