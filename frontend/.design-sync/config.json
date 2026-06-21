@@ -1,0 +1,23 @@
+{
+  "projectId": "97d03bc8-b143-4e88-ab59-8f22678ba9d9",
+  "shape": "package",
+  "pkg": "study-buddy",
+  "globalName": "StudyBuddyUI",
+  "buildCmd": "bun run build:lib",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".design-sync/assets/ds-tailwind.css",
+  "runtimeFontPrefixes": ["Plus Jakarta Sans", "Geist Mono", "Geist"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "Dialog": { "cardMode": "single", "viewport": "560x420" },
+    "Sheet": { "cardMode": "single", "viewport": "560x460" },
+    "DropdownMenu": { "cardMode": "single", "viewport": "360x320" },
+    "Popover": { "cardMode": "single", "viewport": "360x320" },
+    "Select": { "cardMode": "single", "viewport": "360x420" },
+    "Table": { "cardMode": "column" },
+    "Card": { "cardMode": "column" },
+    "InputGroup": { "cardMode": "column" },
+    "Separator": { "cardMode": "column" },
+    "Textarea": { "cardMode": "column" }
+  }
+}

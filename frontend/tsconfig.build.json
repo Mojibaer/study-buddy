@@ -1,0 +1,10 @@
+{
+  // Used only by the tsup library build (build:lib) for .d.ts emit.
+  // Inherits the app tsconfig but disables options that break tsc's DTS step.
+  // The Next.js app never reads this file.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "ignoreDeprecations": "6.0"
+  }
+}

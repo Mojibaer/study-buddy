@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Pagination,
   PaginationContent,
@@ -14,8 +12,18 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { FileText, Calendar, Tag, ExternalLink } from 'lucide-react'
+import {
+  FileText,
+  FolderOpen,
+  BookOpen,
+  Calendar,
+  Bookmark,
+  Download,
+  ChevronRight,
+} from 'lucide-react'
 import { RESULTS_PER_PAGE } from '@/lib/constants'
+import { cn, calculateMatchScore, matchScoreBadgeClass, fileTypeIconClass } from '@/lib/utils'
+import { useBookmarks } from '@/providers/BookmarksProvider'
 import type { SearchResponse, SearchResult } from '@/types'
 
 interface SearchResultsProps {
@@ -37,22 +45,25 @@ export function SearchResults({ results }: SearchResultsProps) {
   const paginatedResults = results.results.slice(startIndex, startIndex + RESULTS_PER_PAGE)
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold">
-        {t('search.results', { count: results.total_results, query: results.query })}
-      </h3>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold tracking-tight">
+          {t('search.results', { count: results.total_results, query: results.query })}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          {t('search.resultsFor', { query: results.query })}
+        </p>
+      </div>
 
       {results.results.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6 text-center text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>{t('search.noResults')}</p>
-            <p className="text-sm mt-2">{t('search.noResultsHint')}</p>
-          </CardContent>
+        <Card className="p-8 text-center text-muted-foreground">
+          <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>{t('search.noResults')}</p>
+          <p className="text-sm mt-2">{t('search.noResultsHint')}</p>
         </Card>
       ) : (
         <>
-          <div className="grid gap-4">
+          <div className="space-y-3">
             {paginatedResults.map((result) => (
               <ResultCard key={result.document.id} result={result} />
             ))}
@@ -63,7 +74,7 @@ export function SearchResults({ results }: SearchResultsProps) {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                   />
                 </PaginationItem>
@@ -80,7 +91,7 @@ export function SearchResults({ results }: SearchResultsProps) {
                 ))}
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                   />
                 </PaginationItem>
@@ -96,55 +107,101 @@ export function SearchResults({ results }: SearchResultsProps) {
 function ResultCard({ result }: { result: SearchResult }) {
   const t = useTranslations()
   const { document } = result
+  const { isBookmarked, toggle } = useBookmarks()
+
+  const title = document.original_filename || document.filename
+  const score = calculateMatchScore(result.distance)
+  const bookmarked = isBookmarked(document.id)
+
+  const handleDownload = () => {
+    if (document.file_url) window.open(document.file_url, '_blank')
+  }
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          {document.original_filename || document.filename}
-        </CardTitle>
-        <CardDescription>
-          {t('search.matchScore')}: {((1 - result.distance) * 100).toFixed(1)}%
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-          {document.category?.name && (
-            <div className="flex items-center gap-1">
-              <Tag className="w-3 h-3" />
-              <span>{document.category.name}</span>
-            </div>
+    <Card className="group p-4 transition-shadow hover:shadow-md">
+      <div className="flex items-start gap-4">
+        {/* File-type icon tile */}
+        <div
+          className={cn(
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg',
+            fileTypeIconClass(document.file_type, document.filename),
           )}
-          {document.subject?.name && (
-            <div className="flex items-center gap-1">
-              <FileText className="w-3 h-3" />
-              <span>{document.subject.name}</span>
-            </div>
-          )}
-          {document.subject?.semester?.name && (
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              <span>{document.subject.semester.name}</span>
-            </div>
-          )}
+        >
+          <FileText className="h-5 w-5" />
         </div>
 
-        {document.tags && document.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {document.tags.map((tag, i) => (
-              <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
-            ))}
+        {/* Main content */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <Link
+              href={`/documents/${document.id}`}
+              className="truncate font-semibold hover:underline"
+              title={title}
+            >
+              {title}
+            </Link>
+            <span
+              className={cn(
+                'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
+                matchScoreBadgeClass(result.distance),
+              )}
+            >
+              {score}% {t('search.match')}
+            </span>
           </div>
-        )}
 
-        <Link href={`/documents/${document.id}`}>
-          <Button variant="outline" className="w-full mt-2">
-            {t('search.showDetails')}
-            <ExternalLink className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </CardContent>
+          {/* Meta row — one line on desktop, wraps only when it truly doesn't fit (mobile) */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            {document.category?.name && (
+              <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+                <FolderOpen className="h-3.5 w-3.5 shrink-0" />
+                {document.category.name}
+              </span>
+            )}
+            {document.subject?.name && (
+              <span className="flex min-w-0 items-center gap-1.5">
+                <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{document.subject.name}</span>
+              </span>
+            )}
+            {document.subject?.semester?.name && (
+              <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                {document.subject.semester.name}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => toggle(document)}
+            aria-pressed={bookmarked}
+            title={t(bookmarked ? 'search.bookmarked' : 'search.bookmark')}
+            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <Bookmark className={cn('h-4 w-4', bookmarked && 'fill-primary text-primary')} />
+          </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={!document.file_url}
+            title={t('search.download')}
+            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          <Link
+            href={`/documents/${document.id}`}
+            title={t('search.viewDocument')}
+            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
     </Card>
   )
 }

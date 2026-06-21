@@ -4,6 +4,7 @@ import type {
   SearchFilters,
   SearchResponse,
   UploadMetadata,
+  BookmarkListResponse,
 } from '@/types'
 import { authedFetch } from '@/lib/auth/authClient'
 
@@ -61,4 +62,14 @@ export const api = {
 
   deleteDocument: (id: string | number): Promise<void> =>
     authedFetch(`${API_BASE_URL}/documents/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
+
+  // Bookmarks
+  getBookmarks: (): Promise<BookmarkListResponse> =>
+    authedFetch(`${API_BASE_URL}/bookmarks`).then(handleResponse<BookmarkListResponse>),
+
+  addBookmark: (id: number): Promise<void> =>
+    authedFetch(`${API_BASE_URL}/bookmarks/${id}`, { method: 'POST' }).then(handleResponse<void>),
+
+  removeBookmark: (id: number): Promise<void> =>
+    authedFetch(`${API_BASE_URL}/bookmarks/${id}`, { method: 'DELETE' }).then(handleResponse<void>),
 }

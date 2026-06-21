@@ -9,8 +9,8 @@
     "text": "Startup Project · FH Joanneum"
   },
   "search": {
-    "heading": "Find the right study materials fast",
-    "subheading": "Quickly find the right content — just describe what you want to learn",
+    "heading": "Find the right study materials",
+    "subheading": "Just describe what you want to learn.",
     "placeholder": "e.g. 'Sorting algorithms', 'Python functions', 'Linear algebra'...",
     "filterLabel": "Filter",
     "semester": "Semester",
@@ -25,7 +25,14 @@
     "noResultsHint": "Try different search terms or upload new documents.",
     "matchScore": "Match Score",
     "showDetails": "Show details",
-    "error": "Search error"
+    "error": "Search error",
+    "recentSearches": "Recent searches",
+    "match": "Match",
+    "download": "Download",
+    "bookmark": "Bookmark",
+    "bookmarked": "Bookmarked",
+    "viewDocument": "Open document",
+    "resultsFor": "for “{query}”"
   },
   "features": {
     "semanticSearch": "Semantic Search",
@@ -514,5 +521,12 @@
     "guard": {
       "loading": "Loading..."
     }
+  },
+  "bookmarks": {
+    "title": "Saved documents",
+    "empty": "Nothing saved yet",
+    "emptyHint": "Tap the bookmark on a search result to save it here.",
+    "remove": "Remove",
+    "open": "Open"
   }
 }

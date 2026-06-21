@@ -29,6 +29,7 @@ export interface Document {
   id: number
   filename: string
   original_filename?: string
+  file_type?: string
   file_url?: string
   file_size?: number
   created_at?: string
@@ -81,4 +82,9 @@ export interface FolderItem {
   label: string
   href: string
   count?: number
+}
+
+export interface BookmarkListResponse {
+  document_ids: number[]
+  documents: Document[]
 }

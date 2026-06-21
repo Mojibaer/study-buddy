@@ -63,7 +63,7 @@
   --accent-foreground: #1E1B2E;
   --destructive: #dc2626;
   --border: #E5E3F0;
-  --input: #FFFFFF;
+  --input: #C9C5DE;
   --ring: #6C63FF;
   --chart-1: #e06c2b;
   --chart-2: #3aa88a;
@@ -82,37 +82,37 @@
 
 .dark {
   /* StudyBuddy Dark Mode */
-  --background: #12101C;
-  --foreground: #FAF9FE;
-  --card: #1B1929;
-  --card-foreground: #FAF9FE;
-  --popover: #1B1929;
-  --popover-foreground: #FAF9FE;
-  --primary: #6C63FF;
+  --background: #211D33;
+  --foreground: #ECEAF6;
+  --card: #2A2541;
+  --card-foreground: #ECEAF6;
+  --popover: #2A2541;
+  --popover-foreground: #ECEAF6;
+  --primary: #7C75FF; /* leicht heller als #6C63FF → bessere Lesbarkeit auf dunkel */
   --primary-foreground: #FFFFFF;
-  --secondary: #2D2A42;
-  --secondary-foreground: #FAF9FE;
-  --muted: #2D2A42;
-  --muted-foreground: #928FAB;
-  --accent: #2D2A42;
-  --accent-foreground: #FAF9FE;
-  --destructive: #ef4444;
-  --border: #2D2A42;
-  --input: #1B1929;
-  --ring: #6C63FF;
+  --secondary: #332E4C;
+  --secondary-foreground: #ECEAF6;
+  --muted: #332E4C;
+  --muted-foreground: #A8A3C6;
+  --accent: #3A3556;
+  --accent-foreground: #ECEAF6;
+  --destructive: #F26D6D;
+  --border: #393452;
+  --input: #433D60;
+  --ring: #7C75FF;
   --chart-1: #5b6cf5;
   --chart-2: #4ab89a;
   --chart-3: #c97c2e;
   --chart-4: #b84fd4;
   --chart-5: #e05252;
-  --sidebar: #1B1929;
-  --sidebar-foreground: #FAF9FE;
-  --sidebar-primary: #6C63FF;
+  --sidebar: #2A2541;
+  --sidebar-foreground: #ECEAF6;
+  --sidebar-primary: #7C75FF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #2D2A42;
-  --sidebar-accent-foreground: #FAF9FE;
-  --sidebar-border: #2D2A42;
-  --sidebar-ring: #6C63FF;
+  --sidebar-accent: #3A3556;
+  --sidebar-accent-foreground: #ECEAF6;
+  --sidebar-border: #393452;
+  --sidebar-ring: #7C75FF;
 }
 
 @layer base {
@@ -120,6 +120,14 @@
     @apply border-border outline-ring/50 transition-colors duration-150;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

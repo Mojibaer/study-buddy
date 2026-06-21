@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { FiltersProvider } from "@/providers/FiltersProvider";
+import { BookmarksProvider } from "@/providers/BookmarksProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import type { Metadata } from "next";
@@ -34,7 +35,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <NextIntlClientProvider messages={messages}>
             <AuthProvider>
               <FiltersProvider>
-                {children}
+                <BookmarksProvider>
+                  {children}
+                </BookmarksProvider>
               </FiltersProvider>
             </AuthProvider>
           </NextIntlClientProvider>
