@@ -4,13 +4,85 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { FileText, AlertCircle } from 'lucide-react'
-import { getFileViewerUrl } from '@/lib/utils'
+import { FileText, AlertCircle, Maximize2, Minimize2 } from 'lucide-react'
+import { getFileViewerUrl, cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import type { Document } from '@/types'
 
 interface FilePreviewProps {
   document: Document
+}
+
+/**
+ * Wraps the preview body in either a normal Card or — when fullscreen — a
+ * fixed overlay that fills the viewport with a small inset margin. Escape
+ * exits fullscreen. `fullHeight` lets the body grow to fill the overlay.
+ */
+function PreviewShell({
+  children,
+  showExpand = false,
+}: {
+  children: (fullscreen: boolean) => React.ReactNode
+  showExpand?: boolean
+}) {
+  const [fullscreen, setFullscreen] = useState(false)
+  const t = useTranslations()
+
+  useEffect(() => {
+    if (!fullscreen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFullscreen(false)
+    window.addEventListener('keydown', onKey)
+    // Lock body scroll while the overlay is open.
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [fullscreen])
+
+  const header = (
+    <div className="flex items-center justify-between">
+      <CardTitle className="flex items-center gap-2">
+        <FileText className="w-5 h-5" />
+        {t('document.preview')}
+      </CardTitle>
+      {showExpand && (
+        <button
+          type="button"
+          onClick={() => setFullscreen((v) => !v)}
+          aria-label={t(fullscreen ? 'document.collapse' : 'document.expand')}
+          title={t(fullscreen ? 'document.collapse' : 'document.expand')}
+          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        </button>
+      )}
+    </div>
+  )
+
+  if (fullscreen) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex bg-background/80 backdrop-blur-sm p-4 sm:p-6"
+        onClick={() => setFullscreen(false)}
+      >
+        <Card
+          className="m-auto flex h-full w-full max-w-6xl flex-col overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CardHeader className="shrink-0">{header}</CardHeader>
+          <CardContent className="flex min-h-0 flex-1 flex-col">{children(true)}</CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>{header}</CardHeader>
+      <CardContent>{children(false)}</CardContent>
+    </Card>
+  )
 }
 
 export function FilePreview({ document }: FilePreviewProps) {
@@ -20,13 +92,6 @@ export function FilePreview({ document }: FilePreviewProps) {
   const fileName = document.original_filename || document.filename || ''
   const fileExtension = fileName.split('.').pop()?.toLowerCase()
   const viewerUrl = fileUrl ? getFileViewerUrl(fileUrl, fileExtension) : null
-
-  const previewTitle = (
-    <CardTitle className="flex items-center gap-2">
-      <FileText className="w-5 h-5" />
-      {t('document.preview')}
-    </CardTitle>
-  )
 
   if (!fileUrl) {
     return (
@@ -43,56 +108,72 @@ export function FilePreview({ document }: FilePreviewProps) {
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>{previewTitle}</CardHeader>
-        <CardContent>
+      <PreviewShell>
+        {() => (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{t('document.previewUnavailable')}</AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        )}
+      </PreviewShell>
     )
   }
 
   if (fileExtension === 'txt' || fileExtension === 'md') {
     return (
-      <Card>
-        <CardHeader>{previewTitle}</CardHeader>
-        <CardContent>
-          <TextFilePreview fileUrl={fileUrl} onError={() => setError(true)} isMarkdown={fileExtension === 'md'} />
-        </CardContent>
-      </Card>
+      <PreviewShell showExpand>
+        {(fullscreen) => (
+          <TextFilePreview
+            fileUrl={fileUrl}
+            onError={() => setError(true)}
+            isMarkdown={fileExtension === 'md'}
+            fullscreen={fullscreen}
+          />
+        )}
+      </PreviewShell>
     )
   }
 
   if (viewerUrl) {
     return (
-      <Card>
-        <CardHeader>{previewTitle}</CardHeader>
-        <CardContent>
-          <div className="w-full h-[600px] border rounded-lg overflow-hidden">
+      <PreviewShell showExpand>
+        {(fullscreen) => (
+          <div
+            className={cn(
+              'w-full border rounded-lg overflow-hidden',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+            )}
+          >
             <iframe src={viewerUrl} className="w-full h-full" onError={() => setError(true)} title="Document Preview" />
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </PreviewShell>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>{previewTitle}</CardHeader>
-      <CardContent>
+    <PreviewShell>
+      {() => (
         <Alert>
           <FileText className="h-4 w-4" />
           <AlertDescription>{t('document.previewTypeUnsupported')}</AlertDescription>
         </Alert>
-      </CardContent>
-    </Card>
+      )}
+    </PreviewShell>
   )
 }
 
-function TextFilePreview({ fileUrl, onError, isMarkdown }: { fileUrl: string; onError: () => void; isMarkdown: boolean }) {
+function TextFilePreview({
+  fileUrl,
+  onError,
+  isMarkdown,
+  fullscreen,
+}: {
+  fileUrl: string
+  onError: () => void
+  isMarkdown: boolean
+  fullscreen: boolean
+}) {
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(true)
   const t = useTranslations()
@@ -106,16 +187,22 @@ function TextFilePreview({ fileUrl, onError, isMarkdown }: { fileUrl: string; on
 
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t('document.loadingPreview')}</div>
 
+  // Height: fixed cap in card mode, fill the overlay in fullscreen.
+  const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
+
   if (isMarkdown) {
     return (
       <div
-        className="w-full max-h-[600px] overflow-auto p-4 prose dark:prose-invert max-w-none
-          prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl
-          prose-a:text-primary
-          prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5
-          prose-code:text-foreground prose-code:font-normal
-          prose-code:before:content-none prose-code:after:content-none
-          prose-pre:bg-muted prose-pre:text-foreground prose-pre:border prose-pre:border-border"
+        className={cn(
+          'w-full overflow-auto p-4 prose dark:prose-invert max-w-none',
+          'prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl',
+          'prose-a:text-primary',
+          'prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5',
+          'prose-code:text-foreground prose-code:font-normal',
+          'prose-code:before:content-none prose-code:after:content-none',
+          'prose-pre:bg-muted prose-pre:text-foreground prose-pre:border prose-pre:border-border',
+          heightClass,
+        )}
       >
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
@@ -123,7 +210,7 @@ function TextFilePreview({ fileUrl, onError, isMarkdown }: { fileUrl: string; on
   }
 
   return (
-    <div className="w-full max-h-[600px] overflow-auto">
+    <div className={cn('w-full overflow-auto', heightClass)}>
       <pre className="whitespace-pre-wrap text-sm p-4 bg-muted rounded-lg">{content}</pre>
     </div>
   )

@@ -77,7 +77,9 @@
     "previewUnavailableUrl": "Datei-URL nicht verfügbar",
     "previewUnavailable": "Vorschau konnte nicht geladen werden. Bitte verwenden Sie den Download-Button.",
     "previewTypeUnsupported": "Vorschau für diesen Dateityp nicht verfügbar. Bitte verwenden Sie den Download-Button.",
-    "loadingPreview": "Lade Vorschau..."
+    "loadingPreview": "Lade Vorschau...",
+    "expand": "Vollbild",
+    "collapse": "Vollbild verlassen"
   },
   "browse": {
     "loading": "Lade...",
