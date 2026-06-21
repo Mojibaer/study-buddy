@@ -13,8 +13,10 @@ const pillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card text-sm text-foreground hover:bg-accent transition-colors'
 
 // Primary-bordered variant for the main actions (Explore files / Upload).
+// Subtle accent — a hint of the brand violet, not a loud outline (reads well on
+// the neutral dark surfaces).
 const actionPillClass =
-  'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary bg-card text-sm text-foreground hover:bg-primary/10 transition-colors'
+  'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary/40 bg-card text-sm text-foreground hover:border-primary/60 hover:bg-accent transition-colors'
 
 export function SearchPage() {
   const { query, setQuery, results, loading, error, filters, setFilters, handleSearch } = useSearch()
