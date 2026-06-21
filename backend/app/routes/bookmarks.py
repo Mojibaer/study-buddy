@@ -8,6 +8,7 @@ from app.database.database import get_db
 from app.database.models import Bookmark, Document, Subject, User
 from app.repositories.crud import get_document_or_404
 from app.schemas.bookmark import BookmarkListResponse, BookmarkToggleResponse
+from app.services.minio_service import get_presigned_url
 
 # Per-user document bookmarks. Each route is scoped to the authenticated user —
 # a user can only ever see or mutate their own bookmarks.
@@ -33,6 +34,9 @@ async def list_bookmarks(
     )
     bookmarks = result.scalars().all()
     documents = [b.document for b in bookmarks if b.document is not None]
+    for doc in documents:
+        if doc.filename:
+            doc.file_url = get_presigned_url(doc.filename)
     return BookmarkListResponse(
         document_ids=[d.id for d in documents],
         documents=documents,
