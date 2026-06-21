@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
+import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +13,9 @@ import { GuestRoute } from '@/components/auth/GuestRoute'
 import { useAuth } from '@/providers/AuthProvider'
 
 const EMAIL_DOMAIN = '@edu.fh-joanneum.at'
+
+const AUTH_INPUT_CLASS =
+  'h-10 border-input/80 bg-card transition-colors hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/30 focus-visible:ring-[3px]'
 
 export default function RegisterPage() {
   return (
@@ -29,22 +33,34 @@ function RegisterForm() {
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
-  function validate(): string | null {
-    if (!email) return tv('emailRequired')
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return tv('emailInvalid')
-    if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) return tv('emailDomain')
-    return null
+  function clearFieldError(field: string): void {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
+  function validate(): Record<string, string> {
+    const errors: Record<string, string> = {}
+    if (!email) errors.email = tv('emailRequired')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = tv('emailInvalid')
+    else if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) errors.email = tv('emailDomain')
+    return errors
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault()
-    const validationError = validate()
-    if (validationError) {
-      setError(validationError)
+    const errors = validate()
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
       return
     }
+    setFieldErrors({})
     setSubmitting(true)
     setError(null)
     try {
@@ -85,6 +101,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" aria-hidden />
               <AlertTitle>{t('register.errorTitle')}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -97,10 +114,21 @@ function RegisterForm() {
               autoComplete="email"
               placeholder={t('register.emailPlaceholder')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearFieldError('email')
+              }}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               required
             />
+            {fieldErrors.email && (
+              <p id="email-error" className="text-sm text-destructive">
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? t('register.submitting') : t('register.submit')}

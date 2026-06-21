@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
+import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,9 @@ import { GuestRoute } from '@/components/auth/GuestRoute'
 import { useAuth } from '@/providers/AuthProvider'
 
 const EMAIL_DOMAIN = '@edu.fh-joanneum.at'
+
+const AUTH_INPUT_CLASS =
+  'h-10 border-input/80 bg-card transition-colors hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/30 focus-visible:ring-[3px]'
 
 export default function LoginPage() {
   return (
@@ -33,22 +37,34 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
-  function validate(): string | null {
-    if (!email) return tv('emailRequired')
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return tv('emailInvalid')
-    if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) return tv('emailDomain')
-    if (!password) return tv('passwordRequired')
-    return null
+  function clearFieldError(field: string): void {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
+  function validate(): Record<string, string> {
+    const errors: Record<string, string> = {}
+    if (!email) errors.email = tv('emailRequired')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = tv('emailInvalid')
+    else if (!email.toLowerCase().endsWith(EMAIL_DOMAIN)) errors.email = tv('emailDomain')
+    if (!password) errors.password = tv('passwordRequired')
+    return errors
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault()
-    const validationError = validate()
-    if (validationError) {
-      setError(validationError)
+    const errors = validate()
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
       return
     }
+    setFieldErrors({})
     setSubmitting(true)
     setError(null)
     try {
@@ -71,6 +87,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" aria-hidden />
               <AlertTitle>{t('login.errorTitle')}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -83,10 +100,21 @@ function LoginForm() {
               autoComplete="email"
               placeholder={t('login.emailPlaceholder')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearFieldError('email')
+              }}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               required
             />
+            {fieldErrors.email && (
+              <p id="email-error" className="text-sm text-destructive">
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">{t('login.passwordLabel')}</Label>
@@ -96,10 +124,21 @@ function LoginForm() {
               autoComplete="current-password"
               placeholder={t('login.passwordPlaceholder')}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                clearFieldError('password')
+              }}
               disabled={submitting}
+              className={AUTH_INPUT_CLASS}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? 'password-error' : undefined}
               required
             />
+            {fieldErrors.password && (
+              <p id="password-error" className="text-sm text-destructive">
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? t('login.submitting') : t('login.submit')}

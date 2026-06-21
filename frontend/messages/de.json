@@ -489,6 +489,7 @@
       "passwordLabel": "Passwort",
       "passwordPlaceholder": "Mindestens 12 Zeichen",
       "passwordConfirmLabel": "Passwort bestätigen",
+      "passwordConfirmPlaceholder": "Passwort wiederholen",
       "submit": "Konto erstellen",
       "submitting": "Wird erstellt...",
       "errorTitle": "Einrichtung fehlgeschlagen",
