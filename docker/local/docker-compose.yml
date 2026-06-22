@@ -95,6 +95,7 @@ services:
     build:
       context: ../../backend
       dockerfile: Dockerfile
+      target: dev
     container_name: studybuddy-local-backend
     restart: unless-stopped
     # Bind-mount the source for hot-reload. The anonymous volume keeps the
@@ -140,11 +141,13 @@ services:
     build:
       context: ../../frontend
       dockerfile: Dockerfile
+      target: dev
     container_name: studybuddy-local-frontend
     restart: unless-stopped
     volumes:
       - ../../frontend:/app
       - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
     ports:
       - "3000:3000"
     environment:
@@ -166,6 +169,7 @@ volumes:
     driver: local
   backend_venv:
   frontend_node_modules:
+  frontend_next:
 
 networks:
   studybuddy-local-network:

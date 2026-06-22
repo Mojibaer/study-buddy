@@ -6,50 +6,78 @@ on:
   release:
     types: [published]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ghcr.io/mojibaer/study-buddy
+
 jobs:
-  deploy-backend:
+  # push to main -> staging, release -> production
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.pick.outputs.env_name }}
+      tag: ${{ steps.pick.outputs.tag }}
+      deploy_dir: ${{ steps.pick.outputs.deploy_dir }}
+      compose_dir: ${{ steps.pick.outputs.compose_dir }}
+    steps:
+      - id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "env_name=production" >> "$GITHUB_OUTPUT"
+            echo "tag=prod" >> "$GITHUB_OUTPUT"
+            echo "deploy_dir=/home/studybuddy/production" >> "$GITHUB_OUTPUT"
+            echo "compose_dir=docker/server/prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "env_name=staging" >> "$GITHUB_OUTPUT"
+            echo "tag=staging" >> "$GITHUB_OUTPUT"
+            echo "deploy_dir=/home/studybuddy/staging" >> "$GITHUB_OUTPUT"
+            echo "compose_dir=docker/server/staging" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          target: prod
+          push: true
+          tags: ${{ env.IMAGE_BASE }}-${{ matrix.service }}:${{ needs.setup.outputs.tag }}
+          cache-from: type=gha,scope=${{ matrix.service }}-${{ needs.setup.outputs.tag }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}-${{ needs.setup.outputs.tag }}
+
+  deploy:
+    needs: [setup, build]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy backend
+      - name: Deploy to ${{ needs.setup.outputs.env_name }}
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            if [ "${{ github.event_name }}" = "release" ]; then
-              DIR=/home/studybuddy/live
-              SERVICE=studybuddy-backend
-            else
-              DIR=/home/studybuddy/staging
-              SERVICE=studybuddy-staging-backend
-            fi
-
-            cd $DIR/backend
+            set -e
+            cd ${{ needs.setup.outputs.deploy_dir }}
             git pull origin main
-            uv sync
-            sudo systemctl restart $SERVICE
-
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy frontend
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            if [ "${{ github.event_name }}" = "release" ]; then
-              DIR=/home/studybuddy/live
-              SERVICE=studybuddy-frontend
-            else
-              DIR=/home/studybuddy/staging
-              SERVICE=studybuddy-staging-frontend
-            fi
-
-            cd $DIR/frontend
-            git pull origin main
-            bun install --frozen-lockfile
-            bun run build
-            sudo systemctl restart $SERVICE
+            cd ${{ needs.setup.outputs.compose_dir }}
+            docker compose pull backend frontend
+            docker compose up -d
+            docker image prune -f
