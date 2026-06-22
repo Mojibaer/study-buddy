@@ -10,8 +10,7 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # No host port mapping — only the backend connects, over the internal network.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
@@ -26,9 +25,8 @@ services:
     restart: unless-stopped
     volumes:
       - weaviate_data:/var/lib/weaviate
-    ports:
-      - "8100:8080"
-      - "50051:50051"
+    # No host port mapping — only the backend reaches Weaviate, over the
+    # internal Docker network (weaviate:8080 / :50051).
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
@@ -50,8 +48,7 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
+    # No host port mapping — only the backend connects, over the internal network.
     networks:
       - studybuddy-network
 
