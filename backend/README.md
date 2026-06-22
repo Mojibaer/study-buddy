@@ -2,7 +2,20 @@
 
 FastAPI backend for document management, semantic search, and JWT authentication.
 
-## Prerequisites
+## Run with Docker (recommended)
+
+The backend has a `Dockerfile` and is wired into [docker/local/docker-compose.yml](../docker/local/docker-compose.yml). The simplest way to run it is the full stack — no local `uv` or `libmagic` needed:
+
+```bash
+cd docker/local
+docker compose up -d --build      # backend, frontend, and all infrastructure
+```
+
+The container installs dependencies, runs `alembic upgrade head` on start, and serves on `http://localhost:8001` with auto-reload (source is bind-mounted). See the [Local Testing Guide](../docs/local-testing-guide.md#option-a--docker-recommended) for the full Docker flow.
+
+The native setup below is for working deep in the code without containers.
+
+## Prerequisites (native)
 
 - [Python](https://www.python.org/downloads/) >= 3.13
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (package manager)
@@ -11,9 +24,9 @@ FastAPI backend for document management, semantic search, and JWT authentication
 - `openssl` (for generating `SECRET_KEY`)
 - Infrastructure running via Docker Compose — see [docker/local/](../docker/local/)
 
-OS-specific install commands for `make`, `libmagic`, and `openssl` are in the [Local Testing Guide](../docs/local-testing-guide.md#prerequisites).
+OS-specific install commands for `make`, `libmagic`, and `openssl` are in the [Local Testing Guide](../docs/local-testing-guide.md#option-b--native).
 
-## Setup
+## Setup (native)
 
 ```bash
 cd backend
