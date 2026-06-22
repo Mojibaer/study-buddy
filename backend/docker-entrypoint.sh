@@ -16,8 +16,8 @@ if [ -n "$INFISICAL_CLIENT_ID" ] && [ -n "$INFISICAL_CLIENT_SECRET" ]; then
     --projectId="$INFISICAL_PROJECT_ID" \
     --env="$INFISICAL_ENV" \
     --domain="$INFISICAL_API_URL" \
-    -- sh -c '.venv/bin/alembic upgrade head && exec .venv/bin/gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001'
+    -- sh -c 'alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8001 --workers 4'
 fi
 
-.venv/bin/alembic upgrade head
-exec .venv/bin/gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001
+alembic upgrade head
+exec uvicorn app.main:app --host 0.0.0.0 --port 8001 --workers 4
