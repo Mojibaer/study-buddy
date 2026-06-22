@@ -455,6 +455,27 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Configure dashboard preferences"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Platform usage and content coverage",
+      "stats": {
+        "totalDocuments": "Total documents",
+        "totalUsers": "Total users",
+        "totalStorage": "Storage used"
+      },
+      "uploadActivity": {
+        "title": "Upload activity",
+        "description": "Documents uploaded over the last 30 days",
+        "uploads": "Uploads"
+      },
+      "subjectCoverage": {
+        "title": "Document coverage by subject",
+        "description": "{count, plural, =0 {Every subject has documents} one {# subject has no documents yet} other {# subjects have no documents yet}}",
+        "documents": "Documents"
+      },
+      "states": { "loading": "Loading analytics…" },
+      "errors": { "loadTitle": "Could not load analytics", "retry": "Retry" }
     }
   },
   "auth": {

@@ -1,4 +1,5 @@
 import {
+    BarChart3,
     FileText,
     FolderTree,
     LayoutDashboard,
@@ -18,6 +19,7 @@ export const adminNavigation: readonly AdminNavItem[] = [
     {href: '/admin', labelKey: 'dashboard', icon: LayoutDashboard, exact: true},
     {href: '/admin/users', labelKey: 'users', icon: Users},
     {href: '/admin/documents', labelKey: 'documents', icon: FileText},
+    {href: '/admin/analytics', labelKey: 'analytics', icon: BarChart3},
     {href: '/admin/categories', labelKey: 'categories', icon: FolderTree},
     {href: '/admin/settings', labelKey: 'settings', icon: Settings},
 ] as const
