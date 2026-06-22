@@ -55,17 +55,41 @@ services:
     networks:
       - studybuddy-staging-network
 
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: studybuddy-staging-mailpit
+  backend:
+    image: ghcr.io/mojibaer/study-buddy-backend:staging
+    container_name: studybuddy-staging-backend
+    restart: unless-stopped
+    # Secrets are fetched at runtime by `infisical run` (entrypoint in the
+    # prod image). Only the Infisical connection details live here.
+    environment:
+      INFISICAL_API_URL: ${INFISICAL_API_URL}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID}
+      INFISICAL_ENV: staging
+      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID}
+      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET}
+    ports:
+      - "127.0.0.1:8002:8001"
+    # MinIO runs as a separate shared stack; reach it via the host's published port.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      weaviate:
+        condition: service_started
+    networks:
+      - studybuddy-staging-network
+
+  frontend:
+    image: ghcr.io/mojibaer/study-buddy-frontend:staging
+    container_name: studybuddy-staging-frontend
     restart: unless-stopped
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
-    environment:
-      MP_MAX_MESSAGES: 5000
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - backend
     networks:
       - studybuddy-staging-network
 
