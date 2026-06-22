@@ -18,6 +18,7 @@ from app.routes import (
     admin_documents,
     admin_users,
     admin_structure,
+    admin_analytics
 )
 from app.services.embedding import build_provider
 from app.services.weaviate_service import WeaviateService
@@ -72,6 +73,8 @@ app.include_router(weaviate_routes.router, prefix="/weaviate", tags=["Admin/Weav
 app.include_router(admin_documents.router, prefix="/admin/documents", tags=["Admin Documents"])
 app.include_router(admin_users.router, prefix="/admin/users", tags=["Admin Users"])
 app.include_router(admin_structure.router, prefix="/admin/structure", tags=["Admin Structure"])
+app.include_router(admin_analytics.router, prefix="/admin/analytics", tags=["Admin Analytics"])
+
 
 @app.get("/")
 def read_root():

@@ -97,3 +97,12 @@ def delete_file(object_key: str) -> bool:
         return True
     except S3Error as e:
         raise Exception(f"MinIO delete error: {e}")
+
+def get_bucket_size() -> int:
+    try:
+        if not minio_client.bucket_exists(MINIO_BUCKET):
+            return 0
+        objects = minio_client.list_objects(MINIO_BUCKET, recursive=True)
+        return sum(obj.size or 0 for obj in objects)
+    except S3Error as e:
+        raise Exception(f"MinIO size error: {e}")
