@@ -1,6 +1,6 @@
 import logging
 import os
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, urlunsplit
 from minio import Minio
 
 logger = logging.getLogger(__name__)
@@ -73,16 +73,26 @@ def upload_file(file_data: bytes, original_filename: str, content_type: str) -> 
         raise Exception(f"MinIO upload error: {e}")
 
 
+# Path prefix from MINIO_PUBLIC_URL (e.g. "/files"), lost by the Minio client
+# which only takes host:port. Re-inserted into presigned URLs below; Nginx
+# strips it again before MinIO, so the SigV4 signature stays valid.
+_public_prefix = _public.path.rstrip("/")
+
+
 def get_presigned_url(object_key: str, expires_hours: int = 1) -> str:
     """
     Generate a presigned URL for temporary file access.
     """
     try:
-        return minio_public_client.presigned_get_object(
+        url = minio_public_client.presigned_get_object(
             bucket_name=MINIO_BUCKET,
             object_name=object_key,
             expires=timedelta(hours=expires_hours)
         )
+        if _public_prefix:
+            parts = urlsplit(url)
+            url = urlunsplit(parts._replace(path=_public_prefix + parts.path))
+        return url
     except S3Error as e:
         raise Exception(f"MinIO presigned URL error: {e}")
 
