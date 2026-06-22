@@ -54,14 +54,24 @@ For a detailed overview of how the services interact, see [docs/architecture.md]
 
 ## Quick Start
 
+The whole stack — backend, frontend, and infrastructure — runs in Docker. You only need Docker and `openssl`; no local `uv`, `Bun`, `Make`, or `libmagic` required.
+
 ```bash
 git clone https://github.com/Mojibaer/study-buddy.git
 cd study-buddy
+
+# Configure environment (generate a 32+ char SECRET_KEY and paste it in)
+cp docker/local/.env-example docker/local/.env
+openssl rand -hex 32
+
+# Build and start everything (migrations run automatically)
+cd docker/local
+docker compose up -d --build
 ```
 
-Then follow the **[Local Testing Guide](docs/local-testing-guide.md)** — it walks
-through the full end-to-end setup (environment files, infrastructure, backend,
-frontend, admin bootstrap, and the auth flow).
+Then open http://localhost:3000.
+
+For the full walkthrough — including the native (non-Docker) setup, admin bootstrap, and the end-to-end auth flow — follow the **[Local Testing Guide](docs/local-testing-guide.md)**.
 
 For component-specific details, see also:
 
@@ -70,15 +80,12 @@ For component-specific details, see also:
 
 ## Prerequisites
 
+For the Docker quick start above:
+
 - [Docker](https://docs.docker.com/get-docker/) >= 24 + Docker Compose
-- [Python](https://www.python.org/downloads/) >= 3.13
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager)
-- [Bun](https://bun.sh/) (Frontend package manager)
-- GNU Make
-- `libmagic` (MIME-type detection on document upload)
 - `openssl` (for generating `SECRET_KEY`)
 
-OS-specific install commands for `make`, `libmagic`, and `openssl` are in the [Local Testing Guide](docs/local-testing-guide.md#prerequisites).
+Running backend/frontend natively (Option B in the guide) additionally needs `Python >= 3.13`, [uv](https://docs.astral.sh/uv/getting-started/installation/), [Bun](https://bun.sh/), GNU Make, and `libmagic`. OS-specific install commands are in the [Local Testing Guide](docs/local-testing-guide.md#option-b--native).
 
 ## Contributing
 

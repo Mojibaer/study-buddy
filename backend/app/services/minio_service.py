@@ -1,5 +1,6 @@
 import logging
 import os
+from urllib.parse import urlparse
 from minio import Minio
 
 logger = logging.getLogger(__name__)
@@ -14,11 +15,24 @@ MINIO_BUCKET = os.getenv("MINIO_BUCKET", "test-documents")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
 MINIO_PUBLIC_URL = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000")
 
+# For uploads/downloads from within the Docker network.
 minio_client = Minio(
     MINIO_ENDPOINT,
     access_key=MINIO_ACCESS_KEY,
     secret_key=MINIO_SECRET_KEY,
     secure=MINIO_SECURE
+)
+
+# For signing presigned URLs against the public host (SigV4 covers the Host
+# header, so we must sign against the host the browser calls). Region is
+# pinned to avoid a live region lookup the container can't reach.
+_public = urlparse(MINIO_PUBLIC_URL)
+minio_public_client = Minio(
+    _public.netloc,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY,
+    secure=_public.scheme == "https",
+    region=os.getenv("MINIO_REGION", "us-east-1"),
 )
 
 def get_file_url(object_key: str) -> str:
@@ -64,14 +78,11 @@ def get_presigned_url(object_key: str, expires_hours: int = 1) -> str:
     Generate a presigned URL for temporary file access.
     """
     try:
-        url = minio_client.presigned_get_object(
+        return minio_public_client.presigned_get_object(
             bucket_name=MINIO_BUCKET,
             object_name=object_key,
             expires=timedelta(hours=expires_hours)
         )
-        internal_url = f"{'https' if MINIO_SECURE else 'http'}://{MINIO_ENDPOINT}"
-        url = url.replace(internal_url, MINIO_PUBLIC_URL)
-        return url
     except S3Error as e:
         raise Exception(f"MinIO presigned URL error: {e}")
 
