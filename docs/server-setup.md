@@ -2,23 +2,25 @@
 
 ## Overview
 
-Study Buddy runs on a Strato VPS. Backend and frontend are deployed as systemd services behind Nginx. Infrastructure services (PostgreSQL, Redis, Weaviate, MinIO) run as Docker containers.
+Study Buddy runs on a Strato VPS. Backend, frontend, and all infrastructure
+(PostgreSQL, Redis, Weaviate, MinIO) run as Docker containers behind Nginx.
+Images are built in CI and pulled from ghcr.io — never built on the server. See
+[ADR-0004](adr/0004-server-deployment-and-cicd.md) for the full architecture.
 
 ## Server Layout
 
 ```
 /home/studybuddy/
-├── live/       # Production deployment
-│   ├── backend/
-│   └── frontend/
-└── staging/    # Staging deployment
-    ├── backend/
-    └── frontend/
+├── production/   # Production deployment (docker/server/prod)
+├── staging/      # Staging deployment (docker/server/staging)
+└── shared/       # Shared MinIO stack (docker/server/minio)
 ```
 
 ## Infrastructure Services
 
-PostgreSQL, Redis, and Weaviate run via Docker Compose. MinIO runs from its own compose file — it is shared across the live and staging deployments. See [docker/server/](../docker/server/) for the compose files.
+PostgreSQL, Redis, and Weaviate run per environment via Docker Compose. MinIO is a
+single shared stack across production and staging. See [docker/server/](../docker/server/)
+for the compose files.
 
 ```bash
 # PostgreSQL, Redis, Weaviate
@@ -49,23 +51,20 @@ Required GitHub Secrets:
 | `SERVER_USER` | SSH user |
 | `SERVER_SSH_KEY` | Private SSH key for deployment |
 
-## Systemd Services
+## Containers
 
-| Service | Description |
-|---|---|
-| `studybuddy-backend` | FastAPI backend — Production |
-| `studybuddy-frontend` | Next.js frontend — Production |
-| `studybuddy-staging-backend` | FastAPI backend — Staging |
-| `studybuddy-staging-frontend` | Next.js frontend — Staging |
+All app and infra services run as Docker containers. Production containers:
+`studybuddy-backend`, `studybuddy-frontend`, `studybuddy-postgres`,
+`studybuddy-redis`, `studybuddy-weaviate`; staging mirrors them with a
+`studybuddy-staging-` prefix. MinIO runs as the shared `studybuddy-minio`.
 
 ```bash
-# View logs
-sudo journalctl -u studybuddy-backend -f
-sudo journalctl -u studybuddy-frontend -f
+# View logs (run from the env's compose dir, e.g. /home/studybuddy/production/docker/server/prod)
+docker compose logs -f backend
+docker compose logs -f frontend
 
 # Restart manually
-sudo systemctl restart studybuddy-backend
-sudo systemctl restart studybuddy-frontend
+docker compose restart backend
 ```
 
 ## Nginx

@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     SMTP_STARTTLS: bool = False
     SMTP_SSL: bool = False
-    MAIL_FROM: str = "no-reply@studybuddy.app"
+    MAIL_FROM: str = "no-reply@studybuddy.mojiverse.dev"
     MAIL_FROM_NAME: str = "Study Buddy"
     FRONTEND_BASE_URL: str = "http://localhost:3000"
 

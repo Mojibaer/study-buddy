@@ -1,110 +1,65 @@
-# StudyBuddy Backend - Production Deployment
+# StudyBuddy Backend — Production Operations
 
-## Overview
+The backend runs as a Docker container (`studybuddy-backend`), built in CI and
+pulled from ghcr.io. Inside the container the entrypoint logs in to Infisical,
+runs `alembic upgrade head`, then starts `uvicorn` on port 8001 with 4 workers.
 
-The backend runs as a systemd service with Gunicorn + Uvicorn Workers on port 8001.
+The full architecture (multi-stage images, CI/CD, secret injection, two
+environments on one VPS) is documented in
+[ADR-0004](../adr/0004-server-deployment-and-cicd.md). This page is the
+day-to-day operations cheat sheet.
 
-## Service Management
+Run the commands below from the environment's compose directory:
+
+- Production: `/home/studybuddy/production/docker/server/prod`
+- Staging: `/home/studybuddy/staging/docker/server/staging`
+
+## Container Management
 
 ```bash
-# Check status
-sudo systemctl status studybuddy-backend
-
-# Start
-sudo systemctl start studybuddy-backend
-
-# Stop
-sudo systemctl stop studybuddy-backend
-
-# Restart
-sudo systemctl restart studybuddy-backend
-
-# Enable autostart on boot (already enabled)
-sudo systemctl enable studybuddy-backend
-
-# Disable autostart
-sudo systemctl disable studybuddy-backend
+docker compose ps                  # status
+docker compose pull backend        # fetch the latest image tag
+docker compose up -d backend       # (re)create with the pulled image
+docker compose restart backend     # restart (e.g. to re-pull Infisical secrets)
+docker compose stop backend
 ```
+
+Deploys are normally automatic (push to `main` → staging, GitHub release →
+production); manual `pull` + `up -d` is only for hotfixes or rollbacks.
 
 ## Logs
 
 ```bash
-# Live logs (follow mode)
-sudo journalctl -u studybuddy-backend -f
-
-# Last 100 lines
-sudo journalctl -u studybuddy-backend -n 100
-
-# Logs since today
-sudo journalctl -u studybuddy-backend --since today
-
-# Logs from last hour
-sudo journalctl -u studybuddy-backend --since "1 hour ago"
+docker compose logs -f backend            # follow
+docker compose logs --tail 100 backend    # last 100 lines
 ```
 
 ## Health Check
 
 ```bash
-curl http://localhost:8001/health
+curl http://127.0.0.1:8001/health   # prod; staging is 127.0.0.1:8002
 ```
 
 ## Configuration
 
-Service file: `/etc/systemd/system/studybuddy-backend.service`
-
-```ini
-[Unit]
-Description=StudyBuddy Backend
-After=network.target
-
-[Service]
-User=studybuddy
-WorkingDirectory=/home/studybuddy/study-buddy/backend
-EnvironmentFile=/home/studybuddy/study-buddy/backend/.env
-Environment="PATH=/home/studybuddy/study-buddy/backend/venv/bin"
-ExecStart=/home/studybuddy/study-buddy/backend/venv/bin/gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-After modifying the service file:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart studybuddy-backend
-```
-
-## Environment Variables
-
-Defined in `/home/studybuddy/study-buddy/backend/.env`:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/studybuddy
-CHROMA_HOST=localhost
-CHROMA_PORT=8100
-MINIO_ENDPOINT=localhost:9000
-MINIO_ACCESS_KEY=...
-MINIO_SECRET_KEY=...
-```
+The container holds no app secrets. Its environment carries only the Infisical
+connection details (`INFISICAL_*`); everything else (`DATABASE_URL`, `SECRET_KEY`,
+`MINIO_*`, `WEAVIATE_*`, mail, cookie flags) is injected at runtime by
+`infisical run`. The only on-server `.env` holds the Infisical credentials plus
+the infra bootstrap minimum. See ADR-0004 §4.
 
 ## Troubleshooting
 
-**Service won't start:**
 ```bash
-# Detailed error message
-sudo journalctl -u studybuddy-backend -n 50 --no-pager
-```
+# Container keeps restarting — read the startup logs (Infisical login, migrations)
+docker compose logs --tail 50 backend
 
-**Port already in use:**
-```bash
+# Confirm injected env actually reached the process
+docker compose exec backend printenv | grep -E 'DATABASE_URL|WEAVIATE|MINIO|SMTP'
+
+# Port already in use on the host
 sudo lsof -i :8001
 ```
 
-**Manual testing (without systemd):**
-```bash
-cd /home/studybuddy/study-buddy/backend
-source venv/bin/activate
-make run-prod
-```
+A failed Alembic migration crashes the container into a restart loop — the cause
+is in the logs above. There is no automated rollback (ADR-0004, Remaining Surface).
