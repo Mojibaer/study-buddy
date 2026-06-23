@@ -110,7 +110,7 @@ function ResultCard({ result }: { result: SearchResult }) {
   const { isBookmarked, toggle } = useBookmarks()
 
   const title = document.original_filename || document.filename
-  const score = calculateMatchScore(result.distance)
+  const score = calculateMatchScore(result.score)
   const bookmarked = isBookmarked(document.id)
 
   const handleDownload = () => {
@@ -143,7 +143,7 @@ function ResultCard({ result }: { result: SearchResult }) {
             <span
               className={cn(
                 'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
-                matchScoreBadgeClass(result.distance),
+                matchScoreBadgeClass(result.score),
               )}
             >
               {score}% {t('search.match')}

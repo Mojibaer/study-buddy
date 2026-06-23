@@ -50,7 +50,7 @@ export interface SearchFilters {
 
 export interface SearchResult {
   document: Document
-  distance: number
+  score: number
 }
 
 export interface SearchResponse {

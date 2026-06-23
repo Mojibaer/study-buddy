@@ -22,18 +22,19 @@ export function formatDate(dateString: string, locale: string): string {
   }).format(date)
 }
 
-export function calculateMatchScore(distance: number): string {
-  return ((1 - distance) * 100).toFixed(1)
+// Backend already returns score as 1 - distance (0..1, higher is better).
+export function calculateMatchScore(score: number): string {
+  return (score * 100).toFixed(1)
 }
 
 /**
  * Tailwind classes for the match-score badge, colour-coded by the real score:
  * strong (green) ≥ 85, good (primary) ≥ 75, weak (muted) below.
  */
-export function matchScoreBadgeClass(distance: number): string {
-  const score = (1 - distance) * 100
-  if (score >= 85) return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-  if (score >= 75) return 'bg-primary/15 text-primary'
+export function matchScoreBadgeClass(score: number): string {
+  const pct = score * 100
+  if (pct >= 85) return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+  if (pct >= 75) return 'bg-primary/15 text-primary'
   return 'bg-muted text-muted-foreground'
 }
 
