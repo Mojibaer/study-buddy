@@ -21,7 +21,7 @@ export function FolderList({ items }: FolderListProps) {
           )}
         >
           <Folder className="w-5 h-5 text-primary shrink-0" />
-          <span className="flex-1 truncate">{item.label}</span>
+          <span className="flex-1 truncate min-w-0">{item.label}</span>
           {item.count !== undefined && (
             <span className="text-sm text-muted-foreground">
               ({item.count})

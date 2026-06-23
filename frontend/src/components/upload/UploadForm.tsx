@@ -82,12 +82,12 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
       <div className="space-y-2">
         <Label htmlFor="file">{t('upload.file')}</Label>
         {file ? (
           <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
-            <span className="text-sm truncate flex-1">{file.name}</span>
+            <span className="text-sm truncate flex-1 min-w-0">{file.name}</span>
             <Button type="button" variant="ghost" size="sm" onClick={() => setFile(null)}>
               <X className="w-4 h-4" />
             </Button>
