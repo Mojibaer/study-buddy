@@ -18,12 +18,13 @@ import {
   BookOpen,
   Calendar,
   Bookmark,
-  Download,
+  Eye,
   ChevronRight,
 } from 'lucide-react'
 import { RESULTS_PER_PAGE } from '@/lib/constants'
 import { cn, calculateMatchScore, matchScoreBadgeClass, fileTypeIconClass } from '@/lib/utils'
 import { useBookmarks } from '@/providers/BookmarksProvider'
+import { FilePreview } from '@/components/document/FilePreview'
 import type { SearchResponse, SearchResult } from '@/types'
 
 interface SearchResultsProps {
@@ -108,14 +109,11 @@ function ResultCard({ result }: { result: SearchResult }) {
   const t = useTranslations()
   const { document } = result
   const { isBookmarked, toggle } = useBookmarks()
+  const [previewing, setPreviewing] = useState(false)
 
   const title = document.original_filename || document.filename
   const score = calculateMatchScore(result.score)
   const bookmarked = isBookmarked(document.id)
-
-  const handleDownload = () => {
-    if (document.file_url) window.open(document.file_url, '_blank')
-  }
 
   return (
     <Card className="group p-4 transition-shadow hover:shadow-md">
@@ -186,12 +184,12 @@ function ResultCard({ result }: { result: SearchResult }) {
           </button>
           <button
             type="button"
-            onClick={handleDownload}
+            onClick={() => setPreviewing(true)}
             disabled={!document.file_url}
-            title={t('search.download')}
+            title={t('search.preview')}
             className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
           >
-            <Download className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
           </button>
           <Link
             href={`/documents/${document.id}`}
@@ -202,6 +200,14 @@ function ResultCard({ result }: { result: SearchResult }) {
           </Link>
         </div>
       </div>
+
+      {previewing && (
+        <FilePreview
+          document={document}
+          defaultFullscreen
+          onExitFullscreen={() => setPreviewing(false)}
+        />
+      )}
     </Card>
   )
 }
