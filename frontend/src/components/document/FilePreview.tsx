@@ -4,38 +4,55 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { FileText, AlertCircle, Maximize2, Minimize2 } from 'lucide-react'
+import { FileText, AlertCircle, Maximize2, Minimize2, X } from 'lucide-react'
 import { getFileViewerUrl, cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import type { Document } from '@/types'
 
 interface FilePreviewProps {
   document: Document
+  /** Open straight into the fullscreen overlay, skipping the inline Card. */
+  defaultFullscreen?: boolean
+  /** Called when leaving fullscreen in `defaultFullscreen` mode (no Card to collapse to). */
+  onExitFullscreen?: () => void
 }
 
-/**
- * Wraps the preview body in either a normal Card or — when fullscreen — a
- * fixed overlay that fills the viewport with a small inset margin. Escape
- * exits fullscreen. `fullHeight` lets the body grow to fill the overlay.
- */
+// Renders the preview as a Card, or as a fullscreen overlay when expanded.
 function PreviewShell({
   children,
   showExpand = false,
+  defaultFullscreen = false,
+  onExitFullscreen,
 }: {
   children: (fullscreen: boolean) => React.ReactNode
   showExpand?: boolean
+  defaultFullscreen?: boolean
+  onExitFullscreen?: () => void
 }) {
-  const [fullscreen, setFullscreen] = useState(false)
+  const [fullscreen, setFullscreen] = useState(defaultFullscreen)
   const t = useTranslations()
+
+  const exitFullscreen = () => {
+    if (defaultFullscreen) {
+      onExitFullscreen?.()
+    } else {
+      setFullscreen(false)
+    }
+  }
 
   useEffect(() => {
     if (!fullscreen) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFullscreen(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && exitFullscreen()
     window.addEventListener('keydown', onKey)
-    // Lock body scroll while the overlay is open.
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullscreen])
+
+  // Own effect so the scroll lock is released even when unmounting from fullscreen.
+  useEffect(() => {
+    if (!fullscreen) return
     document.body.style.overflow = 'hidden'
     return () => {
-      window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
   }, [fullscreen])
@@ -46,15 +63,21 @@ function PreviewShell({
         <FileText className="w-5 h-5" />
         {t('document.preview')}
       </CardTitle>
-      {showExpand && (
+      {(showExpand || defaultFullscreen) && (
         <button
           type="button"
-          onClick={() => setFullscreen((v) => !v)}
+          onClick={() => (fullscreen ? exitFullscreen() : setFullscreen(true))}
           aria-label={t(fullscreen ? 'document.collapse' : 'document.expand')}
           title={t(fullscreen ? 'document.collapse' : 'document.expand')}
           className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
-          {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {defaultFullscreen ? (
+            <X className="w-4 h-4" />
+          ) : fullscreen ? (
+            <Minimize2 className="w-4 h-4" />
+          ) : (
+            <Maximize2 className="w-4 h-4" />
+          )}
         </button>
       )}
     </div>
@@ -64,7 +87,7 @@ function PreviewShell({
     return (
       <div
         className="fixed inset-0 z-50 flex bg-background/80 backdrop-blur-sm p-4 sm:p-6"
-        onClick={() => setFullscreen(false)}
+        onClick={exitFullscreen}
       >
         <Card
           className="m-auto flex h-full w-full max-w-6xl flex-col overflow-hidden"
@@ -85,13 +108,15 @@ function PreviewShell({
   )
 }
 
-export function FilePreview({ document }: FilePreviewProps) {
+export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: FilePreviewProps) {
   const [error, setError] = useState(false)
   const t = useTranslations()
   const fileUrl = document.file_url
   const fileName = document.original_filename || document.filename || ''
   const fileExtension = fileName.split('.').pop()?.toLowerCase()
   const viewerUrl = fileUrl ? getFileViewerUrl(fileUrl, fileExtension) : null
+
+  const shellProps = { defaultFullscreen, onExitFullscreen }
 
   if (!fileUrl) {
     return (
@@ -108,7 +133,7 @@ export function FilePreview({ document }: FilePreviewProps) {
 
   if (error) {
     return (
-      <PreviewShell>
+      <PreviewShell {...shellProps}>
         {() => (
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -121,7 +146,7 @@ export function FilePreview({ document }: FilePreviewProps) {
 
   if (fileExtension === 'txt' || fileExtension === 'md') {
     return (
-      <PreviewShell showExpand>
+      <PreviewShell showExpand {...shellProps}>
         {(fullscreen) => (
           <TextFilePreview
             fileUrl={fileUrl}
@@ -136,7 +161,7 @@ export function FilePreview({ document }: FilePreviewProps) {
 
   if (viewerUrl) {
     return (
-      <PreviewShell showExpand>
+      <PreviewShell showExpand {...shellProps}>
         {(fullscreen) => (
           <div
             className={cn(
@@ -152,7 +177,7 @@ export function FilePreview({ document }: FilePreviewProps) {
   }
 
   return (
-    <PreviewShell>
+    <PreviewShell {...shellProps}>
       {() => (
         <Alert>
           <FileText className="h-4 w-4" />
@@ -187,7 +212,6 @@ function TextFilePreview({
 
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t('document.loadingPreview')}</div>
 
-  // Height: fixed cap in card mode, fill the overlay in fullscreen.
   const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
 
   if (isMarkdown) {

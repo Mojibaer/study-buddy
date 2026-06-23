@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '@/api/client'
 import { SEARCH_LIMIT } from '@/lib/constants'
 import type { SearchFilters, SearchResponse } from '@/types'
@@ -38,7 +38,7 @@ export function useSearch() {
     }
   }
 
-  const resetSearch = () => {
+  const resetSearch = useCallback(() => {
     setQuery('')
     setResults(null)
     setError(null)
@@ -47,7 +47,7 @@ export function useSearch() {
       subject_id: null,
       category_id: null,
     })
-  }
+  }, [])
 
   return {
     query,

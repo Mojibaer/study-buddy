@@ -1,8 +1,11 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { FolderOpen, Clock } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { HOME_RESET_EVENT } from '@/lib/events'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchResults } from '@/components/search/SearchResults'
 import { UploadDialog } from '@/components/upload/UploadDialog'
@@ -13,17 +16,21 @@ const pillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card text-sm text-foreground hover:bg-accent transition-colors'
 
 // Primary-bordered variant for the main actions (Explore files / Upload).
-// Subtle accent — a hint of the brand violet, not a loud outline (reads well on
-// the neutral dark surfaces).
 const actionPillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary/40 bg-card text-sm text-foreground hover:border-primary/60 hover:bg-accent transition-colors'
 
 export function SearchPage() {
-  const { query, setQuery, results, loading, error, filters, setFilters, handleSearch } = useSearch()
+  const { query, setQuery, results, loading, error, filters, setFilters, handleSearch, resetSearch } = useSearch()
   const { recent, add: addRecent } = useRecentSearches()
   const t = useTranslations()
 
   const idle = !results && !loading
+
+  // Clear the search when the header logo is clicked while already on home.
+  useEffect(() => {
+    window.addEventListener(HOME_RESET_EVENT, resetSearch)
+    return () => window.removeEventListener(HOME_RESET_EVENT, resetSearch)
+  }, [resetSearch])
 
   const search = (term?: string) => {
     const value = (term ?? query).trim()
@@ -38,7 +45,13 @@ export function SearchPage() {
   }
 
   return (
-    <main className="flex-1 flex items-center justify-center container mx-auto px-4 py-12 -mt-16">
+    <main
+      className={cn(
+        'flex-1 flex justify-center container mx-auto px-4 py-12',
+        // Center only when empty; top-align with results so the heading isn't hidden behind the header.
+        idle ? 'items-center -mt-16' : 'items-start',
+      )}
+    >
       <div className="w-full max-w-3xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h2 className="text-5xl font-bold tracking-tight text-balance">{t('search.heading')}</h2>
