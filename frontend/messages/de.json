@@ -55,7 +55,10 @@
     "submit": "Hochladen",
     "uploading": "Wird hochgeladen...",
     "errorFileType": "Dateityp {ext} nicht erlaubt. Erlaubt: {allowed}",
-    "errorNoFile": "Bitte eine Datei auswählen"
+    "errorNoFile": "Bitte eine Datei auswählen",
+    "plagiarismTitle": "Upload blockiert — zu ähnlich",
+    "plagiarismBody": "Dieses Dokument ist zu {score}% identisch mit einem vorhandenen: \"{filename}\"{subject}. Das Hochladen von Beinahe-Duplikaten ist nicht erlaubt.",
+    "plagiarismSubject": " (Fach: {subject})"
   },
   "document": {
     "backToBrowse": "Zurück zum Explorer",

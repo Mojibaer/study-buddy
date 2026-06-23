@@ -55,7 +55,10 @@
     "submit": "Upload",
     "uploading": "Uploading...",
     "errorFileType": "File type {ext} not allowed. Allowed: {allowed}",
-    "errorNoFile": "Please select a file"
+    "errorNoFile": "Please select a file",
+    "plagiarismTitle": "Upload blocked — too similar",
+    "plagiarismBody": "This document is {score}% similar to an existing one: \"{filename}\"{subject}. Uploading near-duplicates is not allowed.",
+    "plagiarismSubject": " (subject: {subject})"
   },
   "document": {
     "backToBrowse": "Back to Explorer",

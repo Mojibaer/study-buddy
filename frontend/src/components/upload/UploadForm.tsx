@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Upload, Loader2, X } from 'lucide-react'
-import { api } from '@/api/client'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
+import { Upload, Loader2, X, ShieldAlert } from 'lucide-react'
+import { api, ApiError, type SimilarDocument } from '@/api/client'
 import { useFilters } from '@/hooks/useFilters'
 import { ALLOWED_FILE_TYPES } from '@/lib/constants'
 
@@ -28,6 +29,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   const [semesterId, setSemesterId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [plagiarism, setPlagiarism] = useState<SimilarDocument | null>(null)
   const t = useTranslations()
 
   const { filters, loading: filtersLoading, getSubjectsForSemester } = useFilters()
@@ -43,6 +45,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
       }
       setFile(selectedFile)
       setError(null)
+      setPlagiarism(null)
     }
   }
 
@@ -56,6 +59,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
     if (!file) { setError(t('upload.errorNoFile')); return }
     setLoading(true)
     setError(null)
+    setPlagiarism(null)
     try {
       await api.uploadDocument(file, {
         category_id: categoryId || null,
@@ -67,7 +71,11 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
       setSemesterId('')
       onSuccess?.()
     } catch (err) {
-      setError((err as Error).message)
+      if (err instanceof ApiError && err.code === 'plagiarism_detected' && err.similarDocument) {
+        setPlagiarism(err.similarDocument)
+      } else {
+        setError((err as Error).message)
+      }
     } finally {
       setLoading(false)
     }
@@ -137,6 +145,22 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
+
+      {plagiarism && (
+        <Alert variant="destructive">
+          <ShieldAlert className="h-4 w-4" />
+          <AlertTitle>{t('upload.plagiarismTitle')}</AlertTitle>
+          <AlertDescription>
+            {t('upload.plagiarismBody', {
+              score: Math.round(plagiarism.score * 100),
+              filename: plagiarism.original_filename,
+              subject: plagiarism.subject
+                ? t('upload.plagiarismSubject', { subject: plagiarism.subject })
+                : '',
+            })}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Button type="submit" className="w-full" disabled={loading || !file}>
         {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}

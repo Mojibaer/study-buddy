@@ -10,16 +10,47 @@ import { authedFetch } from '@/lib/auth/authClient'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
+export interface SimilarDocument {
+  id: number
+  original_filename: string
+  subject: string | null
+  score: number
+}
+
+export class ApiError extends Error {
+  status: number
+  /** Set when the backend returns a structured `detail` object (e.g. plagiarism). */
+  code?: string
+  similarDocument?: SimilarDocument
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    let message: string
+    let message = response.statusText
+    let detail: unknown
     try {
-      const error = await response.json()
-      message = error.detail || error.message || response.statusText
+      const body = await response.json()
+      detail = body.detail ?? body.message
     } catch {
-      message = response.statusText
+      detail = undefined
     }
-    throw new Error(message)
+
+    const error = new ApiError(message, response.status)
+    if (typeof detail === 'string') {
+      error.message = detail
+    } else if (detail && typeof detail === 'object') {
+      const d = detail as Record<string, unknown>
+      if (typeof d.message === 'string') error.message = d.message
+      if (typeof d.code === 'string') error.code = d.code
+      if (d.similar_document) error.similarDocument = d.similar_document as SimilarDocument
+    }
+    throw error
   }
   return response.json() as Promise<T>
 }
