@@ -43,8 +43,9 @@
     "smartFiltersDesc": "Filter by category, subject, semester"
   },
   "upload": {
-    "file": "File",
-    "fileTypes": "PDF, DOCX, TXT or MD",
+    "file": "Files",
+    "fileTypes": "PDF, DOCX, TXT or MD — select one or more",
+    "addMore": "Add more files",
     "category": "Category",
     "selectCategory": "Select category",
     "semester": "Semester",
@@ -53,9 +54,21 @@
     "selectSubject": "Select subject",
     "selectSemesterFirst": "Select semester first",
     "submit": "Upload",
+    "submitCount": "Upload {count} files",
     "uploading": "Uploading...",
+    "uploadingProgress": "Uploading {current} of {total}...",
     "errorFileType": "File type {ext} not allowed. Allowed: {allowed}",
-    "errorNoFile": "Please select a file"
+    "errorNoFile": "Please select a file",
+    "summarySuccess": "{count} uploaded",
+    "summaryFailed": "{count} failed",
+    "toastSuccessOne": "File uploaded",
+    "toastSuccessMany": "{count} files uploaded",
+    "toastPartial": "{success} uploaded, {failed} blocked or failed",
+    "statusPlagiarism": "Blocked — {score}% similar to \"{filename}\"",
+    "retry": "Retry failed",
+    "plagiarismTitle": "Upload blocked — too similar",
+    "plagiarismBody": "This document is {score}% similar to an existing one: \"{filename}\"{subject}. Uploading near-duplicates is not allowed.",
+    "plagiarismSubject": " (subject: {subject})"
   },
   "document": {
     "backToBrowse": "Back to Explorer",

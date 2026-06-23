@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     ] = "voyage-4-large"
     FASTEMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
+    # Plagiarism check — block upload when a vector is at least this similar
+    # (cosine, 0..1) to an existing document. Set high to avoid false positives
+    # on legitimate topical overlap (same lecture). Tune per embedding model.
+    PLAGIARISM_THRESHOLD: float = 0.95
+
     # Mail (Mailpit locally, real SMTP provider in production)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 1025

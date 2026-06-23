@@ -33,7 +33,7 @@ export function UploadDialog() {
           <DialogTitle>{t('actions.uploadDialogTitle')}</DialogTitle>
           <DialogDescription>{t('actions.uploadDialogDescription')}</DialogDescription>
         </DialogHeader>
-        <UploadForm onSuccess={() => setOpen(false)} />
+        <UploadForm onSuccess={({ close }) => { if (close) setOpen(false) }} />
       </DialogContent>
     </Dialog>
   )

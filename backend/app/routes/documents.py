@@ -18,9 +18,11 @@ from app.database.database import get_db
 from app.database.models import Document, Subject, User, UserRole
 from app.schemas.document import DocumentResponse
 from app.repositories.crud import get_category_or_404, get_document_or_404, get_subject_or_404
+from app.core.config import settings
 from app.services.document_service import extract_text_from_bytes
 from app.services.embedding import EmbeddingProvider
 from app.services.minio_service import upload_file, get_presigned_url, delete_file, get_file_url
+from app.services.plagiarism_service import find_similar_above_threshold
 from app.services.weaviate_service import WeaviateService
 
 logger = logging.getLogger(__name__)
@@ -61,8 +63,10 @@ async def upload_document(
     if category_id is not None:
         await get_category_or_404(db, category_id)
 
+    subject_name = ""
     if subject_id is not None:
-        await get_subject_or_404(db, subject_id)
+        subject = await get_subject_or_404(db, subject_id)
+        subject_name = subject.name
 
     file_content = await file.read(MAX_UPLOAD_BYTES + 1)
     if len(file_content) > MAX_UPLOAD_BYTES:
@@ -76,13 +80,39 @@ async def upload_document(
             detail=f"File content does not match extension '{file_ext}'."
         )
 
+    # Extract + embed BEFORE persisting so the plagiarism check can block the
+    # upload without leaving an orphaned MinIO object or Postgres row behind.
+    extracted_text = extract_text_from_bytes(file_content, file_ext)
+
+    embed_vector: list[float] | None = None
+    snippet = ""
+    if extracted_text:
+        searchable_text = extracted_text
+        if subject_name:
+            searchable_text += f" Fach: {subject_name}"
+
+        embed_input = searchable_text[:EMBED_TEXT_MAX_CHARS]
+        snippet = searchable_text[:SNIPPET_MAX_CHARS]
+        embed_vector = await asyncio.to_thread(provider.embed, embed_input)
+
+        match = await find_similar_above_threshold(
+            db, provider, weaviate, embed_vector, settings.PLAGIARISM_THRESHOLD
+        )
+        if match is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "code": "plagiarism_detected",
+                    "message": "This document is too similar to one that already exists.",
+                    "similar_document": match.as_detail(),
+                },
+            )
+
     object_key = upload_file(
         file_data=file_content,
         original_filename=file.filename,
         content_type=file.content_type or "application/octet-stream"
     )
-
-    extracted_text = extract_text_from_bytes(file_content, file_ext)
 
     db_document = Document(
         filename=object_key,
@@ -109,24 +139,14 @@ async def upload_document(
     # otherwise fail with MissingGreenlet when the response is serialized.
     db_document = await _load_document_with_relations(db, db_document.id)
 
-    if extracted_text:
-        subject_name = db_document.subject.name if db_document.subject else ""
-
-        searchable_text = extracted_text
-        if subject_name:
-            searchable_text += f" Fach: {subject_name}"
-
-        embed_input = searchable_text[:EMBED_TEXT_MAX_CHARS]
-        snippet = searchable_text[:SNIPPET_MAX_CHARS]
-
+    if embed_vector is not None:
         try:
-            vector = await asyncio.to_thread(provider.embed, embed_input)
             await asyncio.to_thread(
                 weaviate.insert_document,
                 provider.name,
                 db_document.id,
                 snippet,
-                vector,
+                embed_vector,
             )
             db_document.vectorized_at = datetime.now(timezone.utc)
             await db.commit()

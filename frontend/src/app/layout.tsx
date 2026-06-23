@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { FiltersProvider } from "@/providers/FiltersProvider";
 import { BookmarksProvider } from "@/providers/BookmarksProvider";
+import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import type { Metadata } from "next";
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <FiltersProvider>
                 <BookmarksProvider>
                   {children}
+                  <Toaster richColors position="top-center" />
                 </BookmarksProvider>
               </FiltersProvider>
             </AuthProvider>
