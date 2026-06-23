@@ -16,17 +16,19 @@ import { UploadForm } from '@/components/upload/UploadForm'
 const pillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary/40 bg-card text-sm text-foreground hover:border-primary/60 hover:bg-accent transition-colors'
 
-export function UploadDialog() {
+export function UploadDialog({ trigger }: { trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const t = useTranslations()
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className={pillClass}>
-          <Upload className="w-3.5 h-3.5" />
-          {t('actions.upload')}
-        </button>
+        {trigger ?? (
+          <button className={pillClass}>
+            <Upload className="w-3.5 h-3.5" />
+            {t('actions.upload')}
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
