@@ -40,7 +40,7 @@ The question: where does the frontend store them? The decision determines the XS
 1. A 7-day refresh token in `localStorage` is indefensible — any XSS hit opens a 7-day persistence window.
 2. Cookies for **every** API call (Option B) forces CORS `allow_credentials=True` plus CSRF tokens everywhere — complexity without benefit over a Bearer header for the access token.
 3. The refresh cookie is restricted to `Path=/api/auth` — it's not sent on every request, only when refreshing or logging out. CSRF surface is minimal.
-4. `SameSite=Strict` is usable because frontend and backend share the same domain in production (`studybuddy.mojiverse.at`).
+4. `SameSite=Strict` is usable because frontend and backend share the same domain in production (`studybuddy.mojiverse.dev`).
 5. Access token in memory: gone after tab close or reload. App load fires a silent refresh; the refresh cookie auto-restores the session.
 
 ## Consequences
@@ -66,7 +66,7 @@ The question: where does the frontend store them? The decision determines the XS
 ### Dev Setup
 
 - Frontend `localhost:3000`, backend `localhost:8001` — cookie works with `SameSite=Lax` (both are same-site under `localhost`)
-- Production: `SameSite=Strict`, both apps on `studybuddy.mojiverse.at`
+- Production: `SameSite=Strict`, both apps on `studybuddy.mojiverse.dev`
 - **Cookie path in local dev:** the `config.py` default `Path=/api/auth` matches production, where the frontend reaches the backend through an `/api` proxy. Locally the frontend calls the backend directly on `:8001/auth/...` without that proxy, so `backend/.env` overrides `REFRESH_COOKIE_PATH=/auth`. The path must match the actual request path — otherwise the browser doesn't send the cookie on refresh, and every hard reload logs the user out.
 
 ### Remaining Attack Surface
