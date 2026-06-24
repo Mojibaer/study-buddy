@@ -510,24 +510,24 @@
     },
     "analytics": {
       "title": "Analytics",
-      "subtitle": "Platform usage and content coverage",
+      "subtitle": "Plattformnutzung und Inhaltsabdeckung",
       "stats": {
-        "totalDocuments": "Total documents",
-        "totalUsers": "Total users",
-        "totalStorage": "Storage used"
+        "totalDocuments": "Dokumente gesamt",
+        "totalUsers": "Benutzer gesamt",
+        "totalStorage": "Belegter Speicher"
       },
       "uploadActivity": {
-        "title": "Upload activity",
-        "description": "Documents uploaded over the last 30 days",
+        "title": "Upload-Aktivität",
+        "description": "Hochgeladene Dokumente der letzten 30 Tage",
         "uploads": "Uploads"
       },
       "subjectCoverage": {
-        "title": "Document coverage by subject",
-        "description": "{count, plural, =0 {Every subject has documents} one {# subject has no documents yet} other {# subjects have no documents yet}}",
-        "documents": "Documents"
+        "title": "Dokumentabdeckung nach Fach",
+        "description": "{count, plural, =0 {Jedes Fach hat Dokumente} one {# Fach hat noch keine Dokumente} other {# Fächer haben noch keine Dokumente}}",
+        "documents": "Dokumente"
       },
-      "states": { "loading": "Loading analytics…" },
-      "errors": { "loadTitle": "Could not load analytics", "retry": "Retry" }
+      "states": { "loading": "Lade Analytics…" },
+      "errors": { "loadTitle": "Analytics konnten nicht geladen werden", "retry": "Erneut versuchen" }
     }
   },
   "auth": {
