@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/providers/AuthProvider'
 
-export function UserPreferencesMenu() {
+export function UserPreferencesMenu({ trigger }: { trigger?: React.ReactNode }) {
   const t = useTranslations()
   const locale = useLocale()
   const { theme, setTheme } = useTheme()
@@ -61,12 +61,14 @@ export function UserPreferencesMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src="" alt="User" />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-        </Button>
+        {trigger ?? (
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Avatar className="w-8 h-8">
+              <AvatarImage src="" alt="User" />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+          </Button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         {status === 'authenticated' && user && (

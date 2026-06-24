@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Clock, X, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -43,16 +44,19 @@ export function SearchPage() {
   return (
     <main
       className={cn(
-        'flex-1 flex justify-center container mx-auto px-4 py-12',
-        // Center only when empty; top-align with results so the heading isn't hidden behind the header.
-        idle ? 'items-center -mt-16' : 'items-start',
+        'flex-1 flex justify-center container mx-auto px-4',
+        // Center + generous spacing when empty; top-align with tighter top padding once results show.
+        idle ? 'items-center -mt-16 py-12' : 'items-start pt-6 pb-12',
       )}
     >
       <div className="w-full max-w-3xl mx-auto space-y-8">
         {idle ? (
           <>
-            <div className="text-center space-y-4">
-              <h2 className="text-5xl font-bold tracking-tight text-balance">{t('search.heading')}</h2>
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="flex items-center gap-3">
+                <Image src="/logo.svg" alt="StudyBuddy" width={48} height={44} priority />
+                <span className="text-4xl font-bold tracking-tight">StudyBuddy</span>
+              </div>
               <p className="text-muted-foreground text-lg">{t('search.subheading')}</p>
             </div>
 
@@ -73,11 +77,11 @@ export function SearchPage() {
                   <Clock className="w-4 h-4" />
                   {t('search.recentSearches')}
                 </div>
-                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
+                <div className="flex flex-wrap gap-2">
                   {recent.map((term) => (
                     <div
                       key={term}
-                      className={`${pillClass} group shrink-0 max-w-[14rem] pr-1.5`}
+                      className={`${pillClass} group max-w-full pr-2.5`}
                     >
                       <button
                         type="button"
@@ -105,7 +109,7 @@ export function SearchPage() {
           </>
         ) : (
           <>
-            <Button variant="ghost" onClick={resetSearch} className="-ml-2">
+            <Button variant="ghost" onClick={resetSearch} className="-ml-2 hidden sm:inline-flex">
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('search.backToSearch')}
             </Button>

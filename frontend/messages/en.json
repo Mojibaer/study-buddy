@@ -12,7 +12,7 @@
   "search": {
     "heading": "Find the right study materials",
     "subheading": "Just describe what you want to learn.",
-    "placeholder": "e.g. 'Sorting algorithms', 'Python functions', 'Linear algebra'...",
+    "placeholder": "How does the Strategy pattern work?",
     "filterLabel": "Filter",
     "semester": "Semester",
     "allSemesters": "All semesters",
@@ -21,7 +21,7 @@
     "category": "Category",
     "allCategories": "All categories",
     "resetFilters": "Reset filters",
-    "results": "{count} results for \"{query}\"",
+    "results": "{count, plural, =0 {No results} one {# result} other {# results}}",
     "noResults": "No results found.",
     "noResultsHint": "Try different search terms or upload new documents.",
     "matchScore": "Match Score",
