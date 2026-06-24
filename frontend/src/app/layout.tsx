@@ -5,6 +5,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import { FiltersProvider } from "@/providers/FiltersProvider";
 import { BookmarksProvider } from "@/providers/BookmarksProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { SplashScreens } from "@/components/SplashScreens";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import type { Metadata, Viewport } from "next";
@@ -39,6 +40,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <SplashScreens />
+      </head>
       <body className={`${plusJakartaSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
