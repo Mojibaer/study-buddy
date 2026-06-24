@@ -18,14 +18,15 @@ An admin dashboard gives maintainers full control over the platform: managing us
 
 ## Features
 
-- **Document Upload** — Support for PDF, DOCX, TXT, MD, and more
+- **Installable PWA** — Install Study Buddy like a native app on phone or desktop, with an app-like mobile layout (bottom tab bar), home-screen icon, and splash screens
+- **Document Upload** — Bulk upload of PDF, DOCX, TXT, MD, with a plagiarism check that blocks near-duplicate uploads
 - **Manual Browsing** — Traditional folder/category navigation
 - **Semantic Search** — AI-powered content search with Weaviate
-- **Combined Search** — Semantic search + metadata filters with real-time autocomplete
-- **Document Preview** — View documents directly in browser
+- **Combined Search** — Semantic search + live metadata filters (semester, subject, category)
+- **Document Preview** — Self-hosted in-browser preview for PDF (pdf.js) and DOCX (docx-preview) with zoom — works on mobile, no third-party viewer
 - **Authentication** — JWT-based auth with email verification and role-based access control
 - **File Sharing** — Share documents via WhatsApp and email
-- **Admin Dashboard** — Manage users, moderate documents, and curate the study structure (semesters, subjects, categories)
+- **Admin Dashboard** — Analytics, system-health monitoring, user management, document moderation, and study-structure curation (semesters, subjects, categories)
 
 ## Tech Stack
 
@@ -33,6 +34,7 @@ An admin dashboard gives maintainers full control over the platform: managing us
 - **Next.js 16** — React framework
 - **Tailwind CSS v4** + **shadcn/ui** — Styling and UI components
 - **TypeScript**
+- **Serwist** — Service worker / PWA (installable, offline-capable shell)
 
 ### Backend
 - **FastAPI** — High-performance async REST API
@@ -51,6 +53,16 @@ An admin dashboard gives maintainers full control over the platform: managing us
 ## Architecture
 
 For a detailed overview of how the services interact, see [docs/architecture.md](docs/architecture.md).
+
+## Progressive Web App
+
+Study Buddy is a fully installable PWA — students can add it to their home screen and use it like a native app, no app store required.
+
+- **Installable** on iOS, Android, and desktop (Add to Home Screen / Install app), with app icons, Android maskable icons, and Apple splash screens.
+- **App-like mobile UX** — a native-style bottom tab bar (Search · Browse · Upload · Bookmarks · Profile), full-screen standalone display, and disabled page-level pinch-zoom.
+- **Offline-capable shell** via a Serwist service worker.
+
+On mobile, open the site in the browser and choose **Add to Home Screen** (iOS Safari) or **Install app** (Android Chrome).
 
 ## Quick Start
 

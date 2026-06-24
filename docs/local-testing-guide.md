@@ -55,7 +55,16 @@ curl http://localhost:3000        # 200 OK once the frontend is up
 
 ### 3. Hot-reload
 
-The source is bind-mounted into the containers, so editing files under `backend/` or `frontend/` reloads live — no rebuild needed. You only need to rebuild (`docker compose up -d --build`) when **dependencies** change (`pyproject.toml`/`uv.lock` or `package.json`/`bun.lock`).
+The source is bind-mounted into the containers, so editing files under `backend/` or `frontend/` reloads live — no rebuild needed.
+
+When **dependencies** change you need an extra step, because `node_modules` lives in a named volume (not the bind-mount). After pulling code that adds a frontend package — or after running `bun add` yourself — install it **inside the container**, then restart it:
+
+```bash
+docker compose -f docker/local/docker-compose.yml exec frontend bun install
+docker compose -f docker/local/docker-compose.yml restart frontend
+```
+
+For backend dependency changes (`pyproject.toml`/`uv.lock`), rebuild instead: `docker compose up -d --build`.
 
 ### 4. Create the first admin
 
@@ -214,6 +223,7 @@ bun dev                 # Next.js on port 3000
 | `password authentication failed for user "..."` on migrations | Postgres volume baked credentials from a previous run | `make db-reset` (drops volumes, recreates with current `.env`) |
 | Backend crashes with `ImportError: failed to find libmagic` | System library missing (native only — the Docker image bundles it) | Install libmagic — see Option B Prerequisites |
 | (Docker) Code changes don't reload | Dependency changed, or watcher missed the file | Rebuild: `docker compose up -d --build` |
+| (Docker) Frontend: `Module not found` after adding a package | New dependency isn't in the container's `node_modules` volume | `docker compose -f docker/local/docker-compose.yml exec frontend bun install` then `restart frontend` |
 | (Docker) Backend can't reach Postgres/MinIO | Edited host to `localhost` instead of the service name | Inside containers, use service names (`postgres`, `minio`, `redis`, `weaviate`, `mailpit`) — `localhost` only works for the browser |
 | (Docker) Port already in use on 3000/8001/5432 | A native `bun dev` / `make dev` / old Postgres is still running | Stop the native process (or the other stack) before `docker compose up` |
 
