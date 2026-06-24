@@ -5,9 +5,11 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, AlertCircle, Maximize2, Minimize2, X } from 'lucide-react'
-import { getFileViewerUrl, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import { PdfPreview } from '@/components/document/PdfPreview'
+import { DocxPreview } from '@/components/document/DocxPreview'
+import { ZoomControls } from '@/components/document/ZoomControls'
 import type { Document } from '@/types'
 
 interface FilePreviewProps {
@@ -24,11 +26,13 @@ function PreviewShell({
   showExpand = false,
   defaultFullscreen = false,
   onExitFullscreen,
+  headerExtra,
 }: {
   children: (fullscreen: boolean) => React.ReactNode
   showExpand?: boolean
   defaultFullscreen?: boolean
   onExitFullscreen?: () => void
+  headerExtra?: React.ReactNode
 }) {
   const [fullscreen, setFullscreen] = useState(defaultFullscreen)
   const t = useTranslations()
@@ -64,23 +68,26 @@ function PreviewShell({
         <FileText className="w-5 h-5" />
         {t('document.preview')}
       </CardTitle>
-      {(showExpand || defaultFullscreen) && (
-        <button
-          type="button"
-          onClick={() => (fullscreen ? exitFullscreen() : setFullscreen(true))}
-          aria-label={t(fullscreen ? 'document.collapse' : 'document.expand')}
-          title={t(fullscreen ? 'document.collapse' : 'document.expand')}
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          {defaultFullscreen ? (
-            <X className="w-4 h-4" />
-          ) : fullscreen ? (
-            <Minimize2 className="w-4 h-4" />
-          ) : (
-            <Maximize2 className="w-4 h-4" />
-          )}
-        </button>
-      )}
+      <div className="flex items-center gap-1">
+        {headerExtra}
+        {(showExpand || defaultFullscreen) && (
+          <button
+            type="button"
+            onClick={() => (fullscreen ? exitFullscreen() : setFullscreen(true))}
+            aria-label={t(fullscreen ? 'document.collapse' : 'document.expand')}
+            title={t(fullscreen ? 'document.collapse' : 'document.expand')}
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            {defaultFullscreen ? (
+              <X className="w-4 h-4" />
+            ) : fullscreen ? (
+              <Minimize2 className="w-4 h-4" />
+            ) : (
+              <Maximize2 className="w-4 h-4" />
+            )}
+          </button>
+        )}
+      </div>
     </div>
   )
 
@@ -111,11 +118,11 @@ function PreviewShell({
 
 export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: FilePreviewProps) {
   const [error, setError] = useState(false)
+  const [zoom, setZoom] = useState(1)
   const t = useTranslations()
   const fileUrl = document.file_url
   const fileName = document.original_filename || document.filename || ''
   const fileExtension = fileName.split('.').pop()?.toLowerCase()
-  const viewerUrl = fileUrl ? getFileViewerUrl(fileUrl, fileExtension) : null
 
   const shellProps = { defaultFullscreen, onExitFullscreen }
 
@@ -162,32 +169,32 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
 
   if (fileExtension === 'pdf') {
     return (
-      <PreviewShell showExpand {...shellProps}>
+      <PreviewShell showExpand {...shellProps} headerExtra={<ZoomControls zoom={zoom} setZoom={setZoom} />}>
         {(fullscreen) => (
           <div
             className={cn(
               'w-full border rounded-lg overflow-hidden bg-muted/30',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
             )}
           >
-            <PdfPreview fileUrl={fileUrl} onError={() => setError(true)} />
+            <PdfPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
           </div>
         )}
       </PreviewShell>
     )
   }
 
-  if (viewerUrl) {
+  if (fileExtension === 'docx' || fileExtension === 'doc') {
     return (
-      <PreviewShell showExpand {...shellProps}>
+      <PreviewShell showExpand {...shellProps} headerExtra={<ZoomControls zoom={zoom} setZoom={setZoom} />}>
         {(fullscreen) => (
           <div
             className={cn(
               'w-full border rounded-lg overflow-hidden',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
             )}
           >
-            <iframe src={viewerUrl} className="w-full h-full" onError={() => setError(true)} title="Document Preview" />
+            <DocxPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
           </div>
         )}
       </PreviewShell>
@@ -230,7 +237,7 @@ function TextFilePreview({
 
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t('document.loadingPreview')}</div>
 
-  const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
+  const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[80vh]'
 
   if (isMarkdown) {
     return (

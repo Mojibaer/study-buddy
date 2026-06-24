@@ -7,8 +7,7 @@ import { Bookmark, FileText, X } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
+  SheetHeaderBar,
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useBookmarks } from '@/providers/BookmarksProvider'
@@ -36,13 +35,12 @@ export function SavedSidebar() {
         </button>
       </SheetTrigger>
 
-      <SheetContent className="w-full sm:max-w-sm">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Bookmark className="h-4 w-4" />
-            {t('bookmarks.title')}
-          </SheetTitle>
-        </SheetHeader>
+      <SheetContent showCloseButton={false} className="flex w-full flex-col gap-0 p-0 sm:max-w-sm">
+        <SheetHeaderBar
+          icon={<Bookmark className="h-5 w-5 text-primary" />}
+          title={t('bookmarks.title')}
+          closeLabel={t('actions.close')}
+        />
 
         {documents.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-6 text-center text-muted-foreground">
@@ -51,7 +49,7 @@ export function SavedSidebar() {
             <p className="mt-1 text-sm">{t('bookmarks.emptyHint')}</p>
           </div>
         ) : (
-          <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
+          <div className="flex-1 space-y-2 overflow-y-auto p-4">
             {documents.map((doc) => {
               const title = doc.original_filename || doc.filename
               return (

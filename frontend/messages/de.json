@@ -1,5 +1,6 @@
 {
   "actions": {
+    "close": "Schließen",
     "exploreFiles": "Dateien erkunden",
     "upload": "Hochladen",
     "uploadDialogTitle": "Dokument hochladen",
@@ -27,6 +28,7 @@
     "showDetails": "Details anzeigen",
     "error": "Suchfehler",
     "recentSearches": "Zuletzt gesucht",
+    "removeRecent": "Suche entfernen",
     "match": "Match",
     "download": "Herunterladen",
     "bookmark": "Merken",
@@ -46,6 +48,7 @@
   "upload": {
     "file": "Dateien",
     "fileTypes": "PDF, DOCX, TXT oder MD — eine oder mehrere wählen",
+    "choose": "Dateien wählen",
     "addMore": "Weitere Dateien hinzufügen",
     "category": "Kategorie",
     "selectCategory": "Kategorie wählen",
@@ -76,6 +79,7 @@
     "backToSearch": "Zurück zur Suche",
     "error": "Fehler",
     "details": "Dokument Details",
+    "detailsAndActions": "Details & Aktionen",
     "filename": "Dateiname",
     "category": "Kategorie",
     "subject": "Fach",
@@ -92,6 +96,9 @@
     "previewUnavailable": "Vorschau konnte nicht geladen werden. Bitte verwenden Sie den Download-Button.",
     "previewTypeUnsupported": "Vorschau für diesen Dateityp nicht verfügbar. Bitte verwenden Sie den Download-Button.",
     "loadingPreview": "Lade Vorschau...",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "zoomReset": "Zoom zurücksetzen",
     "expand": "Vollbild",
     "collapse": "Vollbild verlassen"
   },

@@ -1,5 +1,6 @@
 {
   "actions": {
+    "close": "Close",
     "exploreFiles": "Explore files",
     "upload": "Upload",
     "uploadDialogTitle": "Upload document",
@@ -27,6 +28,7 @@
     "showDetails": "Show details",
     "error": "Search error",
     "recentSearches": "Recent searches",
+    "removeRecent": "Remove search",
     "match": "Match",
     "download": "Download",
     "bookmark": "Bookmark",
@@ -46,6 +48,7 @@
   "upload": {
     "file": "Files",
     "fileTypes": "PDF, DOCX, TXT or MD — select one or more",
+    "choose": "Choose files",
     "addMore": "Add more files",
     "category": "Category",
     "selectCategory": "Select category",
@@ -76,6 +79,7 @@
     "backToSearch": "Back to Search",
     "error": "Error",
     "details": "Document Details",
+    "detailsAndActions": "Details & actions",
     "filename": "Filename",
     "category": "Category",
     "subject": "Subject",
@@ -92,6 +96,9 @@
     "previewUnavailable": "Preview could not be loaded. Please use the download button.",
     "previewTypeUnsupported": "Preview not available for this file type. Please use the download button.",
     "loadingPreview": "Loading preview...",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Reset zoom",
     "expand": "Fullscreen",
     "collapse": "Exit fullscreen"
   },

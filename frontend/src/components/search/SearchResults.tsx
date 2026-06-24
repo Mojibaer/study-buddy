@@ -116,8 +116,9 @@ function ResultCard({ result }: { result: SearchResult }) {
   const bookmarked = isBookmarked(document.id)
 
   return (
-    <Card className="group p-4 transition-shadow hover:shadow-md">
-      <div className="flex items-start gap-4">
+    <Card className="group flex-row gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md">
+      {/* Left: everything except the open affordance */}
+      <div className="flex min-w-0 flex-1 items-start gap-3 p-4 sm:gap-4">
         {/* File-type icon tile */}
         <div
           className={cn(
@@ -128,28 +129,26 @@ function ResultCard({ result }: { result: SearchResult }) {
           <FileText className="h-5 w-5" />
         </div>
 
-        {/* Main content */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <Link
-              href={`/documents/${document.id}`}
-              className="truncate font-semibold hover:underline"
-              title={title}
-            >
-              {title}
-            </Link>
+          {/* Title gets the full width; badge sits below so it never squeezes the name */}
+          <Link
+            href={`/documents/${document.id}`}
+            className="block truncate font-semibold hover:underline"
+            title={title}
+          >
+            {title}
+          </Link>
+
+          {/* Meta row */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span
               className={cn(
-                'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
+                'rounded-full px-2 py-0.5 text-xs font-medium',
                 matchScoreBadgeClass(result.score),
               )}
             >
               {score}% {t('search.match')}
             </span>
-          </div>
-
-          {/* Meta row — one line on desktop, wraps only when it truly doesn't fit (mobile) */}
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {document.category?.name && (
               <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <FolderOpen className="h-3.5 w-3.5 shrink-0" />
@@ -169,37 +168,40 @@ function ResultCard({ result }: { result: SearchResult }) {
               </span>
             )}
           </div>
-        </div>
 
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            onClick={() => toggle(document)}
-            aria-pressed={bookmarked}
-            title={t(bookmarked ? 'search.bookmarked' : 'search.bookmark')}
-            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <Bookmark className={cn('h-4 w-4', bookmarked && 'fill-primary text-primary')} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setPreviewing(true)}
-            disabled={!document.file_url}
-            title={t('search.preview')}
-            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
-          >
-            <Eye className="h-4 w-4" />
-          </button>
-          <Link
-            href={`/documents/${document.id}`}
-            title={t('search.viewDocument')}
-            className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+          {/* Actions */}
+          <div className="mt-3 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => toggle(document)}
+              aria-pressed={bookmarked}
+              title={t(bookmarked ? 'search.bookmarked' : 'search.bookmark')}
+              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Bookmark className={cn('h-4 w-4', bookmarked && 'fill-primary text-primary')} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewing(true)}
+              disabled={!document.file_url}
+              title={t('search.preview')}
+              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Right: full-height tap target to the detail page, chevron vertically centered */}
+      <Link
+        href={`/documents/${document.id}`}
+        title={t('search.viewDocument')}
+        aria-label={t('search.viewDocument')}
+        className="flex shrink-0 items-center justify-center border-l border-border px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </Link>
 
       {previewing && (
         <FilePreview

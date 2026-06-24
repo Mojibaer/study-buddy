@@ -88,6 +88,31 @@ function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
     )
 }
 
+// Title row with an optional leading icon and a large, well-aligned close button,
+// separated from the body by a border. Use with `SheetContent showCloseButton={false}`.
+function SheetHeaderBar({
+                            icon,
+                            title,
+                            closeLabel,
+                        }: {
+    icon?: React.ReactNode
+    title: React.ReactNode
+    closeLabel?: string
+}) {
+    return (
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <SheetTitle className="flex items-center gap-2 text-base">
+                {icon}
+                {title}
+            </SheetTitle>
+            <SheetClose className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                <XIcon className="size-5" />
+                <span className="sr-only">{closeLabel ?? "Close"}</span>
+            </SheetClose>
+        </div>
+    )
+}
+
 function SheetTitle({
                         className,
                         ...props
@@ -120,6 +145,7 @@ export {
     SheetContent,
     SheetDescription,
     SheetHeader,
+    SheetHeaderBar,
     SheetOverlay,
     SheetPortal,
     SheetTitle,
