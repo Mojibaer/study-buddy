@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, AlertCircle, Maximize2, Minimize2, X } from 'lucide-react'
 import { getFileViewerUrl, cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
+import { PdfPreview } from '@/components/document/PdfPreview'
 import type { Document } from '@/types'
 
 interface FilePreviewProps {
@@ -154,6 +155,23 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
             isMarkdown={fileExtension === 'md'}
             fullscreen={fullscreen}
           />
+        )}
+      </PreviewShell>
+    )
+  }
+
+  if (fileExtension === 'pdf') {
+    return (
+      <PreviewShell showExpand {...shellProps}>
+        {(fullscreen) => (
+          <div
+            className={cn(
+              'w-full border rounded-lg overflow-hidden bg-muted/30',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+            )}
+          >
+            <PdfPreview fileUrl={fileUrl} onError={() => setError(true)} />
+          </div>
         )}
       </PreviewShell>
     )
