@@ -5,9 +5,10 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, AlertCircle, Maximize2, Minimize2, X } from 'lucide-react'
-import { getFileViewerUrl, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import { PdfPreview } from '@/components/document/PdfPreview'
+import { DocxPreview } from '@/components/document/DocxPreview'
 import type { Document } from '@/types'
 
 interface FilePreviewProps {
@@ -115,7 +116,6 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
   const fileUrl = document.file_url
   const fileName = document.original_filename || document.filename || ''
   const fileExtension = fileName.split('.').pop()?.toLowerCase()
-  const viewerUrl = fileUrl ? getFileViewerUrl(fileUrl, fileExtension) : null
 
   const shellProps = { defaultFullscreen, onExitFullscreen }
 
@@ -177,7 +177,7 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
     )
   }
 
-  if (viewerUrl) {
+  if (fileExtension === 'docx' || fileExtension === 'doc') {
     return (
       <PreviewShell showExpand {...shellProps}>
         {(fullscreen) => (
@@ -187,7 +187,7 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
               fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
             )}
           >
-            <iframe src={viewerUrl} className="w-full h-full" onError={() => setError(true)} title="Document Preview" />
+            <DocxPreview fileUrl={fileUrl} onError={() => setError(true)} />
           </div>
         )}
       </PreviewShell>

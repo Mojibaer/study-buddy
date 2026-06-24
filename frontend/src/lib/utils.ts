@@ -54,17 +54,6 @@ export function truncateText(text: string, maxLength = 200): string {
   return text.slice(0, maxLength) + '...'
 }
 
-export function getFileViewerUrl(fileUrl: string, fileType: string | undefined): string | null {
-  if (fileType === 'pdf' || fileUrl.toLowerCase().endsWith('.pdf')) {
-    return fileUrl
-  }
-
-  if (fileType === 'docx' || fileUrl.toLowerCase().endsWith('.docx') || fileUrl.toLowerCase().endsWith('.doc')) {
-    return `https://view.officeapps.live.com/op/embed.aspx?src=${fileUrl}`
-  }
-
-  return null
-}
 
 export function isMarkdownFile(fileUrl: string, fileType: string): boolean {
   return fileType === '.md' || fileUrl.toLowerCase().endsWith('.md')

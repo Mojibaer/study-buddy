@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -46,6 +45,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const t = useTranslations()
 
   const { filters, loading: filtersLoading, getSubjectsForSemester } = useFilters()
@@ -204,14 +204,26 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
             ))}
           </ul>
         )}
-        <Input
+        <input
+          ref={fileInputRef}
           id="file"
           type="file"
           multiple
           accept=".pdf,.docx,.txt,.md"
           onChange={handleFileChange}
           disabled={loading}
+          className="sr-only"
         />
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={loading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          {items.length > 0 ? t('upload.addMore') : t('upload.choose')}
+        </Button>
         <p className="text-xs text-muted-foreground">{t('upload.fileTypes')}</p>
       </div>
 

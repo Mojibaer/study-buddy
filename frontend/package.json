@@ -29,6 +29,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "docx-preview": "^0.3.7",
     "lucide-react": "^0.544.0",
     "next": "16.2.6",
     "next-intl": "^4.9.0",

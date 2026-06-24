@@ -46,6 +46,7 @@
   "upload": {
     "file": "Files",
     "fileTypes": "PDF, DOCX, TXT or MD — select one or more",
+    "choose": "Choose files",
     "addMore": "Add more files",
     "category": "Category",
     "selectCategory": "Select category",
