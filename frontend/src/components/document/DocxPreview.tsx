@@ -54,11 +54,15 @@ export function DocxPreview({ fileUrl, onError, zoom }: DocxPreviewProps) {
           {t('document.loadingPreview')}
         </div>
       )}
-      <div
-        ref={containerRef}
-        style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
-        className="transition-transform"
-      />
+      {/* transformOrigin top-left so a zoomed doc grows down-and-right and stays
+          fully scrollable; 'top center' clips the left edge past the viewport. */}
+      <div className="w-fit min-w-full">
+        <div
+          ref={containerRef}
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+          className="mx-auto transition-transform"
+        />
+      </div>
     </div>
   )
 }

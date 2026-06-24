@@ -37,7 +37,7 @@ export function DocumentDetailView({ document }: DocumentDetailViewProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-2 py-4 sm:px-4 sm:py-8">
         <div className="max-w-6xl mx-auto space-y-4">
           <div className="flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={handleBack}>

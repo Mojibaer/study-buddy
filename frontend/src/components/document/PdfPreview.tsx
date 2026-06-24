@@ -49,7 +49,11 @@ export function PdfPreview({ fileUrl, onError, zoom }: PdfPreviewProps) {
             {t('document.loadingPreview')}
           </div>
         }
-        className="flex flex-col items-center gap-4"
+        // min-w-fit + mx-auto keeps narrow content centered but lets zoomed
+        // pages overflow on BOTH sides (items-center clips the left edge and
+        // makes the start unscrollable). w-fit so the flex track sizes to the
+        // widest page, not the container.
+        className="flex w-fit min-w-full flex-col items-center gap-4"
       >
         {Array.from({ length: numPages }, (_, i) => (
           <Page

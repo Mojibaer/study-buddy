@@ -94,24 +94,27 @@ function PreviewShell({
   if (fullscreen) {
     return (
       <div
-        className="fixed inset-0 z-50 flex bg-background/80 backdrop-blur-sm p-4 sm:p-6"
+        className="fixed inset-0 z-50 flex bg-background"
         onClick={exitFullscreen}
       >
         <Card
-          className="m-auto flex h-full w-full max-w-6xl flex-col overflow-hidden"
+          className="m-auto flex h-full w-full max-w-6xl flex-col gap-0 overflow-hidden rounded-none border-0 py-0"
           onClick={(e) => e.stopPropagation()}
         >
-          <CardHeader className="shrink-0">{header}</CardHeader>
-          <CardContent className="flex min-h-0 flex-1 flex-col">{children(true)}</CardContent>
+          <CardHeader className="shrink-0 py-4">{header}</CardHeader>
+          <CardContent className="flex min-h-0 flex-1 flex-col px-0">{children(true)}</CardContent>
         </Card>
       </div>
     )
   }
 
+  // On mobile the preview goes edge-to-edge: drop the card border/rounding and
+  // the horizontal content padding so the document fills the full width. The
+  // header keeps its padding so the title and zoom controls don't touch the edge.
   return (
     <Card>
       <CardHeader>{header}</CardHeader>
-      <CardContent>{children(false)}</CardContent>
+      <CardContent className="px-2 sm:px-6">{children(false)}</CardContent>
     </Card>
   )
 }
@@ -173,8 +176,8 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
         {(fullscreen) => (
           <div
             className={cn(
-              'w-full border rounded-lg overflow-hidden bg-muted/30',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
+              'w-full overflow-hidden bg-muted/30',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh] border rounded-lg',
             )}
           >
             <PdfPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
@@ -190,8 +193,8 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
         {(fullscreen) => (
           <div
             className={cn(
-              'w-full border rounded-lg overflow-hidden',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
+              'w-full overflow-hidden',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh] border rounded-lg',
             )}
           >
             <DocxPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
