@@ -174,7 +174,7 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
           <div
             className={cn(
               'w-full border rounded-lg overflow-hidden bg-muted/30',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
             )}
           >
             <PdfPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
@@ -191,7 +191,7 @@ export function FilePreview({ document, defaultFullscreen, onExitFullscreen }: F
           <div
             className={cn(
               'w-full border rounded-lg overflow-hidden',
-              fullscreen ? 'flex-1 min-h-0' : 'h-[600px]',
+              fullscreen ? 'flex-1 min-h-0' : 'h-[80vh]',
             )}
           >
             <DocxPreview fileUrl={fileUrl} onError={() => setError(true)} zoom={zoom} />
@@ -237,7 +237,7 @@ function TextFilePreview({
 
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t('document.loadingPreview')}</div>
 
-  const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
+  const heightClass = fullscreen ? 'flex-1 min-h-0' : 'max-h-[80vh]'
 
   if (isMarkdown) {
     return (
