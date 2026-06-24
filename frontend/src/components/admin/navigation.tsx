@@ -1,8 +1,8 @@
 import {
+    Activity,
     FileText,
     FolderTree,
     LayoutDashboard,
-    Settings,
     Users,
     type LucideIcon,
 } from 'lucide-react'
@@ -19,7 +19,7 @@ export const adminNavigation: readonly AdminNavItem[] = [
     {href: '/admin/users', labelKey: 'users', icon: Users},
     {href: '/admin/documents', labelKey: 'documents', icon: FileText},
     {href: '/admin/categories', labelKey: 'categories', icon: FolderTree},
-    {href: '/admin/settings', labelKey: 'settings', icon: Settings},
+    {href: '/admin/settings', labelKey: 'system', icon: Activity},
 ] as const
 
 export function isAdminNavItemActive(item: AdminNavItem, pathname: string): boolean {

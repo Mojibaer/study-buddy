@@ -126,7 +126,7 @@
       "users": "Users",
       "documents": "Documents",
       "categories": "Categories",
-      "settings": "Settings"
+      "system": "System Health"
     },
     "shell": {
       "openNavigation": "Open navigation",
@@ -137,6 +137,37 @@
     "dashboard": {
       "title": "Dashboard",
       "subtitle": "Overview of documents, users, and activity"
+    },
+    "system": {
+      "title": "System Health",
+      "subtitle": "Service status, document sync, and stuck accounts",
+      "refresh": "Refresh",
+      "services": {
+        "title": "Services",
+        "status": {
+          "up": "Operational",
+          "down": "Down"
+        }
+      },
+      "sync": {
+        "title": "Document sync",
+        "inSync": "In sync",
+        "outOfSync": "Out of sync",
+        "postgres": "Postgres documents",
+        "weaviate": "Weaviate vectors",
+        "unindexed": "Unindexed"
+      },
+      "stuck": {
+        "title": "Stuck unverified accounts",
+        "empty": "No accounts have been waiting for verification for over 24 hours."
+      },
+      "states": {
+        "loading": "Loading system health…"
+      },
+      "errors": {
+        "loadTitle": "Could not load system health",
+        "retry": "Retry"
+      }
     },
     "users": {
       "title": "Users",
