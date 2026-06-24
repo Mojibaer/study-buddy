@@ -136,7 +136,7 @@
     },
     "dashboard": {
       "title": "Dashboard",
-      "subtitle": "Welcome to the admin area"
+      "subtitle": "Overview of documents, users, and activity"
     },
     "users": {
       "title": "Users",
