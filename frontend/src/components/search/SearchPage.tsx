@@ -1,23 +1,17 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { FolderOpen, Clock, X } from 'lucide-react'
+import { Clock, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HOME_RESET_EVENT } from '@/lib/events'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchResults } from '@/components/search/SearchResults'
-import { UploadDialog } from '@/components/upload/UploadDialog'
 import { useSearch } from '@/hooks/useSearch'
 import { useRecentSearches } from '@/hooks/useRecentSearches'
 
 const pillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card text-sm text-foreground hover:bg-accent transition-colors'
-
-// Primary-bordered variant for the main actions (Explore files / Upload).
-const actionPillClass =
-  'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary/40 bg-card text-sm text-foreground hover:border-primary/60 hover:bg-accent transition-colors'
 
 export function SearchPage() {
   const { query, setQuery, results, loading, error, filters, setFilters, handleSearch, resetSearch } = useSearch()
@@ -110,14 +104,6 @@ export function SearchPage() {
                 </div>
               </div>
             )}
-
-            <div className="flex items-center justify-center gap-3">
-              <Link href="/browse" className={actionPillClass}>
-                <FolderOpen className="w-3.5 h-3.5" />
-                {t('actions.exploreFiles')}
-              </Link>
-              <UploadDialog />
-            </div>
           </div>
         )}
       </div>
