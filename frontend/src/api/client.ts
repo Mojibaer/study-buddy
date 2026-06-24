@@ -17,6 +17,22 @@ export interface SimilarDocument {
   score: number
 }
 
+export type BulkUploadItemStatus = 'uploaded' | 'plagiarism' | 'rate_limited' | 'error'
+
+export interface BulkUploadItemResult {
+  filename: string
+  status: BulkUploadItemStatus
+  document?: Document | null
+  similar_document?: SimilarDocument | null
+  message?: string | null
+}
+
+export interface BulkUploadResponse {
+  results: BulkUploadItemResult[]
+  uploaded: number
+  failed: number
+}
+
 export class ApiError extends Error {
   status: number
   /** Set when the backend returns a structured `detail` object (e.g. plagiarism). */
@@ -88,6 +104,16 @@ export const api = {
     if (metadata?.category_id) formData.append('category_id', metadata.category_id)
     if (metadata?.subject_id) formData.append('subject_id', metadata.subject_id)
     return authedFetch(`${API_BASE_URL}/documents/upload`, { method: 'POST', body: formData }).then(handleResponse<Document>)
+  },
+
+  uploadDocumentsBulk: async (files: File[], metadata: UploadMetadata): Promise<BulkUploadResponse> => {
+    const formData = new FormData()
+    for (const file of files) formData.append('files', file)
+    if (metadata?.category_id) formData.append('category_id', metadata.category_id)
+    if (metadata?.subject_id) formData.append('subject_id', metadata.subject_id)
+    return authedFetch(`${API_BASE_URL}/documents/upload/bulk`, { method: 'POST', body: formData }).then(
+      handleResponse<BulkUploadResponse>,
+    )
   },
 
   deleteDocument: (id: string | number): Promise<void> =>

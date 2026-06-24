@@ -53,7 +53,9 @@ export function SearchPage() {
         {idle ? (
           <>
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="flex items-center gap-3">
+              {/* Nudge left so the wordmark reads as optically centered — the
+                  logo on the left otherwise shifts the visual weight rightward. */}
+              <div className="flex items-center gap-3 -ml-7">
                 <Image src="/logo.svg" alt="StudyBuddy" width={48} height={44} priority />
                 <span className="text-4xl font-bold tracking-tight">StudyBuddy</span>
               </div>

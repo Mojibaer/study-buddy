@@ -60,3 +60,19 @@ class DocumentBulkDeleteRequest(BaseModel):
 class DocumentBulkDeleteResponse(BaseModel):
     deleted: list[int]
     not_found: list[int]
+
+
+class BulkUploadItemResult(BaseModel):
+    """Per-file outcome of a bulk upload. `status` is one of:
+    'uploaded', 'plagiarism', 'rate_limited', 'error'."""
+    filename: str
+    status: str
+    document: DocumentResponse | None = None
+    similar_document: dict | None = None
+    message: str | None = None
+
+
+class BulkUploadResponse(BaseModel):
+    results: list[BulkUploadItemResult]
+    uploaded: int
+    failed: int
