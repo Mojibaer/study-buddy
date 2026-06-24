@@ -12,7 +12,7 @@
   "search": {
     "heading": "Finde die richtigen Lernmaterialien",
     "subheading": "Beschreibe einfach, was du lernen möchtest.",
-    "placeholder": "z.B. 'Sortieralgorithmen', 'Python Funktionen', 'Lineare Algebra'...",
+    "placeholder": "Wie funktioniert das Strategy Pattern?",
     "filterLabel": "Filter",
     "semester": "Semester",
     "allSemesters": "Alle Semester",
@@ -21,7 +21,7 @@
     "category": "Kategorie",
     "allCategories": "Alle Kategorien",
     "resetFilters": "Filter zurücksetzen",
-    "results": "{count} Ergebnisse für \"{query}\"",
+    "results": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}",
     "noResults": "Keine Ergebnisse gefunden.",
     "noResultsHint": "Versuche andere Suchbegriffe oder lade neue Dokumente hoch.",
     "matchScore": "Match Score",
@@ -34,6 +34,7 @@
     "bookmark": "Merken",
     "bookmarked": "Gemerkt",
     "viewDocument": "Dokument öffnen",
+    "backToSearch": "Zurück zur Suche",
     "preview": "Vorschau",
     "resultsFor": "für „{query}“"
   },

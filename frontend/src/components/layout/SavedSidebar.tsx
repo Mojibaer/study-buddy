@@ -13,7 +13,7 @@ import {
 import { useBookmarks } from '@/providers/BookmarksProvider'
 import { cn, fileTypeIconClass } from '@/lib/utils'
 
-export function SavedSidebar() {
+export function SavedSidebar({ trigger }: { trigger?: React.ReactNode }) {
   const { documents, count, toggle } = useBookmarks()
   const [open, setOpen] = useState(false)
   const t = useTranslations()
@@ -21,18 +21,20 @@ export function SavedSidebar() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button
-          type="button"
-          aria-label={t('bookmarks.title')}
-          className="relative rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          <Bookmark className="h-5 w-5" />
-          {count > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
-              {count}
-            </span>
-          )}
-        </button>
+        {trigger ?? (
+          <button
+            type="button"
+            aria-label={t('bookmarks.title')}
+            className="relative rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <Bookmark className="h-5 w-5" />
+            {count > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                {count}
+              </span>
+            )}
+          </button>
+        )}
       </SheetTrigger>
 
       <SheetContent showCloseButton={false} className="flex w-full flex-col gap-0 p-0 sm:max-w-sm">

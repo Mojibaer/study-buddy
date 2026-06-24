@@ -49,7 +49,7 @@ export function SearchResults({ results }: SearchResultsProps) {
     <div className="space-y-6">
       <div>
         <h3 className="text-2xl font-bold tracking-tight">
-          {t('search.results', { count: results.total_results, query: results.query })}
+          {t('search.results', { count: results.total_results })}
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
           {t('search.resultsFor', { query: results.query })}
