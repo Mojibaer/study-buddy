@@ -14,6 +14,8 @@ def build_provider() -> EmbeddingProvider:
         return VoyageProvider(
             api_key=settings.VOYAGE_API_KEY,
             model=settings.VOYAGE_MODEL,
+            max_retries=settings.VOYAGE_MAX_RETRIES,
+            retry_backoff_seconds=settings.VOYAGE_RETRY_BACKOFF_SECONDS,
         )
 
     if settings.EMBEDDING_PROVIDER == "fastembed":

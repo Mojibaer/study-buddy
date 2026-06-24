@@ -24,7 +24,7 @@ interface UploadFormProps {
   onSuccess?: (result: { close: boolean }) => void
 }
 
-type ItemStatus = 'pending' | 'uploading' | 'done' | 'error' | 'plagiarism'
+type ItemStatus = 'pending' | 'uploading' | 'done' | 'error' | 'plagiarism' | 'rate_limited'
 
 interface UploadItem {
   file: File
@@ -44,7 +44,6 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   const [semesterId, setSemesterId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const t = useTranslations()
 
@@ -94,35 +93,53 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
     e.preventDefault()
     const queue = items
       .map((it, index) => ({ it, index }))
-      .filter(({ it }) => it.status === 'pending' || it.status === 'error' || it.status === 'plagiarism')
+      .filter(({ it }) =>
+        it.status === 'pending' ||
+        it.status === 'error' ||
+        it.status === 'plagiarism' ||
+        it.status === 'rate_limited',
+      )
 
     if (queue.length === 0) { setError(t('upload.errorNoFile')); return }
 
     setLoading(true)
     setError(null)
+    queue.forEach(({ index }) =>
+      patchItem(index, { status: 'uploading', error: undefined, similar: undefined }),
+    )
 
     let successCount = 0
-    for (let n = 0; n < queue.length; n++) {
-      const { it, index } = queue[n]
-      setProgress({ current: n + 1, total: queue.length })
-      patchItem(index, { status: 'uploading', error: undefined, similar: undefined })
-      try {
-        await api.uploadDocument(it.file, {
-          category_id: categoryId || null,
-          subject_id: subjectId || null,
-        })
-        patchItem(index, { status: 'done' })
-        successCount++
-      } catch (err) {
-        if (err instanceof ApiError && err.code === 'plagiarism_detected' && err.similarDocument) {
-          patchItem(index, { status: 'plagiarism', similar: err.similarDocument })
+    try {
+      const res = await api.uploadDocumentsBulk(
+        queue.map(({ it }) => it.file),
+        { category_id: categoryId || null, subject_id: subjectId || null },
+      )
+      // Map each per-file result back onto its queue item by position — the
+      // backend preserves order and returns one result per submitted file.
+      res.results.forEach((r, n) => {
+        const { index } = queue[n]
+        if (r.status === 'uploaded') {
+          patchItem(index, { status: 'done' })
+          successCount++
+        } else if (r.status === 'plagiarism') {
+          patchItem(index, { status: 'plagiarism', similar: r.similar_document ?? undefined })
+        } else if (r.status === 'rate_limited') {
+          patchItem(index, { status: 'rate_limited', error: t('upload.statusRateLimited') })
         } else {
-          patchItem(index, { status: 'error', error: (err as Error).message })
+          patchItem(index, { status: 'error', error: r.message ?? t('upload.errorGeneric') })
         }
-      }
+      })
+    } catch (err) {
+      // The whole request failed (network, rate limit on the single call, auth).
+      const rateLimited = err instanceof ApiError && err.code === 'rate_limited'
+      queue.forEach(({ index }) =>
+        patchItem(index, {
+          status: rateLimited ? 'rate_limited' : 'error',
+          error: rateLimited ? t('upload.statusRateLimited') : (err as Error).message,
+        }),
+      )
     }
 
-    setProgress(null)
     setLoading(false)
 
     const failed = queue.length - successCount
@@ -153,10 +170,16 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
   }
 
   const pendingCount = items.filter(
-    (i) => i.status === 'pending' || i.status === 'error' || i.status === 'plagiarism',
+    (i) =>
+      i.status === 'pending' ||
+      i.status === 'error' ||
+      i.status === 'plagiarism' ||
+      i.status === 'rate_limited',
   ).length
   const doneCount = items.filter((i) => i.status === 'done').length
-  const failedCount = items.filter((i) => i.status === 'error' || i.status === 'plagiarism').length
+  const failedCount = items.filter(
+    (i) => i.status === 'error' || i.status === 'plagiarism' || i.status === 'rate_limited',
+  ).length
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
@@ -171,6 +194,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
                   'flex items-start gap-2 p-2 border rounded-md text-sm',
                   item.status === 'done' && 'border-green-600/40 bg-green-600/5',
                   (item.status === 'error' || item.status === 'plagiarism') && 'border-destructive/40 bg-destructive/5',
+                  item.status === 'rate_limited' && 'border-amber-500/40 bg-amber-500/5',
                   (item.status === 'pending' || item.status === 'uploading') && 'bg-muted',
                 )}
               >
@@ -179,6 +203,7 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
                   {item.status === 'done' && <CheckCircle2 className="w-4 h-4 text-green-600" />}
                   {item.status === 'plagiarism' && <ShieldAlert className="w-4 h-4 text-destructive" />}
                   {item.status === 'error' && <AlertCircle className="w-4 h-4 text-destructive" />}
+                  {item.status === 'rate_limited' && <AlertCircle className="w-4 h-4 text-amber-600" />}
                   {item.status === 'pending' && <Upload className="w-4 h-4 text-muted-foreground" />}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -193,6 +218,9 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
                   )}
                   {item.status === 'error' && item.error && (
                     <span className="block text-xs text-destructive truncate">{item.error}</span>
+                  )}
+                  {item.status === 'rate_limited' && (
+                    <span className="block text-xs text-amber-600">{t('upload.statusRateLimited')}</span>
                   )}
                 </div>
                 {!loading && (
@@ -277,8 +305,8 @@ export function UploadForm({ onSuccess }: UploadFormProps) {
 
       <Button type="submit" className="w-full" disabled={loading || pendingCount === 0}>
         {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-        {loading && progress
-          ? t('upload.uploadingProgress', { current: progress.current, total: progress.total })
+        {loading
+          ? t('upload.uploading')
           : pendingCount > 1
             ? t('upload.submitCount', { count: pendingCount })
             : t('upload.submit')}

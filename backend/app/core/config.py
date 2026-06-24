@@ -39,6 +39,11 @@ class Settings(BaseSettings):
         "voyage-3",
         "voyage-3-lite",
     ] = "voyage-4-large"
+    # Retry Voyage embed calls when the rate limit (3 RPM on the free tier) is hit.
+    # Backoff is fixed at slightly above the 1-minute window so a retry lands in a
+    # fresh quota bucket. Raise the backoff or lower retries if you add billing.
+    VOYAGE_MAX_RETRIES: int = 3
+    VOYAGE_RETRY_BACKOFF_SECONDS: float = 20.0
     FASTEMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
     # Plagiarism check — block upload when a vector is at least this similar
