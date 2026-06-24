@@ -46,6 +46,18 @@ export function useRecentSearches() {
     })
   }, [])
 
+  const remove = useCallback((term: string) => {
+    setRecent((prev) => {
+      const next = prev.filter((t) => t !== term)
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
+
   const clear = useCallback(() => {
     setRecent([])
     try {
@@ -55,5 +67,5 @@ export function useRecentSearches() {
     }
   }, [])
 
-  return { recent, add, clear }
+  return { recent, add, remove, clear }
 }

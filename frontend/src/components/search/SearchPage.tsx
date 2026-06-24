@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { FolderOpen, Clock } from 'lucide-react'
+import { FolderOpen, Clock, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HOME_RESET_EVENT } from '@/lib/events'
 import { SearchBar } from '@/components/search/SearchBar'
@@ -21,7 +21,7 @@ const actionPillClass =
 
 export function SearchPage() {
   const { query, setQuery, results, loading, error, filters, setFilters, handleSearch, resetSearch } = useSearch()
-  const { recent, add: addRecent } = useRecentSearches()
+  const { recent, add: addRecent, remove: removeRecent } = useRecentSearches()
   const t = useTranslations()
 
   const idle = !results && !loading
@@ -83,16 +83,29 @@ export function SearchPage() {
                 </div>
                 <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
                   {recent.map((term) => (
-                    <button
+                    <div
                       key={term}
-                      type="button"
-                      onClick={() => runRecentSearch(term)}
-                      title={term}
-                      className={`${pillClass} shrink-0 max-w-[12rem]`}
+                      className={`${pillClass} group shrink-0 max-w-[14rem] pr-1.5`}
                     >
-                      <Clock className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                      <span className="truncate">{term}</span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => runRecentSearch(term)}
+                        title={term}
+                        className="flex min-w-0 items-center gap-1.5"
+                      >
+                        <Clock className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                        <span className="truncate">{term}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeRecent(term)}
+                        aria-label={t('search.removeRecent')}
+                        title={t('search.removeRecent')}
+                        className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
