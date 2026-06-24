@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Clock, X } from 'lucide-react'
+import { Clock, X, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { HOME_RESET_EVENT } from '@/lib/events'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchFilters } from '@/components/search/SearchFilters'
@@ -48,28 +49,24 @@ export function SearchPage() {
       )}
     >
       <div className="w-full max-w-3xl mx-auto space-y-8">
-        <div className="text-center space-y-4">
-          <h2 className="text-5xl font-bold tracking-tight text-balance">{t('search.heading')}</h2>
-          <p className="text-muted-foreground text-lg">{t('search.subheading')}</p>
-        </div>
+        {idle ? (
+          <>
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl font-bold tracking-tight text-balance">{t('search.heading')}</h2>
+              <p className="text-muted-foreground text-lg">{t('search.subheading')}</p>
+            </div>
 
-        <SearchBar
-          query={query}
-          setQuery={setQuery}
-          onSearch={() => search()}
-          loading={loading}
-        />
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              onSearch={() => search()}
+              loading={loading}
+            />
 
-        {error && (
-          <div className="p-4 bg-destructive/10 text-destructive rounded-lg">{error}</div>
-        )}
+            {error && (
+              <div className="p-4 bg-destructive/10 text-destructive rounded-lg">{error}</div>
+            )}
 
-        {results && <SearchFilters filters={filters} applyFilters={applyFilters} />}
-
-        <SearchResults results={results} />
-
-        {idle && (
-          <div className="space-y-12">
             {recent.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -105,7 +102,22 @@ export function SearchPage() {
                 </div>
               </div>
             )}
-          </div>
+          </>
+        ) : (
+          <>
+            <Button variant="ghost" onClick={resetSearch} className="-ml-2">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('search.backToSearch')}
+            </Button>
+
+            {error && (
+              <div className="p-4 bg-destructive/10 text-destructive rounded-lg">{error}</div>
+            )}
+
+            <SearchFilters filters={filters} applyFilters={applyFilters} />
+
+            <SearchResults results={results} />
+          </>
         )}
       </div>
     </main>
