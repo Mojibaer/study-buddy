@@ -118,3 +118,6 @@ def delete_file(object_key: str) -> bool:
         return True
     except S3Error as e:
         raise Exception(f"MinIO delete error: {e}")
+
+def health_check() -> None:
+    minio_client.bucket_exists(MINIO_BUCKET)
