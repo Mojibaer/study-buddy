@@ -18,7 +18,8 @@ from app.routes import (
     admin_documents,
     admin_users,
     admin_structure,
-    admin_system
+    admin_system,
+    admin_analytics,
 )
 from app.services.embedding import build_provider
 from app.services.weaviate_service import WeaviateService
@@ -74,6 +75,7 @@ app.include_router(admin_documents.router, prefix="/admin/documents", tags=["Adm
 app.include_router(admin_users.router, prefix="/admin/users", tags=["Admin Users"])
 app.include_router(admin_structure.router, prefix="/admin/structure", tags=["Admin Structure"])
 app.include_router(admin_system.router, prefix="/admin/system", tags=["Admin System"])
+app.include_router(admin_analytics.router, prefix="/admin/analytics", tags=["Admin Analytics"])
 
 
 @app.get("/")

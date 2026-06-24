@@ -39,6 +39,7 @@
     "react-dom": "19.2.6",
     "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.1",
+    "recharts": "^3.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1"
   },

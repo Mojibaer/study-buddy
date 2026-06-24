@@ -126,7 +126,7 @@
       "users": "Benutzer",
       "documents": "Dokumente",
       "categories": "Kategorien",
-      "settings": "Einstellungen"
+      "system": "System-Status"
     },
     "shell": {
       "openNavigation": "Navigation öffnen",
@@ -136,7 +136,38 @@
     },
     "dashboard": {
       "title": "Übersicht",
-      "subtitle": "Willkommen im Admin-Bereich"
+      "subtitle": "Überblick über Dokumente, Benutzer und Aktivität"
+    },
+    "system": {
+      "title": "System-Status",
+      "subtitle": "Service-Status, Dokument-Sync und hängende Konten",
+      "refresh": "Aktualisieren",
+      "services": {
+        "title": "Dienste",
+        "status": {
+          "up": "Betriebsbereit",
+          "down": "Ausgefallen"
+        }
+      },
+      "sync": {
+        "title": "Dokument-Sync",
+        "inSync": "Synchron",
+        "outOfSync": "Nicht synchron",
+        "postgres": "Postgres-Dokumente",
+        "weaviate": "Weaviate-Vektoren",
+        "unindexed": "Nicht indiziert"
+      },
+      "stuck": {
+        "title": "Hängende unverifizierte Konten",
+        "empty": "Keine Konten warten seit über 24 Stunden auf Verifizierung."
+      },
+      "states": {
+        "loading": "Lade System-Status…"
+      },
+      "errors": {
+        "loadTitle": "System-Status konnte nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
     },
     "users": {
       "title": "Benutzer",
@@ -476,6 +507,27 @@
     "settings": {
       "title": "Einstellungen",
       "subtitle": "Dashboard-Einstellungen konfigurieren"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Plattformnutzung und Inhaltsabdeckung",
+      "stats": {
+        "totalDocuments": "Dokumente gesamt",
+        "totalUsers": "Benutzer gesamt",
+        "totalStorage": "Belegter Speicher"
+      },
+      "uploadActivity": {
+        "title": "Upload-Aktivität",
+        "description": "Hochgeladene Dokumente der letzten 30 Tage",
+        "uploads": "Uploads"
+      },
+      "subjectCoverage": {
+        "title": "Dokumentabdeckung nach Fach",
+        "description": "{count, plural, =0 {Jedes Fach hat Dokumente} one {# Fach hat noch keine Dokumente} other {# Fächer haben noch keine Dokumente}}",
+        "documents": "Dokumente"
+      },
+      "states": { "loading": "Lade Analytics…" },
+      "errors": { "loadTitle": "Analytics konnten nicht geladen werden", "retry": "Erneut versuchen" }
     }
   },
   "auth": {
