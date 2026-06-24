@@ -1,5 +1,6 @@
 {
   "actions": {
+    "close": "Close",
     "exploreFiles": "Explore files",
     "upload": "Upload",
     "uploadDialogTitle": "Upload document",

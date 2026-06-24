@@ -1,5 +1,6 @@
 {
   "actions": {
+    "close": "Schließen",
     "exploreFiles": "Dateien erkunden",
     "upload": "Hochladen",
     "uploadDialogTitle": "Dokument hochladen",

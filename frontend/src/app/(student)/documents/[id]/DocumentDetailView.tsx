@@ -8,11 +8,10 @@ import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
+  SheetHeaderBar,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { ArrowLeft, FolderTree, PanelRight } from 'lucide-react'
+import { ArrowLeft, FolderTree, PanelRight, Info } from 'lucide-react'
 import { DocumentMetadata } from '@/components/document/DocumentMetadata'
 import { FilePreview } from '@/components/document/FilePreview'
 import { DocumentActions } from '@/components/document/DocumentActions'
@@ -56,11 +55,13 @@ export function DocumentDetailView({ document }: DocumentDetailViewProps) {
                   {t('document.detailsAndActions')}
                 </Button>
               </SheetTrigger>
-              <SheetContent className="w-full overflow-y-auto sm:max-w-sm">
-                <SheetHeader>
-                  <SheetTitle>{t('document.detailsAndActions')}</SheetTitle>
-                </SheetHeader>
-                <div className="space-y-6 px-4 pb-4">
+              <SheetContent showCloseButton={false} className="flex w-full flex-col gap-0 p-0 sm:max-w-sm">
+                <SheetHeaderBar
+                  icon={<Info className="h-5 w-5 text-primary" />}
+                  title={t('document.detailsAndActions')}
+                  closeLabel={t('actions.close')}
+                />
+                <div className="flex-1 space-y-6 overflow-y-auto p-5">
                   <DocumentMetadata document={document} />
                   <DocumentActions document={document} />
                 </div>
