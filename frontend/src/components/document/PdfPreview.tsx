@@ -16,11 +16,12 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 interface PdfPreviewProps {
   fileUrl: string
   onError: () => void
+  zoom: number
 }
 
 // Renders every page stacked and scrollable; page width tracks the container so
 // it fits mobile (the iframe viewer doesn't render PDFs on mobile browsers).
-export function PdfPreview({ fileUrl, onError }: PdfPreviewProps) {
+export function PdfPreview({ fileUrl, onError, zoom }: PdfPreviewProps) {
   const t = useTranslations()
   const containerRef = useRef<HTMLDivElement>(null)
   const [numPages, setNumPages] = useState(0)
@@ -54,7 +55,7 @@ export function PdfPreview({ fileUrl, onError }: PdfPreviewProps) {
           <Page
             key={i}
             pageNumber={i + 1}
-            width={width || undefined}
+            width={width ? width * zoom : undefined}
             className="shadow-sm"
             renderAnnotationLayer={false}
           />

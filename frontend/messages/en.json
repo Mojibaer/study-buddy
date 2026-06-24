@@ -78,6 +78,7 @@
     "backToSearch": "Back to Search",
     "error": "Error",
     "details": "Document Details",
+    "detailsAndActions": "Details & actions",
     "filename": "Filename",
     "category": "Category",
     "subject": "Subject",
@@ -94,6 +95,9 @@
     "previewUnavailable": "Preview could not be loaded. Please use the download button.",
     "previewTypeUnsupported": "Preview not available for this file type. Please use the download button.",
     "loadingPreview": "Loading preview...",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Reset zoom",
     "expand": "Fullscreen",
     "collapse": "Exit fullscreen"
   },

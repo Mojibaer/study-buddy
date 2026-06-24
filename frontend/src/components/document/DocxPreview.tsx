@@ -8,11 +8,12 @@ import { Loader2 } from 'lucide-react'
 interface DocxPreviewProps {
   fileUrl: string
   onError: () => void
+  zoom: number
 }
 
 // Renders DOCX client-side into a scrollable container — self-hosted, so files
 // never leave the browser (unlike the Office Online viewer) and it works on mobile.
-export function DocxPreview({ fileUrl, onError }: DocxPreviewProps) {
+export function DocxPreview({ fileUrl, onError, zoom }: DocxPreviewProps) {
   const t = useTranslations()
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
@@ -53,7 +54,11 @@ export function DocxPreview({ fileUrl, onError }: DocxPreviewProps) {
           {t('document.loadingPreview')}
         </div>
       )}
-      <div ref={containerRef} />
+      <div
+        ref={containerRef}
+        style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
+        className="transition-transform"
+      />
     </div>
   )
 }

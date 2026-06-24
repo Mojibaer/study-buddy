@@ -78,6 +78,7 @@
     "backToSearch": "Zurück zur Suche",
     "error": "Fehler",
     "details": "Dokument Details",
+    "detailsAndActions": "Details & Aktionen",
     "filename": "Dateiname",
     "category": "Kategorie",
     "subject": "Fach",
@@ -94,6 +95,9 @@
     "previewUnavailable": "Vorschau konnte nicht geladen werden. Bitte verwenden Sie den Download-Button.",
     "previewTypeUnsupported": "Vorschau für diesen Dateityp nicht verfügbar. Bitte verwenden Sie den Download-Button.",
     "loadingPreview": "Lade Vorschau...",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "zoomReset": "Zoom zurücksetzen",
     "expand": "Vollbild",
     "collapse": "Vollbild verlassen"
   },
