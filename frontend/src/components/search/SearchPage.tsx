@@ -6,6 +6,7 @@ import { Clock, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HOME_RESET_EVENT } from '@/lib/events'
 import { SearchBar } from '@/components/search/SearchBar'
+import { SearchFilters } from '@/components/search/SearchFilters'
 import { SearchResults } from '@/components/search/SearchResults'
 import { useSearch } from '@/hooks/useSearch'
 import { useRecentSearches } from '@/hooks/useRecentSearches'
@@ -14,7 +15,7 @@ const pillClass =
   'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card text-sm text-foreground hover:bg-accent transition-colors'
 
 export function SearchPage() {
-  const { query, setQuery, results, loading, error, filters, setFilters, handleSearch, resetSearch } = useSearch()
+  const { query, setQuery, results, loading, error, filters, applyFilters, handleSearch, resetSearch } = useSearch()
   const { recent, add: addRecent, remove: removeRecent } = useRecentSearches()
   const t = useTranslations()
 
@@ -57,13 +58,13 @@ export function SearchPage() {
           setQuery={setQuery}
           onSearch={() => search()}
           loading={loading}
-          filters={filters}
-          setFilters={setFilters}
         />
 
         {error && (
           <div className="p-4 bg-destructive/10 text-destructive rounded-lg">{error}</div>
         )}
+
+        {results && <SearchFilters filters={filters} applyFilters={applyFilters} />}
 
         <SearchResults results={results} />
 
